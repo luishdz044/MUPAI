@@ -532,6 +532,88 @@ def obtener_geaf(nivel):
     }
     return valores.get(nivel, 1.00)
 
+def calcular_proyeccion_cientifica(sexo, grasa_corregida, nivel_entrenamiento, peso_actual, porcentaje_deficit_superavit):
+    """
+    Calcula la proyección científica realista de ganancia o pérdida de peso semanal y total.
+    
+    Args:
+        sexo: "Hombre" o "Mujer"
+        grasa_corregida: Porcentaje de grasa corporal corregido
+        nivel_entrenamiento: "principiante", "intermedio", "avanzado", "élite"
+        peso_actual: Peso actual en kg
+        porcentaje_deficit_superavit: Porcentaje de déficit (-) o superávit (+)
+    
+    Returns:
+        dict con rango_semanal_pct, rango_semanal_kg, rango_total_6sem_kg, explicacion_textual
+    """
+    try:
+        peso_actual = float(peso_actual)
+        grasa_corregida = float(grasa_corregida)
+        porcentaje = float(porcentaje_deficit_superavit)
+    except (ValueError, TypeError):
+        peso_actual = 70.0
+        grasa_corregida = 20.0
+        porcentaje = 0.0
+    
+    # Rangos científicos según objetivo, sexo y nivel
+    if porcentaje < 0:  # Déficit (pérdida) - valor negativo
+        if sexo == "Hombre":
+            if nivel_entrenamiento in ["principiante", "intermedio"]:
+                rango_pct_min, rango_pct_max = -1.0, -0.5
+            else:  # avanzado, élite
+                rango_pct_min, rango_pct_max = -0.7, -0.3
+        else:  # Mujer
+            if nivel_entrenamiento in ["principiante", "intermedio"]:
+                rango_pct_min, rango_pct_max = -0.8, -0.3
+            else:  # avanzado, élite
+                rango_pct_min, rango_pct_max = -0.6, -0.2
+        
+        # Ajuste por % grasa (personas con más grasa pueden perder más rápido inicialmente)
+        if grasa_corregida > (25 if sexo == "Hombre" else 30):
+            factor_grasa = 1.2  # 20% más rápido
+        elif grasa_corregida < (12 if sexo == "Hombre" else 18):
+            factor_grasa = 0.8  # 20% más conservador
+        else:
+            factor_grasa = 1.0
+        
+        rango_pct_min *= factor_grasa
+        rango_pct_max *= factor_grasa
+        
+        explicacion = f"Con {grasa_corregida:.1f}% de grasa y nivel {nivel_entrenamiento}, se recomienda una pérdida conservadora pero efectiva. {'Nivel alto de grasa permite pérdida inicial más rápida.' if factor_grasa > 1 else 'Nivel bajo de grasa requiere enfoque más conservador.' if factor_grasa < 1 else 'Nivel óptimo de grasa para pérdida sostenible.'}"
+        
+    elif porcentaje > 0:  # Superávit (ganancia) - valor positivo
+        if sexo == "Hombre":
+            if nivel_entrenamiento in ["principiante", "intermedio"]:
+                rango_pct_min, rango_pct_max = 0.2, 0.5
+            else:  # avanzado, élite
+                rango_pct_min, rango_pct_max = 0.1, 0.3
+        else:  # Mujer
+            if nivel_entrenamiento in ["principiante", "intermedio"]:
+                rango_pct_min, rango_pct_max = 0.1, 0.3
+            else:  # avanzado, élite
+                rango_pct_min, rango_pct_max = 0.05, 0.2
+        
+        explicacion = f"Como {sexo.lower()} con nivel {nivel_entrenamiento}, la ganancia muscular será gradual y sostenible. Los principiantes pueden ganar músculo más rápido que los avanzados."
+        
+    else:  # Mantenimiento
+        rango_pct_min, rango_pct_max = -0.1, 0.1
+        explicacion = f"En mantenimiento, el peso debe mantenerse estable con fluctuaciones menores del ±0.1% semanal debido a variaciones normales de hidratación y contenido intestinal."
+    
+    # Convertir porcentajes a kg
+    rango_kg_min = peso_actual * (rango_pct_min / 100)
+    rango_kg_max = peso_actual * (rango_pct_max / 100)
+    
+    # Proyección total 6 semanas
+    rango_total_min_6sem = rango_kg_min * 6
+    rango_total_max_6sem = rango_kg_max * 6
+    
+    return {
+        "rango_semanal_pct": (rango_pct_min, rango_pct_max),
+        "rango_semanal_kg": (rango_kg_min, rango_kg_max),
+        "rango_total_6sem_kg": (rango_total_min_6sem, rango_total_max_6sem),
+        "explicacion_textual": explicacion
+    }
+
 def enviar_email_resumen(contenido, nombre_cliente, email_cliente, fecha, edad, telefono):
     """Envía el email con el resumen completo de la evaluación."""
     try:
@@ -1077,10 +1159,10 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
                             break
                 elif ref["tipo"] == "reps_peso" and isinstance(valor, tuple):
                     reps, peso = valor
-                    for nombre_nivel, (umbral_reps, umbral_peso) in ref["niveles"]:
+                    # Recorrer niveles de mayor a menor para asignar el nivel más alto posible
+                    for nombre_nivel, (umbral_reps, umbral_peso) in reversed(ref["niveles"]):
                         if reps >= umbral_reps and peso >= umbral_peso:
                             nivel_ej = nombre_nivel
-                        else:
                             break
 
                 niveles_ejercicios[ejercicio] = nivel_ej
@@ -1377,25 +1459,27 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
     if sexo == "Hombre":
         if grasa_corregida < 10:
             fase = "Superávit recomendado: 10-15%"
-            porcentaje = -12.5
+            porcentaje = 12.5  # Positivo para superávit (ganancia)
         elif grasa_corregida <= 18:
             fase = "Mantenimiento o minivolumen"
             porcentaje = 0
         else:
-            porcentaje = sugerir_deficit(grasa_corregida, sexo)
-            fase = f"Déficit recomendado: {porcentaje}%"
+            deficit_valor = sugerir_deficit(grasa_corregida, sexo)
+            porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
+            fase = f"Déficit recomendado: {deficit_valor}%"
     else:  # Mujer
         if grasa_corregida < 16:
             fase = "Superávit recomendado: 10%"
-            porcentaje = -10
+            porcentaje = 10  # Positivo para superávit (ganancia)
         elif grasa_corregida <= 23:
             fase = "Mantenimiento"
             porcentaje = 0
         else:
-            porcentaje = sugerir_deficit(grasa_corregida, sexo)
-            fase = f"Déficit recomendado: {porcentaje}%"
+            deficit_valor = sugerir_deficit(grasa_corregida, sexo)
+            porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
+            fase = f"Déficit recomendado: {deficit_valor}%"
 
-    fbeo = 1 - porcentaje / 100
+    fbeo = 1 + porcentaje / 100  # Cambio de signo para reflejar nueva convención
 
     # Perfil del usuario
     st.markdown("### 📋 Tu perfil nutricional")
@@ -1819,12 +1903,32 @@ RESUMEN PERSONALIZADO Y PROYECCIÓN
 - Nivel de entrenamiento: {nivel_entrenamiento.capitalize() if 'nivel_entrenamiento' in locals() else 'Intermedio'}
 - Objetivo recomendado: {fase}
 
-📈 PROYECCIÓN 6 SEMANAS:
-- Déficit/Superávit recomendado: {porcentaje if 'porcentaje' in locals() else 0}%
-- Tasa semanal estimada: {abs(porcentaje)/4 if 'porcentaje' in locals() and porcentaje != 0 else 0:.1f}% {"ganancia" if 'porcentaje' in locals() and porcentaje < 0 else "pérdida" if 'porcentaje' in locals() and porcentaje > 0 else "mantenimiento"}
-- Cambio semanal estimado: {'+' if 'porcentaje' in locals() and porcentaje < 0 else '-' if 'porcentaje' in locals() and porcentaje > 0 else ''}{peso * abs(porcentaje)/400 if 'porcentaje' in locals() and porcentaje != 0 else 0:.2f} kg/semana
-- Peso actual → proyectado: {peso:.1f} kg → {peso + (peso * porcentaje * 6 / -400) if 'porcentaje' in locals() else peso:.1f} kg
-- Cambio total estimado (6 sem): {'+' if 'porcentaje' in locals() and porcentaje < 0 else '-' if 'porcentaje' in locals() and porcentaje > 0 else ''}{abs(peso * porcentaje * 6 / 400) if 'porcentaje' in locals() and porcentaje != 0 else 0:.2f} kg
+📈 PROYECCIÓN CIENTÍFICA 6 SEMANAS:"""
+
+# Calcular proyección científica para el email
+try:
+    proyeccion_email = calcular_proyeccion_cientifica(
+        sexo, 
+        grasa_corregida, 
+        nivel_entrenamiento if 'nivel_entrenamiento' in locals() else 'intermedio',
+        peso, 
+        porcentaje if 'porcentaje' in locals() else 0
+    )
+    objetivo_texto = "(déficit)" if 'porcentaje' in locals() and porcentaje < 0 else "(superávit)" if 'porcentaje' in locals() and porcentaje > 0 else "(mantenimiento)"
+    porcentaje_valor = porcentaje if 'porcentaje' in locals() else 0
+    
+    tabla_resumen += f"""
+- Objetivo recomendado: {porcentaje_valor:+.0f}% {objetivo_texto}
+- Rango semanal científico: {proyeccion_email['rango_semanal_pct'][0]:.1f}% a {proyeccion_email['rango_semanal_pct'][1]:.1f}% del peso corporal
+- Cambio semanal estimado: {proyeccion_email['rango_semanal_kg'][0]:+.2f} a {proyeccion_email['rango_semanal_kg'][1]:+.2f} kg/semana
+- Rango total 6 semanas: {proyeccion_email['rango_total_6sem_kg'][0]:+.2f} a {proyeccion_email['rango_total_6sem_kg'][1]:+.2f} kg
+- Peso actual → rango proyectado: {peso:.1f} kg → {peso + proyeccion_email['rango_total_6sem_kg'][0]:.1f} a {peso + proyeccion_email['rango_total_6sem_kg'][1]:.1f} kg
+- Explicación científica: {proyeccion_email['explicacion_textual']}
+"""
+except:
+    tabla_resumen += "\n- Error en cálculo de proyección. Usar valores por defecto.\n"
+
+tabla_resumen += f"""
 
 ⚠️ IMPORTANTE - NATURALEZA DE LAS ESTIMACIONES:
 Estas son estimaciones basadas en modelos científicos. El cuerpo humano 
@@ -1920,36 +2024,34 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
             categoria_grasa = "Alto"
             color_categoria = "#E74C3C"
     
-    # Obtener tasa semanal basada en el porcentaje de déficit/superávit
-    if "porcentaje" in locals():
-        if porcentaje < 0:  # Superávit
-            tasa_semanal = abs(porcentaje) / 4  # Dividir entre 4 para tasa semanal
-            tipo_cambio = "ganancia"
-            direccion = "+"
-        elif porcentaje > 0:  # Déficit
-            tasa_semanal = porcentaje / 4
-            tipo_cambio = "pérdida"
-            direccion = "-"
-        else:  # Mantenimiento
-            tasa_semanal = 0
-            tipo_cambio = "mantenimiento"
-            direccion = ""
-    else:
-        tasa_semanal = 0
+    # Usar proyección científica realista
+    peso_actual = peso if peso > 0 else 70  # Fallback si no hay peso
+    porcentaje_for_projection = porcentaje if "porcentaje" in locals() else 0
+    
+    # Calcular proyección científica
+    proyeccion = calcular_proyeccion_cientifica(
+        sexo, 
+        grasa_corregida, 
+        nivel_entrenamiento if 'nivel_entrenamiento' in locals() else 'intermedio',
+        peso_actual, 
+        porcentaje_for_projection
+    )
+    
+    # Determinar tipo de cambio y dirección
+    if porcentaje_for_projection < 0:  # Déficit (pérdida) - valor negativo
+        tipo_cambio = "pérdida"
+        direccion = "-"
+    elif porcentaje_for_projection > 0:  # Superávit (ganancia) - valor positivo
+        tipo_cambio = "ganancia"
+        direccion = "+"
+    else:  # Mantenimiento
         tipo_cambio = "mantenimiento"
         direccion = ""
     
-    # Cálculo de proyección para 6 semanas
-    peso_actual = peso if peso > 0 else 70  # Fallback si no hay peso
-    cambio_semanal = peso_actual * (tasa_semanal / 100)
-    cambio_6_semanas = cambio_semanal * 6
-    
-    if direccion == "+":
-        peso_proyectado = peso_actual + cambio_6_semanas
-    elif direccion == "-":
-        peso_proyectado = peso_actual - cambio_6_semanas
-    else:
-        peso_proyectado = peso_actual
+    # Usar el rango medio para la proyección visual
+    cambio_semanal_medio = (proyeccion['rango_semanal_kg'][0] + proyeccion['rango_semanal_kg'][1]) / 2
+    cambio_6_semanas_medio = (proyeccion['rango_total_6sem_kg'][0] + proyeccion['rango_total_6sem_kg'][1]) / 2
+    peso_proyectado = peso_actual + cambio_6_semanas_medio
     
     col1, col2 = st.columns(2)
     
@@ -1976,22 +2078,33 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
     with col2:
         st.markdown(f"""
         <div class="content-card" style="background: #1A1A1A;">
-            <h3 style="color: var(--mupai-yellow); margin-bottom: 1.5rem;">📈 Proyección 6 Semanas</h3>
+            <h3 style="color: var(--mupai-yellow); margin-bottom: 1.5rem;">📈 Proyección Científica 6 Semanas</h3>
             <div style="margin-bottom: 1rem;">
-                <strong style="color: #CCCCCC;">{tipo_cambio.capitalize()} Semanal Estimada:</strong><br>
+                <strong style="color: #CCCCCC;">Rango Semanal Científico:</strong><br>
                 <span style="color: {'#27AE60' if direccion == '+' else '#E74C3C' if direccion == '-' else '#3498DB'}; font-weight: bold; font-size: 1.1rem;">
-                    {direccion}{cambio_semanal:.2f} kg/semana ({direccion}{tasa_semanal:.1f}%)
+                    {proyeccion['rango_semanal_pct'][0]:.1f}% a {proyeccion['rango_semanal_pct'][1]:.1f}% del peso corporal
+                </span><br>
+                <span style="color: #999999; font-size: 0.9rem;">
+                    ({proyeccion['rango_semanal_kg'][0]:+.2f} a {proyeccion['rango_semanal_kg'][1]:+.2f} kg/semana)
                 </span>
             </div>
             <div style="margin-bottom: 1rem;">
-                <strong style="color: #CCCCCC;">Peso Actual → Proyectado:</strong><br>
+                <strong style="color: #CCCCCC;">Peso Actual → Rango Proyectado:</strong><br>
                 <span style="color: #CCCCCC; font-size: 1.1rem;">{peso_actual:.1f} kg → </span>
-                <span style="color: var(--mupai-yellow); font-weight: bold; font-size: 1.1rem;">{peso_proyectado:.1f} kg</span>
+                <span style="color: var(--mupai-yellow); font-weight: bold; font-size: 1.1rem;">
+                    {peso_actual + proyeccion['rango_total_6sem_kg'][0]:.1f} a {peso_actual + proyeccion['rango_total_6sem_kg'][1]:.1f} kg
+                </span>
             </div>
             <div style="margin-bottom: 1rem;">
                 <strong style="color: #CCCCCC;">Cambio Total Estimado:</strong><br>
                 <span style="color: {'#27AE60' if direccion == '+' else '#E74C3C' if direccion == '-' else '#3498DB'}; font-weight: bold; font-size: 1.1rem;">
-                    {direccion}{cambio_6_semanas:.2f} kg en 6 semanas
+                    {proyeccion['rango_total_6sem_kg'][0]:+.2f} a {proyeccion['rango_total_6sem_kg'][1]:+.2f} kg en 6 semanas
+                </span>
+            </div>
+            <div style="margin-bottom: 0;">
+                <strong style="color: #CCCCCC;">Explicación Científica:</strong><br>
+                <span style="color: #CCCCCC; font-size: 0.9rem; line-height: 1.4;">
+                    {proyeccion['explicacion_textual']}
                 </span>
             </div>
         </div>
@@ -2028,9 +2141,11 @@ if st.button("🔄 Nueva Evaluación", key="nueva"):
 # Footer moderno
 st.markdown("""
 <div class="footer-mupai">
-    <h4>Muscle Up Performance Assessment Intelligence</h4>
-    <span>© 2025 MUPAI - Muscle Up Gym & Fitness</span>
+    <h4>MUPAI / Muscle up GYM Performance Assessment Intelligence</h4>
+    <span>Digital Training Science</span>
     <br>
-    <a href="https://muscleupgym.com.mx" target="_blank">muscleupgym.com.mx</a>
+    <span>© 2025 MUPAI - Muscle up GYM / MUPAI</span>
+    <br>
+    <a href="https://muscleupgym.fitness" target="_blank">muscleupgym.fitness</a>
 </div>
 """, unsafe_allow_html=True)
