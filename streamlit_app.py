@@ -242,7 +242,7 @@ except FileNotFoundError:
     logo_mupai_b64 = ""
 
 try:
-    with open('/home/runner/work/MUPAI/MUPAI/LOGO MUSCLE UP GYM.png', 'rb') as f:
+    with open('/home/runner/work/MUPAI/MUPAI/LOGO MUP.png', 'rb') as f:
         logo_gym_b64 = base64.b64encode(f.read()).decode()
 except FileNotFoundError:
     logo_gym_b64 = ""
