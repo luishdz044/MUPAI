@@ -1075,10 +1075,6 @@ metodo_grasa = st.session_state.get("metodo_grasa", "Omron HBF-516 (BIA)")
 grasa_corregida = corregir_porcentaje_grasa(grasa_corporal, metodo_grasa, sexo)
 mlg = calcular_mlg(peso, grasa_corregida)
 
-# Mostrar resumen del nivel global
-st.markdown("### 🎯 Análisis integral de tu nivel")
-
-col1, col2, col3, col4 = st.columns(4)
 # --- Cálculo PSMF ---
 psmf_recs = calculate_psmf(sexo, peso, grasa_corregida, mlg)
 if psmf_recs.get("psmf_aplicable"):
@@ -1309,18 +1305,24 @@ else:
 ejercicios_funcionales_completos = len(ejercicios_data) >= 5  # Debe tener los 5 ejercicios
 experiencia_completa = experiencia and not experiencia.startswith("A) He entrenado de forma irregular")
 
+# === MOSTRAR RESUMEN GLOBAL TEMPRANO (ADICIONAL) ===
+# Mostrar resumen global después de los badges de ejercicios si hay datos suficientes
 if ejercicios_funcionales_completos and experiencia_completa:
-    # Mostrar el bloque visual del nivel global solo si todo está completo
-    with col1:
+    st.markdown("### 🎯 Tu Nivel Global de Entrenamiento")
+    st.markdown("*Análisis integral basado en desarrollo muscular, rendimiento funcional y experiencia*")
+    
+    col1_global, col2_global, col3_global, col4_global = st.columns(4)
+    
+    with col1_global:
         st.metric("Desarrollo Muscular", f"{puntos_ffmi}/5", f"FFMI: {nivel_ffmi}")
 
-    with col2:
+    with col2_global:
         st.metric("Rendimiento", f"{puntos_funcional:.1f}/4", "Capacidad funcional")
 
-    with col3:
+    with col3_global:
         st.metric("Experiencia", f"{puntos_exp}/4", experiencia[3:20] + "...")
 
-    with col4:
+    with col4_global:
         color_nivel_entrenamiento = {
             "principiante": "warning",
             "intermedio": "info",
@@ -1337,6 +1339,16 @@ if ejercicios_funcionales_completos and experiencia_completa:
             <small>Score: {puntaje_total:.2f}/1.0</small>
         </div>
         """, unsafe_allow_html=True)
+    
+    st.success(f"""
+    ✅ **Análisis completado:** Tu nivel global de entrenamiento es **{nivel_entrenamiento.upper()}**
+    
+    Este nivel se usará para personalizar todos los cálculos energéticos y nutricionales posteriores.
+    """)
+
+if ejercicios_funcionales_completos and experiencia_completa:
+    # Mostrar el bloque visual del nivel global solo si todo está completo
+    pass  # El bloque ya se mostró arriba
 else:
     # Mostrar mensaje informativo si faltan datos
     faltantes = []
@@ -1523,19 +1535,29 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
     )
     st.session_state.dias_fuerza = dias_fuerza
 
-    # Cálculo del GEE según nivel muscular
-    if nivel_ffmi in ["Bajo", "Promedio"]:
+    # Cálculo del GEE según nivel global de entrenamiento
+    if 'nivel_entrenamiento' in locals() and nivel_entrenamiento:
+        if nivel_entrenamiento == "principiante":
+            kcal_sesion = 300
+            nivel_gee = "300 kcal/sesión"
+            gee_color = "warning"
+        elif nivel_entrenamiento == "intermedio":
+            kcal_sesion = 350
+            nivel_gee = "350 kcal/sesión"
+            gee_color = "info"
+        elif nivel_entrenamiento == "avanzado":
+            kcal_sesion = 400
+            nivel_gee = "400 kcal/sesión"
+            gee_color = "info"
+        else:  # élite
+            kcal_sesion = 500
+            nivel_gee = "500 kcal/sesión"
+            gee_color = "success"
+    else:
+        # Fallback si no hay nivel_entrenamiento calculado
         kcal_sesion = 300
         nivel_gee = "300 kcal/sesión"
         gee_color = "warning"
-    elif nivel_ffmi in ["Bueno", "Avanzado"]:
-        kcal_sesion = 400
-        nivel_gee = "400 kcal/sesión"
-        gee_color = "info"
-    else:  # Élite
-        kcal_sesion = 500
-        nivel_gee = "500 kcal/sesión"
-        gee_color = "success"
 
     gee_semanal = dias_fuerza * kcal_sesion
     gee_prom_dia = gee_semanal / 7
@@ -1548,15 +1570,16 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
     with col1:
         st.metric("Días/semana", f"{dias_fuerza} días", "Sin entrenar" if dias_fuerza == 0 else "Activo")
     with col2:
-        st.metric("Gasto/sesión", f"{kcal_sesion} kcal", f"Nivel {nivel_ffmi}")
+        current_level = nivel_entrenamiento.capitalize() if 'nivel_entrenamiento' in locals() and nivel_entrenamiento else "Sin calcular"
+        st.metric("Gasto/sesión", f"{kcal_sesion} kcal", f"Nivel {current_level}")
     with col3:
         st.metric("Promedio diario", f"{gee_prom_dia:.0f} kcal/día", f"Total: {gee_semanal} kcal/sem")
 
     st.markdown(f"""
     <div class="content-card" style="background: #D6EAF8; color: #1E1E1E; border: 2px solid #3498DB; padding: 1.5rem;">
         💡 <strong style="color: #1E1E1E; font-weight: bold;">Cálculo personalizado:</strong> Tu gasto por sesión ({nivel_gee}) 
-        se basa en tu nivel muscular ({nivel_ffmi}), no solo en el tiempo de entrenamiento.
-        Esto proporciona una estimación más precisa de tu gasto energético real.
+        se basa en tu <strong>nivel global de entrenamiento</strong> ({current_level}), que combina desarrollo muscular, 
+        rendimiento funcional y experiencia. Esto proporciona una estimación más precisa de tu gasto energético real.
     </div>
     """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
