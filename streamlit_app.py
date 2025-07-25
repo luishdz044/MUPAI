@@ -231,18 +231,105 @@ hr {
 }
 </style>
 """, unsafe_allow_html=True)
-# Header principal visual
-st.markdown("""
-<div class="main-header">
-    <h1 style="font-size: 3rem; margin: 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-        🏋️ MUPAI
-    </h1>
-    <p style="font-size: 1.2rem; margin: 0.5rem 0; opacity: 0.9;">
-        Muscle Up Performance Assessment Intelligence
-    </p>
-    <p style="font-size: 1rem; margin: 0; opacity: 0.8;">
-        Tu evaluación fitness personalizada basada en ciencia
-    </p>
+# Header principal visual con logos
+import base64
+
+# Load and encode logos
+try:
+    with open('/home/runner/work/MUPAI/MUPAI/LOGO MUPAI.png', 'rb') as f:
+        logo_mupai_b64 = base64.b64encode(f.read()).decode()
+except FileNotFoundError:
+    logo_mupai_b64 = ""
+
+try:
+    with open('/home/runner/work/MUPAI/MUPAI/LOGO MUSCLE UP GYM.png', 'rb') as f:
+        logo_gym_b64 = base64.b64encode(f.read()).decode()
+except FileNotFoundError:
+    logo_gym_b64 = ""
+
+st.markdown(f"""
+<style>
+.header-container {{
+    background: #000000;
+    padding: 2rem 1rem;
+    border-radius: 18px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.5s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}}
+
+.logo-left, .logo-right {{
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    max-width: 150px;
+}}
+
+.logo-left img, .logo-right img {{
+    max-height: 80px;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+}}
+
+.header-center {{
+    flex: 1;
+    text-align: center;
+    padding: 0 2rem;
+}}
+
+.header-title {{
+    color: #FFB300;
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    line-height: 1.2;
+}}
+
+.header-subtitle {{
+    color: #FFFFFF;
+    font-size: 1rem;
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+}}
+
+@media (max-width: 768px) {{
+    .header-container {{
+        flex-direction: column;
+        text-align: center;
+    }}
+    
+    .logo-left, .logo-right {{
+        margin-bottom: 1rem;
+    }}
+    
+    .header-center {{
+        padding: 0;
+    }}
+    
+    .header-title {{
+        font-size: 1.8rem;
+    }}
+}}
+</style>
+
+<div class="header-container">
+    <div class="logo-left">
+        <img src="data:image/png;base64,{logo_mupai_b64}" alt="LOGO MUPAI" />
+    </div>
+    <div class="header-center">
+        <h1 class="header-title">CUESTIONARIO MUPAI/NUTRICIÓN BASADA EN CIENCIA</h1>
+        <p class="header-subtitle">Tu evaluación fitness personalizada basada en ciencia</p>
+    </div>
+    <div class="logo-right">
+        <img src="data:image/png;base64,{logo_gym_b64}" alt="LOGO MUSCLE UP GYM" />
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1045,7 +1132,7 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
     ejercicios_data = {}
     niveles_ejercicios = {}
 
-    tab1, tab2, tab3, tab4 = st.tabs(["💪 Empuje", "🏋️ Tracción", "🦵 Pierna", "🧘 Core"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["💪 Empuje", "🏋️ Tracción", "🦵 Pierna Empuje", "🦵 Pierna Tracción", "🧘 Core"])
 
     with tab1:
         st.markdown("#### Empuje superior")
@@ -1082,23 +1169,36 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
             ejercicios_data[traccion] = traccion_reps
 
     with tab3:
-        st.markdown("#### Tren inferior")
+        st.markdown("#### Tren inferior empuje")
         col1, col2 = st.columns(2)
         with col1:
-            pierna = st.selectbox(
-                "Elige tu mejor ejercicio de pierna:",
-                ["Sentadilla búlgara unilateral", "Puente de glúteo unilateral"],
-                help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
-            )
+            st.markdown("**Ejercicio:**")
+            st.info("Sentadilla búlgara unilateral")
         with col2:
-            pierna_reps = st.number_input(
-                f"¿Cuántas repeticiones continuas realizas con buena forma en {pierna}?",
-                min_value=0, max_value=50, value=safe_int(st.session_state.get(f"{pierna}_reps", 10), 10),
-                help="Repeticiones con técnica controlada por cada pierna."
+            pierna_empuje_reps = st.number_input(
+                "¿Cuántas repeticiones continuas realizas con buena forma en Sentadilla búlgara unilateral?",
+                min_value=0, max_value=50, value=safe_int(st.session_state.get("Sentadilla búlgara unilateral_reps", 10), 10),
+                help="Repeticiones con técnica controlada por cada pierna.",
+                key="sentadilla_bulgara_reps"
             )
-            ejercicios_data[pierna] = pierna_reps
+            ejercicios_data["Sentadilla búlgara unilateral"] = pierna_empuje_reps
 
     with tab4:
+        st.markdown("#### Tren inferior tracción")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Ejercicio:**")
+            st.info("Puente de glúteo unilateral")
+        with col2:
+            pierna_traccion_reps = st.number_input(
+                "¿Cuántas repeticiones continuas realizas con buena forma en Puente de glúteo unilateral?",
+                min_value=0, max_value=50, value=safe_int(st.session_state.get("Puente de glúteo unilateral_reps", 15), 15),
+                help="Repeticiones con técnica controlada por cada pierna.",
+                key="puente_gluteo_reps"
+            )
+            ejercicios_data["Puente de glúteo unilateral"] = pierna_traccion_reps
+
+    with tab5:
         st.markdown("#### Core y estabilidad")
         col1, col2 = st.columns(2)
         with col1:
@@ -1126,9 +1226,9 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
     # Evaluar niveles según referencias
     st.markdown("### 📊 Tu nivel en cada ejercicio")
 
-    cols = st.columns(4)
+    cols = st.columns(5)  # Changed from 4 to 5 to accommodate 5 exercises
     for idx, (ejercicio, valor) in enumerate(ejercicios_data.items()):
-        with cols[idx % 4]:
+        with cols[idx % 5]:  # Changed from 4 to 5
             if ejercicio in referencias_funcionales[sexo]:
                 ref = referencias_funcionales[sexo][ejercicio]
                 nivel_ej = "Bajo"  # Por defecto
