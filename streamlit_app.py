@@ -324,8 +324,8 @@ st.markdown(f"""
         <img src="data:image/png;base64,{logo_mupai_b64}" alt="LOGO MUPAI" />
     </div>
     <div class="header-center">
-        <h1 class="header-title">CUESTIONARIO MUPAI/NUTRICIÓN BASADA EN CIENCIA</h1>
-        <p class="header-subtitle">Tu evaluación fitness personalizada basada en ciencia</p>
+        <h1 class="header-title">TEST MUPAI: BODY AND ENERGY </h1>
+        <p class="header-subtitle">Tu evaluación de la composición corporal y balance energético basada en ciencia</p>
     </div>
     <div class="logo-right">
         <img src="data:image/png;base64,{logo_gym_b64}" alt="LOGO MUSCLE UP GYM" />
@@ -360,7 +360,7 @@ if not st.session_state.authenticated:
     st.markdown("""
     <div class="content-card" style="max-width: 500px; margin: 2rem auto; text-align: center;">
         <h2 style="color: var(--mupai-yellow); margin-bottom: 1.5rem;">
-            🔐 Acceso Administrativo
+            🔐 Acceso Exclusivo
         </h2>
         <p style="margin-bottom: 2rem; color: #CCCCCC;">
             Ingresa la contraseña para acceder al sistema de evaluación MUPAI
@@ -397,7 +397,9 @@ if not st.session_state.authenticated:
             personalizadas de composición corporal, rendimiento y planificación nutricional.
         </p>
         <p style="color: #999999; font-size: 0.9rem; margin-top: 1.5rem;">
-            © 2025 MUPAI - Muscle Up Performance Assessment Intelligence
+            © 2025 MUPAI - Muscle up GYM 
+            Digital Training Science
+            Performance Assessment Intelligence
         </p>
     </div>
     """, unsafe_allow_html=True)
