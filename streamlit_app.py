@@ -556,17 +556,17 @@ def calcular_proyeccion_cientifica(sexo, grasa_corregida, nivel_entrenamiento, p
         porcentaje = 0.0
     
     # Rangos científicos según objetivo, sexo y nivel
-    if porcentaje > 0:  # Déficit (pérdida)
+    if porcentaje < 0:  # Déficit (pérdida) - valor negativo
         if sexo == "Hombre":
             if nivel_entrenamiento in ["principiante", "intermedio"]:
-                rango_pct_min, rango_pct_max = 0.5, 1.0
+                rango_pct_min, rango_pct_max = -1.0, -0.5
             else:  # avanzado, élite
-                rango_pct_min, rango_pct_max = 0.3, 0.7
+                rango_pct_min, rango_pct_max = -0.7, -0.3
         else:  # Mujer
             if nivel_entrenamiento in ["principiante", "intermedio"]:
-                rango_pct_min, rango_pct_max = 0.3, 0.8
+                rango_pct_min, rango_pct_max = -0.8, -0.3
             else:  # avanzado, élite
-                rango_pct_min, rango_pct_max = 0.2, 0.6
+                rango_pct_min, rango_pct_max = -0.6, -0.2
         
         # Ajuste por % grasa (personas con más grasa pueden perder más rápido inicialmente)
         if grasa_corregida > (25 if sexo == "Hombre" else 30):
@@ -581,7 +581,7 @@ def calcular_proyeccion_cientifica(sexo, grasa_corregida, nivel_entrenamiento, p
         
         explicacion = f"Con {grasa_corregida:.1f}% de grasa y nivel {nivel_entrenamiento}, se recomienda una pérdida conservadora pero efectiva. {'Nivel alto de grasa permite pérdida inicial más rápida.' if factor_grasa > 1 else 'Nivel bajo de grasa requiere enfoque más conservador.' if factor_grasa < 1 else 'Nivel óptimo de grasa para pérdida sostenible.'}"
         
-    elif porcentaje < 0:  # Superávit (ganancia)
+    elif porcentaje > 0:  # Superávit (ganancia) - valor positivo
         if sexo == "Hombre":
             if nivel_entrenamiento in ["principiante", "intermedio"]:
                 rango_pct_min, rango_pct_max = 0.2, 0.5
@@ -1159,10 +1159,10 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
                             break
                 elif ref["tipo"] == "reps_peso" and isinstance(valor, tuple):
                     reps, peso = valor
-                    for nombre_nivel, (umbral_reps, umbral_peso) in ref["niveles"]:
+                    # Recorrer niveles de mayor a menor para asignar el nivel más alto posible
+                    for nombre_nivel, (umbral_reps, umbral_peso) in reversed(ref["niveles"]):
                         if reps >= umbral_reps and peso >= umbral_peso:
                             nivel_ej = nombre_nivel
-                        else:
                             break
 
                 niveles_ejercicios[ejercicio] = nivel_ej
@@ -1459,25 +1459,27 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
     if sexo == "Hombre":
         if grasa_corregida < 10:
             fase = "Superávit recomendado: 10-15%"
-            porcentaje = -12.5
+            porcentaje = 12.5  # Positivo para superávit (ganancia)
         elif grasa_corregida <= 18:
             fase = "Mantenimiento o minivolumen"
             porcentaje = 0
         else:
-            porcentaje = sugerir_deficit(grasa_corregida, sexo)
-            fase = f"Déficit recomendado: {porcentaje}%"
+            deficit_valor = sugerir_deficit(grasa_corregida, sexo)
+            porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
+            fase = f"Déficit recomendado: {deficit_valor}%"
     else:  # Mujer
         if grasa_corregida < 16:
             fase = "Superávit recomendado: 10%"
-            porcentaje = -10
+            porcentaje = 10  # Positivo para superávit (ganancia)
         elif grasa_corregida <= 23:
             fase = "Mantenimiento"
             porcentaje = 0
         else:
-            porcentaje = sugerir_deficit(grasa_corregida, sexo)
-            fase = f"Déficit recomendado: {porcentaje}%"
+            deficit_valor = sugerir_deficit(grasa_corregida, sexo)
+            porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
+            fase = f"Déficit recomendado: {deficit_valor}%"
 
-    fbeo = 1 - porcentaje / 100
+    fbeo = 1 + porcentaje / 100  # Cambio de signo para reflejar nueva convención
 
     # Perfil del usuario
     st.markdown("### 📋 Tu perfil nutricional")
@@ -1912,7 +1914,7 @@ try:
         peso, 
         porcentaje if 'porcentaje' in locals() else 0
     )
-    objetivo_texto = "(déficit)" if 'porcentaje' in locals() and porcentaje > 0 else "(superávit)" if 'porcentaje' in locals() and porcentaje < 0 else "(mantenimiento)"
+    objetivo_texto = "(déficit)" if 'porcentaje' in locals() and porcentaje < 0 else "(superávit)" if 'porcentaje' in locals() and porcentaje > 0 else "(mantenimiento)"
     porcentaje_valor = porcentaje if 'porcentaje' in locals() else 0
     
     tabla_resumen += f"""
@@ -2036,10 +2038,10 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
     )
     
     # Determinar tipo de cambio y dirección
-    if porcentaje_for_projection > 0:  # Déficit
+    if porcentaje_for_projection < 0:  # Déficit (pérdida) - valor negativo
         tipo_cambio = "pérdida"
         direccion = "-"
-    elif porcentaje_for_projection < 0:  # Superávit
+    elif porcentaje_for_projection > 0:  # Superávit (ganancia) - valor positivo
         tipo_cambio = "ganancia"
         direccion = "+"
     else:  # Mantenimiento
