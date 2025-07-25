@@ -707,7 +707,12 @@ if datos_personales_completos and st.session_state.datos_completos:
     with col3:
         st.metric("TMB", f"{tmb:.0f} kcal", "Metabolismo Basal")
     with col4:
-        diferencia_edad = edad_metabolica - edad
+        try:
+            edad_num = int(edad)
+            diferencia_edad = edad_metabolica - edad_num
+        except (ValueError, TypeError):
+            edad_num = 25
+            diferencia_edad = 0
         st.metric("Edad Metabólica", f"{edad_metabolica} años", f"{'+' if diferencia_edad > 0 else ''}{diferencia_edad} años")
 
     # FFMI con visualización mejorada
@@ -746,7 +751,50 @@ if datos_personales_completos and st.session_state.datos_completos:
 
 else:
     st.info("Por favor completa los datos personales para comenzar la evaluación.")
-    # === ACTUALIZA VARIABLES CLAVE DESDE session_state ANTES DE CUALQUIER CÁLCULO CRÍTICO ===
+    # === INICIALIZACIÓN DE VARIABLES CRÍTICAS ===
+# Inicializar variables críticas con valores por defecto seguros
+if 'peso' not in locals():
+    peso = 70.0
+if 'estatura' not in locals():
+    estatura = 170
+if 'grasa_corporal' not in locals():
+    grasa_corporal = 20.0
+if 'sexo' not in locals():
+    sexo = "Hombre"
+if 'edad' not in locals():
+    edad = 25
+if 'metodo_grasa' not in locals():
+    metodo_grasa = "Omron HBF-516 (BIA)"
+if 'grasa_corregida' not in locals():
+    grasa_corregida = 20.0
+if 'mlg' not in locals():
+    mlg = 50.0
+if 'tmb' not in locals():
+    tmb = 1800.0
+if 'ffmi' not in locals():
+    ffmi = 18.0
+if 'nivel_ffmi' not in locals():
+    nivel_ffmi = "Bajo"
+if 'edad_metabolica' not in locals():
+    edad_metabolica = 25
+if 'ingesta_calorica' not in locals():
+    ingesta_calorica = 2000.0
+if 'proteina_g' not in locals():
+    proteina_g = 100.0
+if 'grasa_g' not in locals():
+    grasa_g = 60.0
+if 'carbo_g' not in locals():
+    carbo_g = 200.0
+if 'grasa_kcal' not in locals():
+    grasa_kcal = 540.0
+if 'carbo_kcal' not in locals():
+    carbo_kcal = 800.0
+if 'fase' not in locals():
+    fase = "Mantenimiento"
+if 'plan_elegido' not in locals():
+    plan_elegido = "Plan Tradicional"
+
+# === ACTUALIZA VARIABLES CLAVE DESDE session_state ANTES DE CUALQUIER CÁLCULO CRÍTICO ===
 # Esto fuerza que SIEMPRE se use el último dato capturado por el usuario
 
 peso = st.session_state.get("peso", 0)
@@ -766,14 +814,6 @@ st.session_state.edad = edad
 # --- Recalcula variables críticas para PSMF ---
 grasa_corregida = corregir_porcentaje_grasa(grasa_corporal, metodo_grasa, sexo)
 mlg = calcular_mlg(peso, grasa_corregida)
-
-nte"
-elif puntaje_total < 0.5:
-    nivel_entrenamiento = "intermedio"
-elif puntaje_total < 0.7:
-    nivel_entrenamiento = "avanzado"
-else:
-    nivel_entrenamiento = "élite"
 
 # Mostrar resumen del nivel global
 st.markdown("### 🎯 Análisis integral de tu nivel")
@@ -988,8 +1028,15 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
 # Guardar datos
 st.session_state.datos_ejercicios = ejercicios_data
 
+# Initialize variables with safe defaults
 if 'nivel_ffmi' not in locals() or nivel_ffmi is None:
     nivel_ffmi = "Bajo"  # Valor por defecto válido
+
+if 'experiencia' not in locals() or experiencia is None:
+    experiencia = "A) He entrenado de forma irregular"  # Valor por defecto
+
+if 'niveles_ejercicios' not in locals() or niveles_ejercicios is None:
+    niveles_ejercicios = {}  # Diccionario vacío por defecto
 
 # Calcular nivel global con ponderación
 puntos_ffmi = {"Bajo": 1, "Promedio": 2, "Bueno": 3, "Avanzado": 4, "Élite": 5}.get(nivel_ffmi, 1)
@@ -1001,7 +1048,14 @@ puntos_funcional = sum([puntos_por_nivel.get(n, 1) for n in niveles_ejercicios.v
 puntaje_total = (puntos_ffmi / 5 * 0.4) + (puntos_funcional / 4 * 0.4) + (puntos_exp / 4 * 0.2)
 
 if puntaje_total < 0.3:
-    nivel_entrenamiento = "principia
+    nivel_entrenamiento = "principiante"
+elif puntaje_total < 0.5:
+    nivel_entrenamiento = "intermedio"
+elif puntaje_total < 0.7:
+    nivel_entrenamiento = "avanzado"
+else:
+    nivel_entrenamiento = "élite"
+
 with col1:
     st.metric("Desarrollo Muscular", f"{puntos_ffmi}/5", f"FFMI: {nivel_ffmi}")
 
@@ -1029,7 +1083,15 @@ with col4:
     </div>
     """, unsafe_allow_html=True)
     # === Potencial genético ===
-if 'ffmi' in locals() and 'nivel_entrenamiento' in locals():
+# Initialize variables with safe defaults
+if 'ffmi' not in locals():
+    ffmi = 0
+if 'ffmi_genetico_max' not in locals():
+    ffmi_genetico_max = 22 if sexo == "Hombre" else 19
+if 'porc_potencial' not in locals():
+    porc_potencial = 0
+
+if 'ffmi' in locals() and 'nivel_entrenamiento' in locals() and ffmi > 0:
     if sexo == "Hombre":
         ffmi_genetico_max = {
             "principiante": 22, "intermedio": 23.5,
@@ -1414,13 +1476,13 @@ Ingesta = {GE:.0f} × {fbeo:.2f} = {ingesta_calorica:.0f} kcal/día
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("🔥 Calorías", f"{ingesta_calorica:.0f} kcal/día", 
-                     f"{ingesta_calorica/peso:.1f} kcal/kg")
+                     f"{ingesta_calorica/peso:.1f} kcal/kg" if peso > 0 else "– kcal/kg")
         with col2:
             st.metric("🥩 Proteína", f"{proteina_g} g", 
-                     f"{proteina_g/peso:.2f} g/kg")
+                     f"{proteina_g/peso:.2f} g/kg" if peso > 0 else "– g/kg")
         with col3:
             st.metric("🥑 Grasas", f"{grasa_g} g", 
-                     f"{round(grasa_kcal/ingesta_calorica*100)}%")
+                     f"{round(grasa_kcal/ingesta_calorica*100)}%" if ingesta_calorica > 0 else "–%")
         with col4:
             st.metric("🍞 Carbohidratos", f"{carbo_g} g", 
                      f"{round(carbo_kcal/ingesta_calorica*100)}%")
@@ -1487,12 +1549,22 @@ st.markdown(f"*Fecha: {fecha_llenado} | Cliente: {nombre}*")
 # Crear resumen visual con métricas clave
 col1, col2, col3 = st.columns(3)
 with col1:
+    # Ensure edad is numeric for calculations
+    try:
+        edad_num = int(edad)
+        diferencia_edad = edad_metabolica - edad_num
+        evaluacion = '⚠️ Mejorar' if edad_metabolica > edad_num + 2 else '✅ Excelente' if edad_metabolica < edad_num - 2 else '👍 Normal'
+    except (ValueError, TypeError):
+        edad_num = 25  # Default fallback
+        diferencia_edad = 0
+        evaluacion = '👍 Normal'
+    
     st.markdown(f"""
     ### 👤 Perfil Personal
     - **Edad cronológica:** {edad} años
     - **Edad metabólica:** {edad_metabolica} años
-    - **Diferencia:** {edad_metabolica - edad:+d} años
-    - **Evaluación:** {'⚠️ Mejorar' if edad_metabolica > edad + 2 else '✅ Excelente' if edad_metabolica < edad - 2 else '👍 Normal'}
+    - **Diferencia:** {diferencia_edad:+d} años
+    - **Evaluación:** {evaluacion}
     """)
 with col2:
     st.markdown(f"""
@@ -1503,23 +1575,33 @@ with col2:
     - **Potencial:** {porc_potencial:.0f}% alcanzado
     """)
 with col3:
+    # Safe calculations for display
+    proteina_ratio = f"({proteina_g/peso:.2f}g/kg)" if peso > 0 else "(–g/kg)"
+    grasa_percent = f"({round(grasa_kcal/ingesta_calorica*100)}%)" if ingesta_calorica > 0 else "(–%)"
+    carbo_percent = f"({round(carbo_kcal/ingesta_calorica*100)}%)" if ingesta_calorica > 0 else "(–%)"
+    estrategia = plan_elegido.split('(')[0].strip() if 'plan_elegido' in locals() and plan_elegido else "Plan tradicional"
+    
     st.markdown(f"""
     ### 🍽️ Plan Nutricional
     - **Objetivo:** {fase}
     - **Calorías:** {ingesta_calorica:.0f} kcal/día
-    - **Proteína:** {proteina_g}g ({proteina_g/peso:.2f}g/kg)
-    - **Grasas:** {grasa_g}g ({round(grasa_kcal/ingesta_calorica*100)}%)
-    - **Carbohidratos:** {carbo_g}g ({round(carbo_kcal/ingesta_calorica*100)}%)
-    - **Estrategia:** {plan_elegido.split('(')[0].strip()}
+    - **Proteína:** {proteina_g}g {proteina_ratio}
+    - **Grasas:** {grasa_g}g {grasa_percent}
+    - **Carbohidratos:** {carbo_g}g {carbo_percent}
+    - **Estrategia:** {estrategia}
     """)
 
 # Mensaje motivacional personalizado
 mensaje_motivacional = ""
-if edad_metabolica > edad + 2:
-    mensaje_motivacional = "Tu edad metabólica indica que hay margen significativo de mejora. ¡Este plan te ayudará a rejuvenecer metabólicamente!"
-elif edad_metabolica < edad - 2:
-    mensaje_motivacional = "¡Excelente! Tu edad metabólica es menor que tu edad real. Mantén este gran trabajo."
-else:
+try:
+    edad_num = int(edad)
+    if edad_metabolica > edad_num + 2:
+        mensaje_motivacional = "Tu edad metabólica indica que hay margen significativo de mejora. ¡Este plan te ayudará a rejuvenecer metabólicamente!"
+    elif edad_metabolica < edad_num - 2:
+        mensaje_motivacional = "¡Excelente! Tu edad metabólica es menor que tu edad real. Mantén este gran trabajo."
+    else:
+        mensaje_motivacional = "Tu edad metabólica está bien alineada con tu edad cronológica. Sigamos optimizando tu composición corporal."
+except (ValueError, TypeError):
     mensaje_motivacional = "Tu edad metabólica está bien alineada con tu edad cronológica. Sigamos optimizando tu composición corporal."
 
 st.success(f"""
@@ -1559,6 +1641,30 @@ def datos_completos_para_email():
     return faltantes
 
 # Construir tabla_resumen robusta para el email (idéntica a tu estructura, NO resumida)
+# Calculate safe values
+try:
+    imc = peso/(estatura/100)**2 if estatura > 0 else 0
+    ratio_kcal_kg = ingesta_calorica/peso if peso > 0 else 0
+    proteina_percent = round(proteina_kcal/ingesta_calorica*100, 1) if ingesta_calorica > 0 else 0
+    grasa_percent = round(grasa_kcal/ingesta_calorica*100, 1) if ingesta_calorica > 0 else 0
+    carbo_percent = round(carbo_kcal/ingesta_calorica*100, 1) if ingesta_calorica > 0 else 0
+    proteina_kcal_safe = proteina_g * 4 if 'proteina_g' in locals() else 0
+    grasa_kcal_safe = grasa_g * 9 if 'grasa_g' in locals() else 0
+    carbo_kcal_safe = carbo_g * 4 if 'carbo_g' in locals() else 0
+except:
+    imc = 0
+    ratio_kcal_kg = 0
+    proteina_percent = 0
+    grasa_percent = 0
+    carbo_percent = 0
+    proteina_kcal_safe = 0
+    grasa_kcal_safe = 0
+    carbo_kcal_safe = 0
+
+# Initialize missing variables
+if 'fbeo' not in locals():
+    fbeo = 1.0
+
 tabla_resumen = f"""
 =====================================
 EVALUACIÓN MUPAI - INFORME COMPLETO
@@ -1581,7 +1687,7 @@ ANTROPOMETRÍA Y COMPOSICIÓN:
 =====================================
 - Peso: {peso} kg
 - Estatura: {estatura} cm
-- IMC: {peso/(estatura/100)**2:.1f} kg/m²
+- IMC: {imc:.1f} kg/m²
 - Método medición grasa: {metodo_grasa}
 - % Grasa medido: {grasa_corporal}%
 - % Grasa corregido (DEXA): {grasa_corregida:.1f}%
@@ -1615,12 +1721,12 @@ PLAN NUTRICIONAL CALCULADO:
 - Fase: {fase}
 - Factor FBEO: {fbeo:.2f}
 - Ingesta calórica: {ingesta_calorica:.0f} kcal/día
-- Ratio kcal/kg: {ingesta_calorica/peso:.1f}
+- Ratio kcal/kg: {ratio_kcal_kg:.1f}
 
 DISTRIBUCIÓN DE MACRONUTRIENTES:
-- Proteína: {proteina_g}g ({proteina_kcal:.0f} kcal) = {round(proteina_kcal/ingesta_calorica*100, 1)}%
-- Grasas: {grasa_g}g ({grasa_kcal:.0f} kcal) = {round(grasa_kcal/ingesta_calorica*100, 1)}%
-- Carbohidratos: {carbo_g}g ({carbo_kcal:.0f} kcal) = {round(carbo_kcal/ingesta_calorica*100, 1)}%
+- Proteína: {proteina_g}g ({proteina_kcal_safe:.0f} kcal) = {proteina_percent}%
+- Grasas: {grasa_g}g ({grasa_kcal_safe:.0f} kcal) = {grasa_percent}%
+- Carbohidratos: {carbo_g}g ({carbo_kcal_safe:.0f} kcal) = {carbo_percent}%
 
 """
 
