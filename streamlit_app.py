@@ -90,6 +90,20 @@ st.markdown("""
     font-size: 1.13rem!important;
     font-weight: 600!important;
 }
+/* Special styling for body fat measurement method selector */
+.stSelectbox[data-testid="stSelectbox"]:has(label:contains("Método de medición de grasa")) > div > div > select,
+.body-fat-method-selector > div > div > select {
+    background: #F8F9FA!important;
+    color: #1E1E1E!important;
+    border: 2px solid #DAA520!important;
+    font-weight: bold!important;
+}
+.stSelectbox[data-testid="stSelectbox"]:has(label:contains("Método de medición de grasa")) option,
+.body-fat-method-selector option {
+    background: #FFFFFF!important;
+    color: #1E1E1E!important;
+    font-weight: bold!important;
+}
 .stTextInput label, .stNumberInput label, .stSelectbox label,
 .stRadio label, .stCheckbox label, .stDateInput label, .stMarkdown,
 .stExpander .streamlit-expanderHeader, .stExpander label, .stExpander p, .stExpander div {
@@ -324,12 +338,10 @@ referencias_funcionales = {
     "Hombre": {
         "Flexiones": {"tipo": "reps", "niveles": [("Bajo", 10), ("Promedio", 20), ("Bueno", 35), ("Avanzado", 50)]},
         "Fondos": {"tipo": "reps", "niveles": [("Bajo", 5), ("Promedio", 12), ("Bueno", 20), ("Avanzado", 30)]},
-        "Press banca": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 40)), ("Promedio", (8, 60)), ("Bueno", (10, 80)), ("Avanzado", (10, 100))]},
         "Dominadas": {"tipo": "reps", "niveles": [("Bajo", 2), ("Promedio", 5), ("Bueno", 10), ("Avanzado", 15)]},
         "Remo invertido": {"tipo": "reps", "niveles": [("Bajo", 5), ("Promedio", 10), ("Bueno", 15), ("Avanzado", 20)]},
-        "Sentadilla": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 60)), ("Promedio", (8, 80)), ("Bueno", (10, 110)), ("Avanzado", (10, 140))]},
-        "Peso muerto": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 70)), ("Promedio", (8, 100)), ("Bueno", (10, 130)), ("Avanzado", (10, 180))]},
-        "Hip thrust": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 60)), ("Promedio", (8, 90)), ("Bueno", (10, 120)), ("Avanzado", (10, 150))]},
+        "Sentadilla búlgara unilateral": {"tipo": "reps", "niveles": [("Bajo", 5), ("Promedio", 10), ("Bueno", 15), ("Avanzado", 20)]},
+        "Puente de glúteo unilateral": {"tipo": "reps", "niveles": [("Bajo", 8), ("Promedio", 15), ("Bueno", 25), ("Avanzado", 35)]},
         "Plancha": {"tipo": "tiempo", "niveles": [("Bajo", 20), ("Promedio", 40), ("Bueno", 60), ("Avanzado", 90)]},
         "Ab wheel": {"tipo": "reps", "niveles": [("Bajo", 1), ("Promedio", 5), ("Bueno", 10), ("Avanzado", 15)]},
         "L-sit": {"tipo": "tiempo", "niveles": [("Bajo", 5), ("Promedio", 10), ("Bueno", 20), ("Avanzado", 30)]}
@@ -337,12 +349,10 @@ referencias_funcionales = {
     "Mujer": {
         "Flexiones": {"tipo": "reps", "niveles": [("Bajo", 2), ("Promedio", 8), ("Bueno", 15), ("Avanzado", 25)]},
         "Fondos": {"tipo": "reps", "niveles": [("Bajo", 1), ("Promedio", 4), ("Bueno", 10), ("Avanzado", 18)]},
-        "Press banca": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 20)), ("Promedio", (8, 30)), ("Bueno", (10, 40)), ("Avanzado", (10, 50))]},  # CORREGIDO
         "Dominadas": {"tipo": "reps", "niveles": [("Bajo", 0), ("Promedio", 1), ("Bueno", 3), ("Avanzado", 5)]},
         "Remo invertido": {"tipo": "reps", "niveles": [("Bajo", 2), ("Promedio", 5), ("Bueno", 10), ("Avanzado", 15)]},
-        "Sentadilla": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 30)), ("Promedio", (8, 50)), ("Bueno", (10, 70)), ("Avanzado", (10, 90))]},
-        "Peso muerto": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 30)), ("Promedio", (8, 50)), ("Bueno", (10, 70)), ("Avanzado", (10, 95))]},
-        "Hip thrust": {"tipo": "reps_peso", "niveles": [("Bajo", (5, 30)), ("Promedio", (8, 60)), ("Bueno", (10, 90)), ("Avanzado", (10, 120))]},
+        "Sentadilla búlgara unilateral": {"tipo": "reps", "niveles": [("Bajo", 3), ("Promedio", 8), ("Bueno", 12), ("Avanzado", 18)]},
+        "Puente de glúteo unilateral": {"tipo": "reps", "niveles": [("Bajo", 5), ("Promedio", 12), ("Bueno", 20), ("Avanzado", 30)]},
         "Plancha": {"tipo": "tiempo", "niveles": [("Bajo", 15), ("Promedio", 30), ("Bueno", 50), ("Avanzado", 70)]},
         "Ab wheel": {"tipo": "reps", "niveles": [("Bajo", 0), ("Promedio", 3), ("Bueno", 7), ("Avanzado", 12)]},
         "L-sit": {"tipo": "tiempo", "niveles": [("Bajo", 3), ("Promedio", 8), ("Bueno", 15), ("Avanzado", 25)]}
@@ -806,12 +816,14 @@ if datos_personales_completos and st.session_state.datos_completos:
                 help="Medida sin zapatos"
             )
         with col3:
+            st.markdown('<div class="body-fat-method-selector">', unsafe_allow_html=True)
             metodo_grasa = st.selectbox(
                 "📊 Método de medición de grasa",
                 ["Omron HBF-516 (BIA)", "InBody 270 (BIA profesional)", "Bod Pod (Pletismografía)", "DEXA (Gold Standard)"],
                 key="metodo_grasa",
                 help="Selecciona el método utilizado"
             )
+            st.markdown('</div>', unsafe_allow_html=True)
 
         # Ensure grasa_corporal has a valid default
         grasa_default = 20.0
@@ -1041,32 +1053,16 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
         with col1:
             empuje = st.selectbox(
                 "Elige tu mejor ejercicio de empuje:",
-                ["Flexiones", "Fondos", "Press banca"],
+                ["Flexiones", "Fondos"],
                 help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
             )
         with col2:
-            if empuje in ["Flexiones", "Fondos"]:
-                empuje_reps = st.number_input(
-                    f"¿Cuántas repeticiones continuas realizas con buena forma en {empuje}?",
-                    min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{empuje}_reps", 10), 10),
-                    help="Sin pausas, sin perder rango completo de movimiento."
-                )
-                ejercicios_data[empuje] = empuje_reps
-            else:  # Press banca
-                col2a, col2b = st.columns(2)
-                with col2a:
-                    press_reps = st.number_input(
-                        "¿Cuántas repeticiones completas (6-10) haces en Press banca con buena técnica?",
-                        min_value=1, max_value=30, value=safe_int(st.session_state.get("press_reps", 8), 8),
-                        help="Repeticiones con técnica estricta y controlada."
-                    )
-                with col2b:
-                    press_peso = st.number_input(
-                        "¿Cuál es el máximo peso (kg) que levantas en Press banca para esas repeticiones?",
-                        min_value=20, max_value=300, value=safe_int(st.session_state.get("press_peso", 60), 60),
-                        help="Peso controlado, sin compensaciones ni trampas."
-                    )
-                ejercicios_data[empuje] = (press_reps, press_peso)
+            empuje_reps = st.number_input(
+                f"¿Cuántas repeticiones continuas realizas con buena forma en {empuje}?",
+                min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{empuje}_reps", 10), 10),
+                help="Sin pausas, sin perder rango completo de movimiento."
+            )
+            ejercicios_data[empuje] = empuje_reps
 
     with tab2:
         st.markdown("#### Tracción superior")
@@ -1091,24 +1087,16 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
         with col1:
             pierna = st.selectbox(
                 "Elige tu mejor ejercicio de pierna:",
-                ["Sentadilla", "Peso muerto", "Hip thrust"],
+                ["Sentadilla búlgara unilateral", "Puente de glúteo unilateral"],
                 help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
             )
         with col2:
-            col2a, col2b = st.columns(2)
-            with col2a:
-                pierna_reps = st.number_input(
-                    f"¿Cuántas repeticiones completas (6-10) haces en {pierna} con buena técnica?",
-                    min_value=1, max_value=30, value=safe_int(st.session_state.get(f"{pierna}_reps", 8), 8),
-                    help="Repeticiones con técnica controlada y profundidad adecuada."
-                )
-            with col2b:
-                pierna_peso = st.number_input(
-                    f"¿Cuál es el máximo peso (kg) que levantas en {pierna} para esas repeticiones?",
-                    min_value=0, max_value=400, value=safe_int(st.session_state.get(f"{pierna}_peso", 80), 80),
-                    help="Peso manejado sin comprometer postura ni seguridad."
-                )
-            ejercicios_data[pierna] = (pierna_reps, pierna_peso)
+            pierna_reps = st.number_input(
+                f"¿Cuántas repeticiones continuas realizas con buena forma en {pierna}?",
+                min_value=0, max_value=50, value=safe_int(st.session_state.get(f"{pierna}_reps", 10), 10),
+                help="Repeticiones con técnica controlada por cada pierna."
+            )
+            ejercicios_data[pierna] = pierna_reps
 
     with tab4:
         st.markdown("#### Core y estabilidad")
@@ -1177,10 +1165,10 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
                 }.get(nivel_ej, "info")
 
                 st.markdown(f"""
-                <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
-                    <strong>{ejercicio}</strong><br>
-                    <span class="badge badge-{color_badge}" style="font-size: 1rem;">{nivel_ej}</span><br>
-                    <small>{valor if not isinstance(valor, tuple) else f'{valor[0]}x{valor[1]}kg'}</small>
+                <div style="text-align: center; padding: 1rem; background: #F4C430; border-radius: 10px; border: 2px solid #DAA520;">
+                    <strong style="color: #1E1E1E; font-weight: bold; font-size: 1.1rem;">{ejercicio}</strong><br>
+                    <span class="badge badge-{color_badge}" style="font-size: 1rem; background: #1E1E1E; color: #F4C430; font-weight: bold; margin: 0.5rem 0;">{nivel_ej}</span><br>
+                    <small style="color: #1E1E1E; font-weight: bold;">{valor if not isinstance(valor, tuple) else f'{valor[0]}x{valor[1]}kg'}</small>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1441,8 +1429,8 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
         st.metric("Promedio diario", f"{gee_prom_dia:.0f} kcal/día", f"Total: {gee_semanal} kcal/sem")
 
     st.markdown(f"""
-    <div class="content-card" style="background: #f8f9fa;">
-        💡 <strong>Cálculo personalizado:</strong> Tu gasto por sesión ({nivel_gee}) 
+    <div class="content-card" style="background: #D6EAF8; color: #1E1E1E; border: 2px solid #3498DB; padding: 1.5rem;">
+        💡 <strong style="color: #1E1E1E; font-weight: bold;">Cálculo personalizado:</strong> Tu gasto por sesión ({nivel_gee}) 
         se basa en tu nivel muscular ({nivel_ffmi}), no solo en el tiempo de entrenamiento.
         Esto proporciona una estimación más precisa de tu gasto energético real.
     </div>
