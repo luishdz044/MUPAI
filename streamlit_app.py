@@ -244,11 +244,64 @@ defaults = {
     "edad": "",
     "sexo": "Hombre",
     "fecha_llenado": datetime.now().strftime("%Y-%m-%d"),
-    "acepto_terminos": False
+    "acepto_terminos": False,
+    "authenticated": False  # Nueva variable para controlar el login
 }
 for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
+
+# ==================== SISTEMA DE AUTENTICACIÓN ====================
+ADMIN_PASSWORD = "MUPAI2025"  # Contraseña predefinida
+
+# Si no está autenticado, mostrar login
+if not st.session_state.authenticated:
+    st.markdown("""
+    <div class="content-card" style="max-width: 500px; margin: 2rem auto; text-align: center;">
+        <h2 style="color: var(--mupai-yellow); margin-bottom: 1.5rem;">
+            🔐 Acceso Administrativo
+        </h2>
+        <p style="margin-bottom: 2rem; color: #CCCCCC;">
+            Ingresa la contraseña para acceder al sistema de evaluación MUPAI
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Container centrado para el formulario de login
+    login_container = st.container()
+    with login_container:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            password_input = st.text_input(
+                "Contraseña", 
+                type="password", 
+                placeholder="Ingresa la contraseña de acceso",
+                key="password_input"
+            )
+            
+            if st.button("🚀 Acceder al Sistema", use_container_width=True):
+                if password_input == ADMIN_PASSWORD:
+                    st.session_state.authenticated = True
+                    st.success("✅ Acceso autorizado. Bienvenido al sistema MUPAI.")
+                    st.rerun()
+                else:
+                    st.error("❌ Contraseña incorrecta. Acceso denegado.")
+    
+    # Mostrar información mientras no esté autenticado
+    st.markdown("""
+    <div class="content-card" style="margin-top: 3rem; text-align: center; background: #1A1A1A;">
+        <h3 style="color: var(--mupai-yellow);">Sistema de Evaluación Fitness Profesional</h3>
+        <p style="color: #CCCCCC;">
+            MUPAI utiliza algoritmos científicos avanzados para proporcionar evaluaciones 
+            personalizadas de composición corporal, rendimiento y planificación nutricional.
+        </p>
+        <p style="color: #999999; font-size: 0.9rem; margin-top: 1.5rem;">
+            © 2025 MUPAI - Muscle Up Performance Assessment Intelligence
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.stop()  # Detener la ejecución hasta que se autentique
 
 # Tarjetas visuales robustas
 def crear_tarjeta(titulo, contenido, tipo="info"):
@@ -1752,6 +1805,42 @@ DISTRIBUCIÓN DE MACRONUTRIENTES:
 - Grasas: {grasa_g}g ({grasa_kcal_safe:.0f} kcal) = {grasa_percent}%
 - Carbohidratos: {carbo_g}g ({carbo_kcal_safe:.0f} kcal) = {carbo_percent}%
 
+=====================================
+RESUMEN PERSONALIZADO Y PROYECCIÓN
+=====================================
+📊 DIAGNÓSTICO PERSONALIZADO:
+- Categoría grasa corporal: {
+    "Muy bajo (Competición)" if (sexo == "Hombre" and grasa_corregida < 6) or (sexo == "Mujer" and grasa_corregida < 12)
+    else "Atlético" if (sexo == "Hombre" and grasa_corregida < 12) or (sexo == "Mujer" and grasa_corregida < 17)
+    else "Fitness" if (sexo == "Hombre" and grasa_corregida < 18) or (sexo == "Mujer" and grasa_corregida < 23)
+    else "Promedio" if (sexo == "Hombre" and grasa_corregida < 25) or (sexo == "Mujer" and grasa_corregida < 30)
+    else "Alto"
+} ({grasa_corregida:.1f}%)
+- Nivel de entrenamiento: {nivel_entrenamiento.capitalize() if 'nivel_entrenamiento' in locals() else 'Intermedio'}
+- Objetivo recomendado: {fase}
+
+📈 PROYECCIÓN 6 SEMANAS:
+- Déficit/Superávit recomendado: {porcentaje if 'porcentaje' in locals() else 0}%
+- Tasa semanal estimada: {abs(porcentaje)/4 if 'porcentaje' in locals() and porcentaje != 0 else 0:.1f}% {"ganancia" if 'porcentaje' in locals() and porcentaje < 0 else "pérdida" if 'porcentaje' in locals() and porcentaje > 0 else "mantenimiento"}
+- Cambio semanal estimado: {'+' if 'porcentaje' in locals() and porcentaje < 0 else '-' if 'porcentaje' in locals() and porcentaje > 0 else ''}{peso * abs(porcentaje)/400 if 'porcentaje' in locals() and porcentaje != 0 else 0:.2f} kg/semana
+- Peso actual → proyectado: {peso:.1f} kg → {peso + (peso * porcentaje * 6 / -400) if 'porcentaje' in locals() else peso:.1f} kg
+- Cambio total estimado (6 sem): {'+' if 'porcentaje' in locals() and porcentaje < 0 else '-' if 'porcentaje' in locals() and porcentaje > 0 else ''}{abs(peso * porcentaje * 6 / 400) if 'porcentaje' in locals() and porcentaje != 0 else 0:.2f} kg
+
+⚠️ IMPORTANTE - NATURALEZA DE LAS ESTIMACIONES:
+Estas son estimaciones basadas en modelos científicos. El cuerpo humano 
+es un sistema complejo, no lineal y dinámico. Los resultados reales 
+dependerán de múltiples factores como:
+
+- Adherencia estricta al plan nutricional y de entrenamiento
+- Calidad del sueño y gestión del estrés  
+- Respuesta individual y adaptaciones metabólicas
+- Factores hormonales y genéticos
+- Variaciones en la actividad diaria no planificada
+
+RECOMENDACIÓN: Utiliza estas proyecciones como guía inicial y ajusta 
+según tu progreso real. Se recomienda evaluación periódica cada 2-3 
+semanas para optimizar resultados.
+
 """
 
 # --- Botón para enviar email (solo si no se ha enviado y todo completo) ---
@@ -1784,6 +1873,151 @@ if st.button("📧 Reenviar Email", key="reenviar_email"):
                 st.success("✅ Email reenviado exitosamente a administración")
             else:
                 st.error("❌ Error al reenviar email. Contacta a soporte técnico.")
+
+# ==================== RESUMEN PERSONALIZADO ====================
+# Solo mostrar si los datos están completos para la evaluación
+if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
+    st.markdown("---")
+    st.markdown("""
+    <div class="content-card" style="background: linear-gradient(135deg, #1E1E1E 0%, #232425 100%); border-left: 4px solid var(--mupai-yellow);">
+        <h2 style="color: var(--mupai-yellow); text-align: center; margin-bottom: 2rem;">
+            🎯 Resumen Personalizado y Proyección
+        </h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Categorizar grasa corporal
+    if sexo == "Hombre":
+        if grasa_corregida < 6:
+            categoria_grasa = "Muy bajo (Competición)"
+            color_categoria = "#E74C3C"
+        elif grasa_corregida < 12:
+            categoria_grasa = "Atlético"
+            color_categoria = "#27AE60"
+        elif grasa_corregida < 18:
+            categoria_grasa = "Fitness"
+            color_categoria = "#F39C12"
+        elif grasa_corregida < 25:
+            categoria_grasa = "Promedio"
+            color_categoria = "#3498DB"
+        else:
+            categoria_grasa = "Alto"
+            color_categoria = "#E74C3C"
+    else:  # Mujer
+        if grasa_corregida < 12:
+            categoria_grasa = "Muy bajo (Competición)"
+            color_categoria = "#E74C3C"
+        elif grasa_corregida < 17:
+            categoria_grasa = "Atlético"
+            color_categoria = "#27AE60"
+        elif grasa_corregida < 23:
+            categoria_grasa = "Fitness"
+            color_categoria = "#F39C12"
+        elif grasa_corregida < 30:
+            categoria_grasa = "Promedio"
+            color_categoria = "#3498DB"
+        else:
+            categoria_grasa = "Alto"
+            color_categoria = "#E74C3C"
+    
+    # Obtener tasa semanal basada en el porcentaje de déficit/superávit
+    if "porcentaje" in locals():
+        if porcentaje < 0:  # Superávit
+            tasa_semanal = abs(porcentaje) / 4  # Dividir entre 4 para tasa semanal
+            tipo_cambio = "ganancia"
+            direccion = "+"
+        elif porcentaje > 0:  # Déficit
+            tasa_semanal = porcentaje / 4
+            tipo_cambio = "pérdida"
+            direccion = "-"
+        else:  # Mantenimiento
+            tasa_semanal = 0
+            tipo_cambio = "mantenimiento"
+            direccion = ""
+    else:
+        tasa_semanal = 0
+        tipo_cambio = "mantenimiento"
+        direccion = ""
+    
+    # Cálculo de proyección para 6 semanas
+    peso_actual = peso if peso > 0 else 70  # Fallback si no hay peso
+    cambio_semanal = peso_actual * (tasa_semanal / 100)
+    cambio_6_semanas = cambio_semanal * 6
+    
+    if direccion == "+":
+        peso_proyectado = peso_actual + cambio_6_semanas
+    elif direccion == "-":
+        peso_proyectado = peso_actual - cambio_6_semanas
+    else:
+        peso_proyectado = peso_actual
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(f"""
+        <div class="content-card" style="background: #1A1A1A;">
+            <h3 style="color: var(--mupai-yellow); margin-bottom: 1.5rem;">📊 Diagnóstico Personalizado</h3>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #CCCCCC;">Categoría de Grasa Corporal:</strong><br>
+                <span style="color: {color_categoria}; font-weight: bold; font-size: 1.1rem;">{categoria_grasa}</span>
+                <span style="color: #999999;"> ({grasa_corregida:.1f}%)</span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #CCCCCC;">Nivel de Entrenamiento:</strong><br>
+                <span style="color: var(--mupai-yellow); font-weight: bold;">{nivel_entrenamiento.capitalize() if 'nivel_entrenamiento' in locals() else 'Intermedio'}</span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #CCCCCC;">Objetivo Recomendado:</strong><br>
+                <span style="color: #27AE60; font-weight: bold;">{fase}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="content-card" style="background: #1A1A1A;">
+            <h3 style="color: var(--mupai-yellow); margin-bottom: 1.5rem;">📈 Proyección 6 Semanas</h3>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #CCCCCC;">{tipo_cambio.capitalize()} Semanal Estimada:</strong><br>
+                <span style="color: {'#27AE60' if direccion == '+' else '#E74C3C' if direccion == '-' else '#3498DB'}; font-weight: bold; font-size: 1.1rem;">
+                    {direccion}{cambio_semanal:.2f} kg/semana ({direccion}{tasa_semanal:.1f}%)
+                </span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #CCCCCC;">Peso Actual → Proyectado:</strong><br>
+                <span style="color: #CCCCCC; font-size: 1.1rem;">{peso_actual:.1f} kg → </span>
+                <span style="color: var(--mupai-yellow); font-weight: bold; font-size: 1.1rem;">{peso_proyectado:.1f} kg</span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #CCCCCC;">Cambio Total Estimado:</strong><br>
+                <span style="color: {'#27AE60' if direccion == '+' else '#E74C3C' if direccion == '-' else '#3498DB'}; font-weight: bold; font-size: 1.1rem;">
+                    {direccion}{cambio_6_semanas:.2f} kg en 6 semanas
+                </span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Nota aclaratoria
+    st.markdown("""
+    <div class="content-card" style="background: #252525; border-left: 4px solid #F39C12;">
+        <h4 style="color: #F39C12; margin-bottom: 1rem;">⚠️ Importante: Naturaleza de las Estimaciones</h4>
+        <p style="color: #CCCCCC; line-height: 1.6; margin-bottom: 0;">
+            <strong>Estas son estimaciones basadas en modelos científicos.</strong> El cuerpo humano es un sistema complejo, 
+            no lineal y dinámico. Los resultados reales dependerán de múltiples factores como:
+        </p>
+        <ul style="color: #CCCCCC; margin: 1rem 0; line-height: 1.6;">
+            <li>Adherencia estricta al plan nutricional y de entrenamiento</li>
+            <li>Calidad del sueño y gestión del estrés</li>
+            <li>Respuesta individual y adaptaciones metabólicas</li>
+            <li>Factores hormonales y genéticos</li>
+            <li>Variaciones en la actividad diaria no planificada</li>
+        </ul>
+        <p style="color: #CCCCCC; line-height: 1.6; margin-bottom: 0;">
+            <strong>Recomendación:</strong> Utiliza estas proyecciones como guía inicial y ajusta según tu progreso real. 
+            Se recomienda evaluación periódica cada 2-3 semanas para optimizar resultados.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- Limpieza de sesión y botón de nueva evaluación ---
 if st.button("🔄 Nueva Evaluación", key="nueva"):
