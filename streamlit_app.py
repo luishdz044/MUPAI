@@ -298,6 +298,24 @@ referencias_funcionales = {
 
 # === Funciones auxiliares para cálculos ===
 
+def safe_float(value, default=0.0):
+    """Safely convert value to float, handling empty strings and None."""
+    try:
+        if value == '' or value is None:
+            return float(default)
+        return float(value)
+    except (ValueError, TypeError):
+        return float(default)
+
+def safe_int(value, default=0):
+    """Safely convert value to int, handling empty strings and None."""
+    try:
+        if value == '' or value is None:
+            return int(default)
+        return int(value)
+    except (ValueError, TypeError):
+        return int(default)
+
 def calcular_tmb_cunningham(mlg):
     """Calcula el TMB usando la fórmula de Cunningham."""
     try:
@@ -521,7 +539,7 @@ with col1:
     email_cliente = st.text_input("Email*", placeholder="correo@ejemplo.com", help="Email válido para recibir resultados")
 
 with col2:
-    edad = st.number_input("Edad (años)*", min_value=15, max_value=80, value=25, help="Tu edad actual")
+    edad = st.number_input("Edad (años)*", min_value=15, max_value=80, value=safe_int(st.session_state.get("edad", 25), 25), help="Tu edad actual")
     sexo = st.selectbox("Sexo biológico*", ["Hombre", "Mujer"], help="Necesario para cálculos precisos")
     fecha_llenado = datetime.now().strftime("%Y-%m-%d")
     st.info(f"📅 Fecha de evaluación: {fecha_llenado}")
@@ -624,21 +642,31 @@ if datos_personales_completos and st.session_state.datos_completos:
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
         with col1:
+            # Ensure peso has a valid default
+            peso_default = 70.0
+            peso_value = st.session_state.get("peso", peso_default)
+            if peso_value == '' or peso_value is None or peso_value == 0:
+                peso_value = peso_default
             peso = st.number_input(
                 "⚖️ Peso corporal (kg)",
                 min_value=30.0,
                 max_value=200.0,
-                value=st.session_state.get("peso", 70.0),
+                value=safe_float(peso_value, peso_default),
                 step=0.1,
                 key="peso",
                 help="Peso en ayunas, sin ropa"
             )
         with col2:
+            # Ensure estatura has a valid default
+            estatura_default = 170
+            estatura_value = st.session_state.get("estatura", estatura_default)
+            if estatura_value == '' or estatura_value is None or estatura_value == 0:
+                estatura_value = estatura_default
             estatura = st.number_input(
                 "📏 Estatura (cm)",
                 min_value=120,
                 max_value=220,
-                value=st.session_state.get("estatura", 170),
+                value=safe_int(estatura_value, estatura_default),
                 key="estatura",
                 help="Medida sin zapatos"
             )
@@ -650,11 +678,16 @@ if datos_personales_completos and st.session_state.datos_completos:
                 help="Selecciona el método utilizado"
             )
 
+        # Ensure grasa_corporal has a valid default
+        grasa_default = 20.0
+        grasa_value = st.session_state.get("grasa_corporal", grasa_default)
+        if grasa_value == '' or grasa_value is None or grasa_value == 0:
+            grasa_value = grasa_default
         grasa_corporal = st.number_input(
             f"💪 % de grasa corporal ({metodo_grasa.split('(')[0].strip()})",
             min_value=3.0,
             max_value=60.0,
-            value=st.session_state.get("grasa_corporal", 20.0),
+            value=safe_float(grasa_value, grasa_default),
             step=0.1,
             key="grasa_corporal",
             help="Valor medido con el método seleccionado"
@@ -662,11 +695,7 @@ if datos_personales_completos and st.session_state.datos_completos:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Guardar en session_state
-    st.session_state.peso = peso
-    st.session_state.estatura = estatura
-    st.session_state.metodo_grasa = metodo_grasa
-    st.session_state.grasa_corporal = grasa_corporal
+    # Note: session_state is automatically managed by widget keys, so no explicit assignments needed
 
     # Cálculos antropométricos
     sexo = st.session_state.sexo
@@ -804,12 +833,7 @@ sexo = st.session_state.get("sexo", "Hombre")
 edad = st.session_state.get("edad", 0)
 metodo_grasa = st.session_state.get("metodo_grasa", "Omron HBF-516 (BIA)")
 
-# Actualiza session_state con los valores actuales
-st.session_state.peso = peso
-st.session_state.estatura = estatura
-st.session_state.grasa_corporal = grasa_corporal
-st.session_state.sexo = sexo
-st.session_state.edad = edad
+# Note: Session state is automatically managed by widget keys
 
 # --- Recalcula variables críticas para PSMF ---
 grasa_corregida = corregir_porcentaje_grasa(grasa_corporal, metodo_grasa, sexo)
@@ -889,7 +913,7 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
             if empuje in ["Flexiones", "Fondos"]:
                 empuje_reps = st.number_input(
                     f"¿Cuántas repeticiones continuas realizas con buena forma en {empuje}?",
-                    min_value=0, max_value=100, value=10,
+                    min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{empuje}_reps", 10), 10),
                     help="Sin pausas, sin perder rango completo de movimiento."
                 )
                 ejercicios_data[empuje] = empuje_reps
@@ -898,13 +922,13 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
                 with col2a:
                     press_reps = st.number_input(
                         "¿Cuántas repeticiones completas (6-10) haces en Press banca con buena técnica?",
-                        min_value=1, max_value=30, value=8,
+                        min_value=1, max_value=30, value=safe_int(st.session_state.get("press_reps", 8), 8),
                         help="Repeticiones con técnica estricta y controlada."
                     )
                 with col2b:
                     press_peso = st.number_input(
                         "¿Cuál es el máximo peso (kg) que levantas en Press banca para esas repeticiones?",
-                        min_value=20, max_value=300, value=60,
+                        min_value=20, max_value=300, value=safe_int(st.session_state.get("press_peso", 60), 60),
                         help="Peso controlado, sin compensaciones ni trampas."
                     )
                 ejercicios_data[empuje] = (press_reps, press_peso)
@@ -921,7 +945,7 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
         with col2:
             traccion_reps = st.number_input(
                 f"¿Cuántas repeticiones continuas realizas con buena forma en {traccion}?",
-                min_value=0, max_value=50, value=5,
+                min_value=0, max_value=50, value=safe_int(st.session_state.get(f"{traccion}_reps", 5), 5),
                 help="Sin balanceo ni uso de impulso; técnica estricta."
             )
             ejercicios_data[traccion] = traccion_reps
@@ -940,13 +964,13 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
             with col2a:
                 pierna_reps = st.number_input(
                     f"¿Cuántas repeticiones completas (6-10) haces en {pierna} con buena técnica?",
-                    min_value=1, max_value=30, value=8,
+                    min_value=1, max_value=30, value=safe_int(st.session_state.get(f"{pierna}_reps", 8), 8),
                     help="Repeticiones con técnica controlada y profundidad adecuada."
                 )
             with col2b:
                 pierna_peso = st.number_input(
                     f"¿Cuál es el máximo peso (kg) que levantas en {pierna} para esas repeticiones?",
-                    min_value=0, max_value=400, value=80,
+                    min_value=0, max_value=400, value=safe_int(st.session_state.get(f"{pierna}_peso", 80), 80),
                     help="Peso manejado sin comprometer postura ni seguridad."
                 )
             ejercicios_data[pierna] = (pierna_reps, pierna_peso)
@@ -964,14 +988,14 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
             if core == "Plancha":
                 core_tiempo = st.number_input(
                     "¿Cuál es el máximo tiempo (segundos) que mantienes la posición de plancha con técnica correcta?",
-                    min_value=0, max_value=600, value=60,
+                    min_value=0, max_value=600, value=safe_int(st.session_state.get("plancha_tiempo", 60), 60),
                     help="Mantén la posición sin perder alineación corporal."
                 )
                 ejercicios_data[core] = core_tiempo
             else:
                 core_reps = st.number_input(
                     f"¿Cuántas repeticiones completas realizas en {core} con buena forma?",
-                    min_value=0, max_value=100, value=10,
+                    min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{core}_reps", 10), 10),
                     help="Repeticiones con control y sin compensaciones."
                 )
                 ejercicios_data[core] = core_reps
