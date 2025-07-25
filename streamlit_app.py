@@ -1118,7 +1118,7 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
 
     st.markdown("### 📋 Experiencia en entrenamiento")
     experiencia = st.radio(
-        "¿Cuál de las siguientes afirmaciones describe con mayor precisión tu hábito de entrenamiento en las últimas 12 semanas?",
+        "¿Cuál de las siguientes afirmaciones describe con mayor precisión tu hábito de entrenamiento en los últimos dos años?",
         [
             "A) He entrenado de forma irregular, con semanas sin entrenar y sin un plan estructurado.",
             "B) He entrenado al menos 2 veces por semana siguiendo rutinas generales sin mucha progresión planificada.",
@@ -1305,32 +1305,54 @@ elif puntaje_total < 0.7:
 else:
     nivel_entrenamiento = "élite"
 
-with col1:
-    st.metric("Desarrollo Muscular", f"{puntos_ffmi}/5", f"FFMI: {nivel_ffmi}")
+# Validar si todos los ejercicios funcionales y experiencia están completos
+ejercicios_funcionales_completos = len(ejercicios_data) >= 5  # Debe tener los 5 ejercicios
+experiencia_completa = experiencia and not experiencia.startswith("A) He entrenado de forma irregular")
 
-with col2:
-    st.metric("Rendimiento", f"{puntos_funcional:.1f}/4", "Capacidad funcional")
+if ejercicios_funcionales_completos and experiencia_completa:
+    # Mostrar el bloque visual del nivel global solo si todo está completo
+    with col1:
+        st.metric("Desarrollo Muscular", f"{puntos_ffmi}/5", f"FFMI: {nivel_ffmi}")
 
-with col3:
-    st.metric("Experiencia", f"{puntos_exp}/4", experiencia[3:20] + "...")
+    with col2:
+        st.metric("Rendimiento", f"{puntos_funcional:.1f}/4", "Capacidad funcional")
 
-with col4:
-    color_nivel_entrenamiento = {
-        "principiante": "warning",
-        "intermedio": "info",
-        "avanzado": "success",
-        "élite": "success"
-    }.get(nivel_entrenamiento, "info")
+    with col3:
+        st.metric("Experiencia", f"{puntos_exp}/4", experiencia[3:20] + "...")
 
-    st.markdown(f"""
-    <div style="text-align: center;">
-        <h3 style="margin: 0;">Nivel Global</h3>
-        <span class="badge badge-{color_nivel_entrenamiento}" style="font-size: 1.2rem;">
-            {nivel_entrenamiento.upper()}
-        </span><br>
-        <small>Score: {puntaje_total:.2f}/1.0</small>
-    </div>
-    """, unsafe_allow_html=True)
+    with col4:
+        color_nivel_entrenamiento = {
+            "principiante": "warning",
+            "intermedio": "info",
+            "avanzado": "success",
+            "élite": "success"
+        }.get(nivel_entrenamiento, "info")
+
+        st.markdown(f"""
+        <div style="text-align: center;">
+            <h3 style="margin: 0;">Nivel Global</h3>
+            <span class="badge badge-{color_nivel_entrenamiento}" style="font-size: 1.2rem;">
+                {nivel_entrenamiento.upper()}
+            </span><br>
+            <small>Score: {puntaje_total:.2f}/1.0</small>
+        </div>
+        """, unsafe_allow_html=True)
+else:
+    # Mostrar mensaje informativo si faltan datos
+    faltantes = []
+    if not ejercicios_funcionales_completos:
+        faltantes.append("ejercicios funcionales")
+    if not experiencia_completa:
+        faltantes.append("pregunta de experiencia")
+    
+    st.info(f"""
+    ℹ️ **Para ver tu análisis integral de nivel, completa:**
+    
+    {'• Los ' + faltantes[0] if len(faltantes) > 0 else ''}
+    {'• La ' + faltantes[1] if len(faltantes) > 1 else ''}
+    
+    Una vez completados todos los datos, se mostrará tu ponderación de FFMI, rendimiento funcional y experiencia.
+    """)
     # === Potencial genético ===
 # Initialize variables with safe defaults
 if 'ffmi' not in locals():
