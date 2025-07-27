@@ -1062,6 +1062,16 @@ if datos_personales_completos and st.session_state.datos_completos:
         - Élite: >{rangos_ffmi['Avanzado']}
         """)
 
+    # Mensaje claro de continuación después de mostrar resultados antropométricos
+    st.success("""
+    ✅ **Composición corporal evaluada correctamente**
+    
+    📋 Ahora continuaremos con la evaluación funcional para completar tu perfil de entrenamiento. 
+    Los datos anteriores se han guardado automáticamente.
+    """)
+    
+    st.markdown("---")  # Separador visual
+
 else:
     st.info("Por favor completa los datos personales para comenzar la evaluación.")
     # === INICIALIZACIÓN DE VARIABLES CRÍTICAS ===
@@ -1721,11 +1731,20 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
         st.markdown("### 📊 Comparativa de planes")
         col1, col2 = st.columns(2)
         with col1:
+            # Calcular proyección para plan tradicional
+            porcentaje_tradicional = porcentaje if 'porcentaje' in locals() else 0
+            proyeccion_tradicional = calcular_proyeccion_cientifica(
+                sexo, grasa_corregida, 
+                nivel_entrenamiento if 'nivel_entrenamiento' in locals() else 'intermedio',
+                peso, porcentaje_tradicional
+            )
+            perdida_tradicional_min, perdida_tradicional_max = proyeccion_tradicional['rango_semanal_kg']
+            
             st.markdown('<div class="content-card card-success">', unsafe_allow_html=True)
             st.markdown("#### ✅ Plan Tradicional")
             st.metric("Déficit", f"{porcentaje}%", "Moderado")
             st.metric("Calorías", f"{ingesta_calorica_tradicional:.0f} kcal/día")
-            st.metric("Pérdida esperada", "0.5-0.7 kg/semana")
+            st.metric("Pérdida esperada", f"{abs(perdida_tradicional_min):.1f}-{abs(perdida_tradicional_max):.1f} kg/semana")
             st.markdown("""
             **Ventajas:**
             - ✅ Mayor adherencia
@@ -1736,8 +1755,14 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             """)
             st.markdown('</div>', unsafe_allow_html=True)
         with col2:
-            deficit_psmf = int((1 - psmf_recs['calorias_dia']/GE) * 100)
-            perdida_min, perdida_max = psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))
+            deficit_psmf = int((1 - psmf_recs['calorias_dia']/GE) * 100) if 'GE' in locals() and GE > 0 else 50
+            # Calcular proyección para PSMF usando el déficit real
+            proyeccion_psmf = calcular_proyeccion_cientifica(
+                sexo, grasa_corregida, 
+                nivel_entrenamiento if 'nivel_entrenamiento' in locals() else 'intermedio',
+                peso, -deficit_psmf
+            )
+            perdida_psmf_min, perdida_psmf_max = proyeccion_psmf['rango_semanal_kg']
             multiplicador = psmf_recs.get('multiplicador', 8.3)
             perfil_grasa = psmf_recs.get('perfil_grasa', 'alto % grasa')
             
@@ -1746,14 +1771,14 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             st.metric("Déficit", f"~{deficit_psmf}%", "Agresivo")
             st.metric("Calorías", f"{psmf_recs['calorias_dia']:.0f} kcal/día")
             st.metric("Multiplicador", f"{multiplicador}", f"Perfil: {perfil_grasa}")
-            st.metric("Pérdida esperada", f"{perdida_min}-{perdida_max} kg/semana")
+            st.metric("Pérdida esperada", f"{abs(perdida_psmf_min):.1f}-{abs(perdida_psmf_max):.1f} kg/semana")
             st.markdown(f"""
             **Consideraciones:**
             - ⚠️ Muy restrictivo
             - ⚠️ Máximo 6-8 semanas
             - ⚠️ Requiere supervisión médica
             - ⚠️ Proteína: {psmf_recs['proteina_g_dia']}g/día (1.8g/kg mínimo)
-            - ⚠️ Carbos y grasas al mínimo
+            - ⚠️ Grasas: 0g (carbos de vegetales fibrosos)
             - ⚠️ Suplementación necesaria
             """)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -1772,13 +1797,17 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
         proteina_g = psmf_recs['proteina_g_dia']
         proteina_kcal = proteina_g * 4
         
-        # CARBOHIDRATOS: Mínimo absoluto (solo de vegetales)
-        carbo_g = 20  # Reducido a mínimo para vegetales de hoja verde
-        carbo_kcal = carbo_g * 4
+        # GRASAS: Fijadas en 0g según los nuevos requerimientos
+        grasa_g = 0.0
+        grasa_kcal = grasa_g * 9
         
-        # GRASAS: El resto de calorías (de fuentes magras únicamente)
-        grasa_kcal = max(ingesta_calorica - proteina_kcal - carbo_kcal, 60)  # Mínimo 60 kcal para ácidos grasos esenciales
-        grasa_g = round(grasa_kcal / 9, 1)
+        # CARBOHIDRATOS: El resto de calorías (solo de vegetales fibrosos)
+        carbo_kcal = ingesta_calorica - proteina_kcal - grasa_kcal
+        carbo_g = round(carbo_kcal / 4, 1)
+        
+        # Validar que los carbohidratos sean razonables (calculados por kg de peso corporal)
+        # Aproximadamente 0.5-1g por kg de peso para vegetales fibrosos
+        carbo_por_kg = carbo_g / peso if peso > 0 else 0
         
         multiplicador = psmf_recs.get('multiplicador', 8.3)
         perfil_grasa = psmf_recs.get('perfil_grasa', 'alto % grasa')
@@ -1794,9 +1823,9 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
         - **Multiplicador calórico:** {multiplicador} (perfil: {perfil_grasa})
         - **Pérdida proyectada:** {perdida_min}-{perdida_max} kg/semana
         - **Requiere:** Supervisión médica y análisis de sangre regulares
-        - **Carbohidratos:** Solo de vegetales de hoja verde ({carbo_g}g máximo)
-        - **Grasas:** Solo de fuentes magras como pescado, aceite de oliva mínimo ({grasa_g}g)
-        - **Suplementación obligatoria:** Multivitamínico, omega-3, electrolitos, magnesio
+        - **Carbohidratos:** {carbo_g}g/día ({carbo_por_kg:.2f}g/kg) - SOLO de vegetales fibrosos (espinacas, brócoli, lechuga)
+        - **Grasas:** {grasa_g}g/día (fijado en 0g según protocolo actualizado)
+        - **Suplementación obligatoria:** Multivitamínico, omega-3, electrolitos, magnesio (especialmente importante con 0g grasa)
         - **No apto para:** Personas con historial de TCA, problemas médicos o embarazo
         """)
     else:
@@ -2240,7 +2269,15 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
     
     # Usar proyección científica realista
     peso_actual = peso if peso > 0 else 70  # Fallback si no hay peso
-    porcentaje_for_projection = porcentaje if "porcentaje" in locals() else 0
+    
+    # Determinar el porcentaje para proyección según el plan elegido
+    if psmf_recs.get("psmf_aplicable") and "PSMF" in plan_elegido:
+        # Para PSMF usar el déficit agresivo real basado en las calorías PSMF
+        deficit_psmf_real = int((1 - psmf_recs['calorias_dia']/GE) * 100) if 'GE' in locals() and GE > 0 else 50
+        porcentaje_for_projection = -deficit_psmf_real  # Negativo para déficit
+    else:
+        # Para plan tradicional usar el porcentaje calculado normalmente
+        porcentaje_for_projection = porcentaje if "porcentaje" in locals() else 0
     
     # Calcular proyección científica
     proyeccion = calcular_proyeccion_cientifica(
