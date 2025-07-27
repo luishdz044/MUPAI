@@ -552,28 +552,76 @@ def clasificar_ffmi(ffmi, sexo):
 
 def calculate_psmf(sexo, peso, grasa_corregida, mlg):
     """
-    Calcula los parámetros para PSMF (Very Low Calorie Diet) recomendada
-    según sexo y % grasa corregida.
+    Calcula los parámetros para PSMF (Very Low Calorie Diet) actualizada
+    según el nuevo protocolo basado en proteína total y multiplicadores.
+    
+    Requisitos actualizados:
+    - Proteína mínima: 1.8g/kg peso corporal total
+    - Calorías = proteína (g) × multiplicador según % grasa
+    - Multiplicadores: 8.3 (alto % grasa), 9.0 (moderado), 9.5-9.7 (magro)
     """
     try:
-        mlg = float(mlg)
+        peso = float(peso)
+        grasa_corregida = float(grasa_corregida)
     except (TypeError, ValueError):
-        mlg = 0.0
+        peso = 70.0
+        grasa_corregida = 20.0
+    
+    # Determinar elegibilidad para PSMF según sexo y % grasa
     if sexo == "Hombre" and grasa_corregida > 18:
-        return {
-            "psmf_aplicable": True,
-            "proteina_g_dia": round(mlg * 2.2, 1),
-            "calorias_dia": round(mlg * 24, 0),
-            "calorias_piso_dia": 800,
-            "criterio": "PSMF recomendado por % grasa >18%"
-        }
+        psmf_aplicable = True
+        criterio = "PSMF recomendado por % grasa >18%"
+        calorias_piso_dia = 800
     elif sexo == "Mujer" and grasa_corregida > 23:
+        psmf_aplicable = True
+        criterio = "PSMF recomendado por % grasa >23%"
+        calorias_piso_dia = 700
+    else:
+        return {"psmf_aplicable": False}
+    
+    if psmf_aplicable:
+        # PROTEÍNA: Mínimo 1.8g/kg peso corporal total
+        proteina_g_dia = round(peso * 1.8, 1)
+        
+        # MULTIPLICADOR CALÓRICO según % grasa corporal
+        if grasa_corregida > 35:  # Alto % grasa - PSMF tradicional
+            multiplicador = 8.3
+            perfil_grasa = "alto % grasa (PSMF tradicional)"
+        elif grasa_corregida >= 25 and sexo == "Hombre":  # Moderado para hombres
+            multiplicador = 9.0
+            perfil_grasa = "% grasa moderado"
+        elif grasa_corregida >= 30 and sexo == "Mujer":  # Moderado para mujeres
+            multiplicador = 9.0
+            perfil_grasa = "% grasa moderado"
+        else:  # Casos más magros - visible abdominals/lower %
+            # Usar 9.6 como punto medio del rango 9.5-9.7
+            multiplicador = 9.6
+            perfil_grasa = "más magro (abdominales visibles)"
+        
+        # CALORÍAS = proteína (g) × multiplicador
+        calorias_dia = round(proteina_g_dia * multiplicador, 0)
+        
+        # Verificar que no esté por debajo del piso mínimo
+        if calorias_dia < calorias_piso_dia:
+            calorias_dia = calorias_piso_dia
+        
+        # Calcular rango de pérdida semanal proyectada (estimación conservadora)
+        if sexo == "Hombre":
+            perdida_semanal_min = 0.8  # kg/semana
+            perdida_semanal_max = 1.2
+        else:  # Mujer
+            perdida_semanal_min = 0.6  # kg/semana
+            perdida_semanal_max = 1.0
+        
         return {
             "psmf_aplicable": True,
-            "proteina_g_dia": round(mlg * 2, 1),
-            "calorias_dia": round(mlg * 22, 0),
-            "calorias_piso_dia": 700,
-            "criterio": "PSMF recomendado por % grasa >23%"
+            "proteina_g_dia": proteina_g_dia,
+            "calorias_dia": calorias_dia,
+            "calorias_piso_dia": calorias_piso_dia,
+            "multiplicador": multiplicador,
+            "perfil_grasa": perfil_grasa,
+            "perdida_semanal_kg": (perdida_semanal_min, perdida_semanal_max),
+            "criterio": f"{criterio} - Nuevo protocolo: {perfil_grasa}"
         }
     else:
         return {"psmf_aplicable": False}
@@ -1079,13 +1127,24 @@ mlg = calcular_mlg(peso, grasa_corregida)
 psmf_recs = calculate_psmf(sexo, peso, grasa_corregida, mlg)
 if psmf_recs.get("psmf_aplicable"):
     st.markdown('<div class="content-card card-psmf">', unsafe_allow_html=True)
+    perdida_min, perdida_max = psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))
     st.warning(f"""
-    ⚡ **CANDIDATO PARA PROTOCOLO PSMF**
+    ⚡ **CANDIDATO PARA PROTOCOLO PSMF ACTUALIZADO**
     Por tu % de grasa corporal ({grasa_corregida:.1f}%), podrías beneficiarte de una fase de pérdida rápida:
-    - 🥩 **Proteína:** {psmf_recs['proteina_g_dia']} g/día
-    - 🔥 **Calorías:** {psmf_recs['calorias_dia']} kcal/día
-    - ⚠️ **Mínimo absoluto:** {psmf_recs['calorias_piso_dia']} kcal/día
-    - 📋 **Criterio:** {psmf_recs['criterio']}
+    
+    🥩 **Proteína diaria:** {psmf_recs['proteina_g_dia']} g/día ({psmf_recs['proteina_g_dia']/peso:.2f} g/kg peso total)
+    🔥 **Calorías diarias:** {psmf_recs['calorias_dia']:.0f} kcal/día
+    📊 **Multiplicador:** {psmf_recs.get('multiplicador', 8.3)} (perfil: {psmf_recs.get('perfil_grasa', 'alto % grasa')})
+    📈 **Pérdida semanal proyectada:** {perdida_min}-{perdida_max} kg/semana
+    ⚠️ **Mínimo absoluto:** {psmf_recs['calorias_piso_dia']} kcal/día
+    📋 **Criterio:** {psmf_recs['criterio']}
+    
+    ⚠️ **ADVERTENCIAS DE SEGURIDAD:**
+    • Duración máxima: 6-8 semanas
+    • Requiere supervisión médica/nutricional
+    • Carbohidratos y grasas al mínimo (solo de fuentes magras y vegetales)
+    • Suplementación obligatoria: multivitamínico, omega-3, electrolitos
+    
     *PSMF = Protein Sparing Modified Fast (ayuno modificado ahorrador de proteína)*
     """)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1678,17 +1737,23 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             st.markdown('</div>', unsafe_allow_html=True)
         with col2:
             deficit_psmf = int((1 - psmf_recs['calorias_dia']/GE) * 100)
+            perdida_min, perdida_max = psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))
+            multiplicador = psmf_recs.get('multiplicador', 8.3)
+            perfil_grasa = psmf_recs.get('perfil_grasa', 'alto % grasa')
+            
             st.markdown('<div class="content-card card-psmf">', unsafe_allow_html=True)
-            st.markdown("#### ⚡ Protocolo PSMF")
+            st.markdown("#### ⚡ Protocolo PSMF Actualizado")
             st.metric("Déficit", f"~{deficit_psmf}%", "Agresivo")
             st.metric("Calorías", f"{psmf_recs['calorias_dia']:.0f} kcal/día")
-            st.metric("Pérdida esperada", "0.8-1.2 kg/semana")
-            st.markdown("""
+            st.metric("Multiplicador", f"{multiplicador}", f"Perfil: {perfil_grasa}")
+            st.metric("Pérdida esperada", f"{perdida_min}-{perdida_max} kg/semana")
+            st.markdown(f"""
             **Consideraciones:**
             - ⚠️ Muy restrictivo
             - ⚠️ Máximo 6-8 semanas
-            - ⚠️ Requiere supervisión
-            - ⚠️ Solo proteína + verduras
+            - ⚠️ Requiere supervisión médica
+            - ⚠️ Proteína: {psmf_recs['proteina_g_dia']}g/día (1.8g/kg mínimo)
+            - ⚠️ Carbos y grasas al mínimo
             - ⚠️ Suplementación necesaria
             """)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -1702,23 +1767,37 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
 
     # --- Cálculo de macros para plan elegido ---
     if psmf_recs.get("psmf_aplicable") and "PSMF" in plan_elegido:
-        # ----------- PSMF -----------
+        # ----------- PSMF ACTUALIZADO -----------
         ingesta_calorica = psmf_recs['calorias_dia']
         proteina_g = psmf_recs['proteina_g_dia']
         proteina_kcal = proteina_g * 4
-        carbo_g = 30
+        
+        # CARBOHIDRATOS: Mínimo absoluto (solo de vegetales)
+        carbo_g = 20  # Reducido a mínimo para vegetales de hoja verde
         carbo_kcal = carbo_g * 4
-        grasa_kcal = max(ingesta_calorica - proteina_kcal - carbo_kcal, 90)
+        
+        # GRASAS: El resto de calorías (de fuentes magras únicamente)
+        grasa_kcal = max(ingesta_calorica - proteina_kcal - carbo_kcal, 60)  # Mínimo 60 kcal para ácidos grasos esenciales
         grasa_g = round(grasa_kcal / 9, 1)
-        fase = f"PSMF - Pérdida rápida (déficit ~{deficit_psmf}%)"
+        
+        multiplicador = psmf_recs.get('multiplicador', 8.3)
+        perfil_grasa = psmf_recs.get('perfil_grasa', 'alto % grasa')
+        perdida_min, perdida_max = psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))
+        
+        fase = f"PSMF Actualizado - Pérdida rápida (déficit ~{deficit_psmf}%, multiplicador {multiplicador})"
 
-        st.error("""
-        ⚠️ **ADVERTENCIA IMPORTANTE SOBRE PSMF:**
-        - Es un protocolo **MUY RESTRICTIVO** diseñado para pérdida rápida
+        st.error(f"""
+        ⚠️ **ADVERTENCIA IMPORTANTE SOBRE PSMF ACTUALIZADO:**
+        - Es un protocolo **MUY RESTRICTIVO** con nuevo cálculo basado en proteína total
         - **Duración máxima:** 6-8 semanas
-        - **Requiere:** Supervisión profesional y análisis de sangre
-        - **Suplementación obligatoria:** Multivitamínico, omega-3, electrolitos
-        - **No apto para:** Personas con historial de TCA o problemas médicos
+        - **Proteína:** {proteina_g}g/día (1.8g/kg peso total mínimo)
+        - **Multiplicador calórico:** {multiplicador} (perfil: {perfil_grasa})
+        - **Pérdida proyectada:** {perdida_min}-{perdida_max} kg/semana
+        - **Requiere:** Supervisión médica y análisis de sangre regulares
+        - **Carbohidratos:** Solo de vegetales de hoja verde ({carbo_g}g máximo)
+        - **Grasas:** Solo de fuentes magras como pescado, aceite de oliva mínimo ({grasa_g}g)
+        - **Suplementación obligatoria:** Multivitamínico, omega-3, electrolitos, magnesio
+        - **No apto para:** Personas con historial de TCA, problemas médicos o embarazo
         """)
     else:
         # ----------- TRADICIONAL -----------
