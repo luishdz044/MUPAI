@@ -1937,10 +1937,10 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
         st.write(f"- **Grasas:** {grasa_g}g ({grasa_kcal:.0f} kcal, {grasa_kcal/ingesta_calorica*100:.1f}%)")
     st.write(f"- **Carbohidratos:** {carbo_g}g ({carbo_kcal:.0f} kcal, {carbo_kcal/ingesta_calorica*100:.1f}%)")
 
-        # Mostrar cálculo detallado con diseño mejorado
-        st.markdown("### 🧮 Desglose del cálculo")
-        with st.expander("Ver cálculo detallado", expanded=False):
-            st.code(f"""
+# Mostrar cálculo detallado con diseño mejorado
+st.markdown("### 🧮 Desglose del cálculo")
+with st.expander("Ver cálculo detallado", expanded=False):
+    st.code(f"""
 Gasto Energético Total (GE) = TMB × GEAF × ETA + GEE
 GE = {tmb:.0f} × {geaf} × {eta} + {gee_prom_dia:.0f} = {GE:.0f} kcal
 
@@ -1951,69 +1951,69 @@ Ingesta Calórica = GE × FBEO
 Ingesta = {GE:.0f} × {fbeo:.2f} = {ingesta_calorica:.0f} kcal/día
 """)
 
-        # Resultado final con diseño premium
-        st.markdown("### 🎯 Tu plan nutricional personalizado")
+# Resultado final con diseño premium
+st.markdown("### 🎯 Tu plan nutricional personalizado")
 
-        # Métricas principales
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("🔥 Calorías", f"{ingesta_calorica:.0f} kcal/día", 
-                     f"{ingesta_calorica/peso:.1f} kcal/kg" if peso > 0 else "– kcal/kg")
-        with col2:
-            st.metric("🥩 Proteína", f"{proteina_g} g", 
-                     f"{proteina_g/peso:.2f} g/kg" if peso > 0 else "– g/kg")
-        with col3:
-            st.metric("🥑 Grasas", f"{grasa_g} g", 
-                     f"{round(grasa_kcal/ingesta_calorica*100)}%" if ingesta_calorica > 0 else "–%")
-        with col4:
-            st.metric("🍞 Carbohidratos", f"{carbo_g} g", 
-                     f"{round(carbo_kcal/ingesta_calorica*100)}%")
+# Métricas principales
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("🔥 Calorías", f"{ingesta_calorica:.0f} kcal/día", 
+             f"{ingesta_calorica/peso:.1f} kcal/kg" if peso > 0 else "– kcal/kg")
+with col2:
+    st.metric("🥩 Proteína", f"{proteina_g} g", 
+             f"{proteina_g/peso:.2f} g/kg" if peso > 0 else "– g/kg")
+with col3:
+    st.metric("🥑 Grasas", f"{grasa_g} g", 
+             f"{round(grasa_kcal/ingesta_calorica*100)}%" if ingesta_calorica > 0 else "–%")
+with col4:
+    st.metric("🍞 Carbohidratos", f"{carbo_g} g", 
+             f"{round(carbo_kcal/ingesta_calorica*100)}%")
 
-        # Visualización de distribución de macros
-        st.markdown("### 📊 Distribución de macronutrientes")
-        import pandas as pd
-        macro_data = {
-            "Macronutriente": ["Proteína", "Grasas", "Carbohidratos"],
-            "Gramos": [proteina_g, grasa_g, carbo_g],
-            "Calorías": [f"{proteina_kcal:.0f}", f"{grasa_kcal:.0f}", f"{carbo_kcal:.0f}"],
-            "% del total": [
-                f"{round(proteina_kcal/ingesta_calorica*100, 1)}%",
-                f"{round(grasa_kcal/ingesta_calorica*100, 1)}%",
-                f"{round(carbo_kcal/ingesta_calorica*100, 1)}%"
-            ]
-        }
-        df_macros = pd.DataFrame(macro_data)
-        st.dataframe(
-            df_macros,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Macronutriente": st.column_config.TextColumn("Macronutriente", width="medium"),
-                "Gramos": st.column_config.TextColumn("Gramos/día", width="small"),
-                "Calorías": st.column_config.TextColumn("Calorías", width="small"),
-                "% del total": st.column_config.TextColumn("% Total", width="small"),
-            }
-        )
+# Visualización de distribución de macros
+st.markdown("### 📊 Distribución de macronutrientes")
+import pandas as pd
+macro_data = {
+    "Macronutriente": ["Proteína", "Grasas", "Carbohidratos"],
+    "Gramos": [proteina_g, grasa_g, carbo_g],
+    "Calorías": [f"{proteina_kcal:.0f}", f"{grasa_kcal:.0f}", f"{carbo_kcal:.0f}"],
+    "% del total": [
+    f"{round(proteina_kcal/ingesta_calorica*100, 1)}%",
+    f"{round(grasa_kcal/ingesta_calorica*100, 1)}%",
+    f"{round(carbo_kcal/ingesta_calorica*100, 1)}%"
+    ]
+}
+df_macros = pd.DataFrame(macro_data)
+st.dataframe(
+    df_macros,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Macronutriente": st.column_config.TextColumn("Macronutriente", width="medium"),
+        "Gramos": st.column_config.TextColumn("Gramos/día", width="small"),
+        "Calorías": st.column_config.TextColumn("Calorías", width="small"),
+        "% del total": st.column_config.TextColumn("% Total", width="small"),
+    }
+)
 
-        # Recomendaciones adicionales
-        st.markdown("### 💡 Recomendaciones para optimizar resultados")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.info("""
-            **📅 Timing de comidas:**
-            - 3-4 comidas al día
-            - Proteína en cada comida
-            - Pre/post entreno con carbos
-            - Última comida 2-3h antes de dormir
-            """)
-        with col2:
-            st.info("""
-            **💧 Hidratación y suplementos:**
-            - Agua: 35-40ml/kg peso
-            - Creatina: 5g/día
-            - Vitamina D: 2000-4000 UI
-            - Omega-3: 2-3g EPA+DHA
-            """)
+# Recomendaciones adicionales
+st.markdown("### 💡 Recomendaciones para optimizar resultados")
+col1, col2 = st.columns(2)
+with col1:
+    st.info("""
+    **📅 Timing de comidas:**
+    - 3-4 comidas al día
+    - Proteína en cada comida
+    - Pre/post entreno con carbos
+    - Última comida 2-3h antes de dormir
+    """)
+with col2:
+    st.info("""
+    **💧 Hidratación y suplementos:**
+    - Agua: 35-40ml/kg peso
+    - Creatina: 5g/día
+    - Vitamina D: 2000-4000 UI
+    - Omega-3: 2-3g EPA+DHA
+    """)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -2123,25 +2123,63 @@ def datos_completos_para_email():
     return faltantes
 
 # Construir tabla_resumen robusta para el email (idéntica a tu estructura, NO resumida)
-# Calculate safe values
+# Usar macros centralizados para el email (garantiza consistencia total)
+try:
+    # Recalcular macros usando la función centralizada para el email
+    macros_email = calcular_macros_centralizados(
+        plan_elegido if 'plan_elegido' in locals() else "",
+        psmf_recs if 'psmf_recs' in locals() else {},
+        peso,
+        ingesta_calorica_tradicional if 'ingesta_calorica_tradicional' in locals() else 2000,
+        tmb
+    )
+    
+    # Extraer valores centralizados para el email
+    ingesta_calorica_email = macros_email['ingesta_calorica']
+    proteina_g_email = macros_email['proteina_g']
+    proteina_kcal_email = macros_email['proteina_kcal']
+    grasa_g_email = macros_email['grasa_g']
+    grasa_kcal_email = macros_email['grasa_kcal']
+    carbo_g_email = macros_email['carbo_g']
+    carbo_kcal_email = macros_email['carbo_kcal']
+    
+    # Calcular porcentajes
+    ratio_kcal_kg = ingesta_calorica_email/peso if peso > 0 else 0
+    proteina_percent = round(proteina_kcal_email/ingesta_calorica_email*100, 1) if ingesta_calorica_email > 0 else 0
+    grasa_percent = round(grasa_kcal_email/ingesta_calorica_email*100, 1) if ingesta_calorica_email > 0 else 0
+    carbo_percent = round(carbo_kcal_email/ingesta_calorica_email*100, 1) if ingesta_calorica_email > 0 else 0
+    
+    # Información adicional para PSMF
+    info_psmf = ""
+    if macros_email['tipo_plan'] == "PSMF":
+        multiplicador_email = macros_email['multiplicador']
+        perfil_grasa_email = macros_email['perfil_grasa']
+        info_psmf = f"""
+- PROTOCOLO PSMF AUTOMATIZADO:
+  * Multiplicador automático: {multiplicador_email} ({perfil_grasa_email})
+  * Grasas fijas: {grasa_g_email}g (valor no modificable)
+  * Pérdida proyectada: {macros_email['perdida_rango'][0]}-{macros_email['perdida_rango'][1]} kg/semana"""
+        
+except Exception as e:
+    # Fallback a valores existentes en caso de error
+    ingesta_calorica_email = ingesta_calorica if 'ingesta_calorica' in locals() else 2000
+    proteina_g_email = proteina_g if 'proteina_g' in locals() else 100
+    proteina_kcal_email = proteina_g_email * 4
+    grasa_g_email = grasa_g if 'grasa_g' in locals() else 60
+    grasa_kcal_email = grasa_g_email * 9
+    carbo_g_email = carbo_g if 'carbo_g' in locals() else 200
+    carbo_kcal_email = carbo_g_email * 4
+    ratio_kcal_kg = ingesta_calorica_email/peso if peso > 0 else 0
+    proteina_percent = round(proteina_kcal_email/ingesta_calorica_email*100, 1) if ingesta_calorica_email > 0 else 0
+    grasa_percent = round(grasa_kcal_email/ingesta_calorica_email*100, 1) if ingesta_calorica_email > 0 else 0
+    carbo_percent = round(carbo_kcal_email/ingesta_calorica_email*100, 1) if ingesta_calorica_email > 0 else 0
+    info_psmf = ""
+
+# Calculate additional safe values for email
 try:
     imc = peso/(estatura/100)**2 if estatura > 0 else 0
-    ratio_kcal_kg = ingesta_calorica/peso if peso > 0 else 0
-    proteina_percent = round(proteina_kcal/ingesta_calorica*100, 1) if ingesta_calorica > 0 else 0
-    grasa_percent = round(grasa_kcal/ingesta_calorica*100, 1) if ingesta_calorica > 0 else 0
-    carbo_percent = round(carbo_kcal/ingesta_calorica*100, 1) if ingesta_calorica > 0 else 0
-    proteina_kcal_safe = proteina_g * 4 if 'proteina_g' in locals() else 0
-    grasa_kcal_safe = grasa_g * 9 if 'grasa_g' in locals() else 0
-    carbo_kcal_safe = carbo_g * 4 if 'carbo_g' in locals() else 0
 except:
     imc = 0
-    ratio_kcal_kg = 0
-    proteina_percent = 0
-    grasa_percent = 0
-    carbo_percent = 0
-    proteina_kcal_safe = 0
-    grasa_kcal_safe = 0
-    carbo_kcal_safe = 0
 
 # Initialize missing variables
 if 'fbeo' not in locals():
@@ -2198,17 +2236,19 @@ FACTORES DE ACTIVIDAD:
 - Gasto Energético Total: {GE:.0f} kcal
 
 =====================================
-PLAN NUTRICIONAL CALCULADO:
+PLAN NUTRICIONAL CALCULADO (CENTRALIZADO):
 =====================================
 - Fase: {fase}
 - Factor FBEO: {fbeo:.2f}
-- Ingesta calórica: {ingesta_calorica:.0f} kcal/día
+- Ingesta calórica: {ingesta_calorica_email:.0f} kcal/día
 - Ratio kcal/kg: {ratio_kcal_kg:.1f}
 
-DISTRIBUCIÓN DE MACRONUTRIENTES:
-- Proteína: {proteina_g}g ({proteina_kcal_safe:.0f} kcal) = {proteina_percent}%
-- Grasas: {grasa_g}g ({grasa_kcal_safe:.0f} kcal) = {grasa_percent}%
-- Carbohidratos: {carbo_g}g ({carbo_kcal_safe:.0f} kcal) = {carbo_percent}%
+DISTRIBUCIÓN DE MACRONUTRIENTES (AUTOMATIZADA):
+- Proteína: {proteina_g_email}g ({proteina_kcal_email:.0f} kcal) = {proteina_percent}%
+- Grasas: {grasa_g_email}g ({grasa_kcal_email:.0f} kcal) = {grasa_percent}%
+- Carbohidratos: {carbo_g_email}g ({carbo_kcal_email:.0f} kcal) = {carbo_percent}%
+
+{info_psmf}
 
 =====================================
 RESUMEN PERSONALIZADO Y PROYECCIÓN
