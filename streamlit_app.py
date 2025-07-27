@@ -1645,7 +1645,7 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
     # BLOQUE 6: Cálculo final con comparativa PSMF
 with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", expanded=True):
     progress.progress(100)
-    progress_text.text("¡Evaluación completada! Aquí está tu plan personalizado")
+    progress_text.text("Paso final: Calculando tu plan nutricional personalizado")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
 
@@ -1716,6 +1716,19 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             index=0,
             help="PSMF es muy efectivo pero requiere mucha disciplina"
         )
+        
+        # Opción para seleccionar grasa en PSMF (30-50g)
+        grasa_psmf_seleccionada = 40.0  # Valor por defecto
+        if "PSMF" in plan_elegido:
+            st.markdown("#### 🥑 Configuración de grasas para PSMF")
+            grasa_psmf_seleccionada = st.slider(
+                "Selecciona la cantidad de grasa diaria (en gramos):",
+                min_value=30.0,
+                max_value=50.0,
+                value=40.0,
+                step=1.0,
+                help="Rango permitido para PSMF: 30-50g de grasas de fuentes magras (pescado, aceite de oliva mínimo)"
+            )
 
         # Mostrar comparativa visual
         st.markdown("### 📊 Comparativa de planes")
@@ -1753,7 +1766,8 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             - ⚠️ Máximo 6-8 semanas
             - ⚠️ Requiere supervisión médica
             - ⚠️ Proteína: {psmf_recs['proteina_g_dia']}g/día (1.8g/kg mínimo)
-            - ⚠️ Carbos y grasas al mínimo
+            - ⚠️ Grasas: 30-50g (seleccionable, fuentes magras)
+            - ⚠️ Carbos: resto de calorías (solo vegetales fibrosos)
             - ⚠️ Suplementación necesaria
             """)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -1772,13 +1786,13 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
         proteina_g = psmf_recs['proteina_g_dia']
         proteina_kcal = proteina_g * 4
         
-        # CARBOHIDRATOS: Mínimo absoluto (solo de vegetales)
-        carbo_g = 20  # Reducido a mínimo para vegetales de hoja verde
-        carbo_kcal = carbo_g * 4
+        # GRASAS: Usar el valor seleccionado por el usuario (30-50g)
+        grasa_g = grasa_psmf_seleccionada if 'grasa_psmf_seleccionada' in locals() else 40.0
+        grasa_kcal = grasa_g * 9
         
-        # GRASAS: El resto de calorías (de fuentes magras únicamente)
-        grasa_kcal = max(ingesta_calorica - proteina_kcal - carbo_kcal, 60)  # Mínimo 60 kcal para ácidos grasos esenciales
-        grasa_g = round(grasa_kcal / 9, 1)
+        # CARBOHIDRATOS: El resto de calorías de vegetales fibrosos únicamente
+        carbo_kcal = max(ingesta_calorica - proteina_kcal - grasa_kcal, 0)
+        carbo_g = round(carbo_kcal / 4, 1)
         
         multiplicador = psmf_recs.get('multiplicador', 8.3)
         perfil_grasa = psmf_recs.get('perfil_grasa', 'alto % grasa')
@@ -1794,8 +1808,8 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
         - **Multiplicador calórico:** {multiplicador} (perfil: {perfil_grasa})
         - **Pérdida proyectada:** {perdida_min}-{perdida_max} kg/semana
         - **Requiere:** Supervisión médica y análisis de sangre regulares
-        - **Carbohidratos:** Solo de vegetales de hoja verde ({carbo_g}g máximo)
-        - **Grasas:** Solo de fuentes magras como pescado, aceite de oliva mínimo ({grasa_g}g)
+        - **Carbohidratos:** Solo de vegetales fibrosos ({carbo_g}g calculados según calorías restantes)
+        - **Grasas:** {grasa_g}g (rango 30-50g, fuentes magras como pescado, aceite de oliva mínimo)
         - **Suplementación obligatoria:** Multivitamínico, omega-3, electrolitos, magnesio
         - **No apto para:** Personas con historial de TCA, problemas médicos o embarazo
         """)
@@ -2121,15 +2135,24 @@ RESUMEN PERSONALIZADO Y PROYECCIÓN
 
 # Calcular proyección científica para el email
 try:
+    # Determinar el porcentaje correcto según el plan elegido para el email
+    if 'plan_elegido' in locals() and psmf_recs.get("psmf_aplicable") and "PSMF" in plan_elegido:
+        # Para PSMF, usar el déficit específico de PSMF
+        deficit_psmf_calc = int((1 - psmf_recs['calorias_dia']/GE) * 100) if 'GE' in locals() and GE > 0 else 40
+        porcentaje_email = -deficit_psmf_calc  # Negativo para pérdida
+    else:
+        # Para plan tradicional, usar el porcentaje tradicional
+        porcentaje_email = porcentaje if 'porcentaje' in locals() else 0
+        
     proyeccion_email = calcular_proyeccion_cientifica(
         sexo, 
         grasa_corregida, 
         nivel_entrenamiento if 'nivel_entrenamiento' in locals() else 'intermedio',
         peso, 
-        porcentaje if 'porcentaje' in locals() else 0
+        porcentaje_email
     )
-    objetivo_texto = "(déficit)" if 'porcentaje' in locals() and porcentaje < 0 else "(superávit)" if 'porcentaje' in locals() and porcentaje > 0 else "(mantenimiento)"
-    porcentaje_valor = porcentaje if 'porcentaje' in locals() else 0
+    objetivo_texto = "(déficit)" if porcentaje_email < 0 else "(superávit)" if porcentaje_email > 0 else "(mantenimiento)"
+    porcentaje_valor = porcentaje_email
     
     tabla_resumen += f"""
 - Objetivo recomendado: {porcentaje_valor:+.0f}% {objetivo_texto}
@@ -2240,7 +2263,15 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
     
     # Usar proyección científica realista
     peso_actual = peso if peso > 0 else 70  # Fallback si no hay peso
-    porcentaje_for_projection = porcentaje if "porcentaje" in locals() else 0
+    
+    # Determinar el porcentaje correcto según el plan elegido
+    if 'plan_elegido' in locals() and psmf_recs.get("psmf_aplicable") and "PSMF" in plan_elegido:
+        # Para PSMF, usar el déficit específico de PSMF
+        deficit_psmf_calc = int((1 - psmf_recs['calorias_dia']/GE) * 100) if 'GE' in locals() and GE > 0 else 40
+        porcentaje_for_projection = -deficit_psmf_calc  # Negativo para pérdida
+    else:
+        # Para plan tradicional, usar el porcentaje tradicional
+        porcentaje_for_projection = porcentaje if "porcentaje" in locals() else 0
     
     # Calcular proyección científica
     proyeccion = calcular_proyeccion_cientifica(
