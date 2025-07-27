@@ -559,6 +559,8 @@ def calculate_psmf(sexo, peso, grasa_corregida, mlg):
     - Proteína mínima: 1.8g/kg peso corporal total
     - Calorías = proteína (g) × multiplicador según % grasa
     - Multiplicadores: 8.3 (alto % grasa), 9.0 (moderado), 9.5-9.7 (magro)
+    - Grasas: Fijas entre 30-50g (seleccionables por usuario, default 40g)
+    - Carbohidratos: Resto de calorías de vegetales fibrosos únicamente
     """
     try:
         peso = float(peso)
