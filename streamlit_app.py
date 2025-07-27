@@ -763,6 +763,28 @@ def calcular_proyeccion_cientifica(sexo, grasa_corregida, nivel_entrenamiento, p
         "explicacion_textual": explicacion
     }
 
+def obtener_porcentaje_para_proyeccion(plan_elegido, psmf_recs, GE, porcentaje):
+    """
+    Función centralizada para calcular el porcentaje correcto a usar en proyecciones,
+    garantizando sincronía perfecta entre todas las partes del código.
+    
+    Args:
+        plan_elegido: Plan seleccionado por el usuario
+        psmf_recs: Diccionario con recomendaciones PSMF
+        GE: Gasto energético total
+        porcentaje: Porcentaje tradicional calculado
+    
+    Returns:
+        float: Porcentaje correcto para usar en proyecciones
+    """
+    if plan_elegido and psmf_recs.get("psmf_aplicable") and "PSMF" in str(plan_elegido):
+        # Para PSMF, usar el déficit específico de PSMF
+        deficit_psmf_calc = int((1 - psmf_recs['calorias_dia']/GE) * 100) if GE > 0 else 40
+        return -deficit_psmf_calc  # Negativo para pérdida
+    else:
+        # Para plan tradicional, usar el porcentaje tradicional
+        return porcentaje if porcentaje is not None else 0
+
 def enviar_email_resumen(contenido, nombre_cliente, email_cliente, fecha, edad, telefono):
     """Envía el email con el resumen completo de la evaluación."""
     try:
@@ -1185,151 +1207,159 @@ with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento*
         help="Tu respuesta debe reflejar tu consistencia y planificación real."
     )
 
-    st.markdown("### 🏆 Evaluación de rendimiento por categoría")
-    st.info("💡 Para cada categoría, selecciona el ejercicio donde hayas alcanzado tu mejor rendimiento y proporciona el máximo que hayas logrado manteniendo una técnica adecuada.")
+    # Solo mostrar ejercicios funcionales si la experiencia ha sido contestada apropiadamente
+    if experiencia and not experiencia.startswith("A) He entrenado de forma irregular"):
+        st.markdown("### 🏆 Evaluación de rendimiento por categoría")
+        st.info("💡 Para cada categoría, selecciona el ejercicio donde hayas alcanzado tu mejor rendimiento y proporciona el máximo que hayas logrado manteniendo una técnica adecuada.")
 
-    ejercicios_data = {}
-    niveles_ejercicios = {}
+        ejercicios_data = {}
+        niveles_ejercicios = {}
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["💪 Empuje", "🏋️ Tracción", "🦵 Pierna Empuje", "🦵 Pierna Tracción", "🧘 Core"])
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["💪 Empuje", "🏋️ Tracción", "🦵 Pierna Empuje", "🦵 Pierna Tracción", "🧘 Core"])
+    else:
+        st.warning("⚠️ **Primero debes seleccionar tu nivel de experiencia en entrenamiento para acceder a la evaluación de ejercicios funcionales.**")
+        st.info("Por favor, selecciona una opción diferente a 'A) He entrenado de forma irregular' para continuar con la evaluación funcional.")
+        ejercicios_data = {}
+        niveles_ejercicios = {}
 
-    with tab1:
-        st.markdown("#### Empuje superior")
-        col1, col2 = st.columns(2)
-        with col1:
-            empuje = st.selectbox(
-                "Elige tu mejor ejercicio de empuje:",
-                ["Flexiones", "Fondos"],
-                help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
-            )
-        with col2:
-            empuje_reps = st.number_input(
-                f"¿Cuántas repeticiones continuas realizas con buena forma en {empuje}?",
-                min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{empuje}_reps", 10), 10),
-                help="Sin pausas, sin perder rango completo de movimiento."
-            )
-            ejercicios_data[empuje] = empuje_reps
-
-    with tab2:
-        st.markdown("#### Tracción superior")
-        col1, col2 = st.columns(2)
-        with col1:
-            traccion = st.selectbox(
-                "Elige tu mejor ejercicio de tracción:",
-                ["Dominadas", "Remo invertido"],
-                help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
-            )
-        with col2:
-            traccion_reps = st.number_input(
-                f"¿Cuántas repeticiones continuas realizas con buena forma en {traccion}?",
-                min_value=0, max_value=50, value=safe_int(st.session_state.get(f"{traccion}_reps", 5), 5),
-                help="Sin balanceo ni uso de impulso; técnica estricta."
-            )
-            ejercicios_data[traccion] = traccion_reps
-
-    with tab3:
-        st.markdown("#### Tren inferior empuje")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("**Ejercicio:**")
-            st.info("Sentadilla búlgara unilateral")
-        with col2:
-            pierna_empuje_reps = st.number_input(
-                "¿Cuántas repeticiones continuas realizas con buena forma en Sentadilla búlgara unilateral?",
-                min_value=0, max_value=50, value=safe_int(st.session_state.get("Sentadilla búlgara unilateral_reps", 10), 10),
-                help="Repeticiones con técnica controlada por cada pierna.",
-                key="sentadilla_bulgara_reps"
-            )
-            ejercicios_data["Sentadilla búlgara unilateral"] = pierna_empuje_reps
-
-    with tab4:
-        st.markdown("#### Tren inferior tracción")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("**Ejercicio:**")
-            st.info("Puente de glúteo unilateral")
-        with col2:
-            pierna_traccion_reps = st.number_input(
-                "¿Cuántas repeticiones continuas realizas con buena forma en Puente de glúteo unilateral?",
-                min_value=0, max_value=50, value=safe_int(st.session_state.get("Puente de glúteo unilateral_reps", 15), 15),
-                help="Repeticiones con técnica controlada por cada pierna.",
-                key="puente_gluteo_reps"
-            )
-            ejercicios_data["Puente de glúteo unilateral"] = pierna_traccion_reps
-
-    with tab5:
-        st.markdown("#### Core y estabilidad")
-        col1, col2 = st.columns(2)
-        with col1:
-            core = st.selectbox(
-                "Elige tu mejor ejercicio de core:",
-                ["Plancha", "Ab wheel", "L-sit"],
-                help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
-            )
-        with col2:
-            if core == "Plancha":
-                core_tiempo = st.number_input(
-                    "¿Cuál es el máximo tiempo (segundos) que mantienes la posición de plancha con técnica correcta?",
-                    min_value=0, max_value=600, value=safe_int(st.session_state.get("plancha_tiempo", 60), 60),
-                    help="Mantén la posición sin perder alineación corporal."
+    if experiencia and not experiencia.startswith("A) He entrenado de forma irregular"):
+        with tab1:
+            st.markdown("#### Empuje superior")
+            col1, col2 = st.columns(2)
+            with col1:
+                empuje = st.selectbox(
+                    "Elige tu mejor ejercicio de empuje:",
+                    ["Flexiones", "Fondos"],
+                    help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
                 )
-                ejercicios_data[core] = core_tiempo
-            else:
-                core_reps = st.number_input(
-                    f"¿Cuántas repeticiones completas realizas en {core} con buena forma?",
-                    min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{core}_reps", 10), 10),
-                    help="Repeticiones con control y sin compensaciones."
+            with col2:
+                empuje_reps = st.number_input(
+                    f"¿Cuántas repeticiones continuas realizas con buena forma en {empuje}?",
+                    min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{empuje}_reps", 10), 10),
+                    help="Sin pausas, sin perder rango completo de movimiento."
                 )
-                ejercicios_data[core] = core_reps
+                ejercicios_data[empuje] = empuje_reps
 
-    # Evaluar niveles según referencias
-    st.markdown("### 📊 Tu nivel en cada ejercicio")
+        with tab2:
+            st.markdown("#### Tracción superior")
+            col1, col2 = st.columns(2)
+            with col1:
+                traccion = st.selectbox(
+                    "Elige tu mejor ejercicio de tracción:",
+                    ["Dominadas", "Remo invertido"],
+                    help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
+                )
+            with col2:
+                traccion_reps = st.number_input(
+                    f"¿Cuántas repeticiones continuas realizas con buena forma en {traccion}?",
+                    min_value=0, max_value=50, value=safe_int(st.session_state.get(f"{traccion}_reps", 5), 5),
+                    help="Sin balanceo ni uso de impulso; técnica estricta."
+                )
+                ejercicios_data[traccion] = traccion_reps
 
-    cols = st.columns(5)  # Changed from 4 to 5 to accommodate 5 exercises
-    for idx, (ejercicio, valor) in enumerate(ejercicios_data.items()):
-        with cols[idx % 5]:  # Changed from 4 to 5
-            if ejercicio in referencias_funcionales[sexo]:
-                ref = referencias_funcionales[sexo][ejercicio]
-                nivel_ej = "Bajo"  # Por defecto
+        with tab3:
+            st.markdown("#### Tren inferior empuje")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Ejercicio:**")
+                st.info("Sentadilla búlgara unilateral")
+            with col2:
+                pierna_empuje_reps = st.number_input(
+                    "¿Cuántas repeticiones continuas realizas con buena forma en Sentadilla búlgara unilateral?",
+                    min_value=0, max_value=50, value=safe_int(st.session_state.get("Sentadilla búlgara unilateral_reps", 10), 10),
+                    help="Repeticiones con técnica controlada por cada pierna.",
+                    key="sentadilla_bulgara_reps"
+                )
+                ejercicios_data["Sentadilla búlgara unilateral"] = pierna_empuje_reps
 
-                if ref["tipo"] == "reps":
-                    for nombre_nivel, umbral in ref["niveles"]:
-                        if valor >= umbral:
-                            nivel_ej = nombre_nivel
-                        else:
-                            break
-                elif ref["tipo"] == "tiempo":
-                    for nombre_nivel, umbral in ref["niveles"]:
-                        if valor >= umbral:
-                            nivel_ej = nombre_nivel
-                        else:
-                            break
-                elif ref["tipo"] == "reps_peso" and isinstance(valor, tuple):
-                    reps, peso = valor
-                    # Recorrer niveles de mayor a menor para asignar el nivel más alto posible
-                    for nombre_nivel, (umbral_reps, umbral_peso) in reversed(ref["niveles"]):
-                        if reps >= umbral_reps and peso >= umbral_peso:
-                            nivel_ej = nombre_nivel
-                            break
+        with tab4:
+            st.markdown("#### Tren inferior tracción")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Ejercicio:**")
+                st.info("Puente de glúteo unilateral")
+            with col2:
+                pierna_traccion_reps = st.number_input(
+                    "¿Cuántas repeticiones continuas realizas con buena forma en Puente de glúteo unilateral?",
+                    min_value=0, max_value=50, value=safe_int(st.session_state.get("Puente de glúteo unilateral_reps", 15), 15),
+                    help="Repeticiones con técnica controlada por cada pierna.",
+                    key="puente_gluteo_reps"
+                )
+                ejercicios_data["Puente de glúteo unilateral"] = pierna_traccion_reps
 
-                niveles_ejercicios[ejercicio] = nivel_ej
-                st.session_state.niveles_ejercicios[ejercicio] = nivel_ej
+        with tab5:
+            st.markdown("#### Core y estabilidad")
+            col1, col2 = st.columns(2)
+            with col1:
+                core = st.selectbox(
+                    "Elige tu mejor ejercicio de core:",
+                    ["Plancha", "Ab wheel", "L-sit"],
+                    help="Selecciona el ejercicio donde tengas mejor rendimiento y técnica."
+                )
+            with col2:
+                if core == "Plancha":
+                    core_tiempo = st.number_input(
+                        "¿Cuál es el máximo tiempo (segundos) que mantienes la posición de plancha con técnica correcta?",
+                        min_value=0, max_value=600, value=safe_int(st.session_state.get("plancha_tiempo", 60), 60),
+                        help="Mantén la posición sin perder alineación corporal."
+                    )
+                    ejercicios_data[core] = core_tiempo
+                else:
+                    core_reps = st.number_input(
+                        f"¿Cuántas repeticiones completas realizas en {core} con buena forma?",
+                        min_value=0, max_value=100, value=safe_int(st.session_state.get(f"{core}_reps", 10), 10),
+                        help="Repeticiones con control y sin compensaciones."
+                    )
+                    ejercicios_data[core] = core_reps
 
-                # Mostrar con badge de color
-                color_badge = {
-                    "Bajo": "danger",
-                    "Promedio": "warning",
-                    "Bueno": "success",
-                    "Avanzado": "info"
-                }.get(nivel_ej, "info")
+        # Evaluar niveles según referencias
+        st.markdown("### 📊 Tu nivel en cada ejercicio")
 
-                st.markdown(f"""
-                <div style="text-align: center; padding: 1rem; background: #F4C430; border-radius: 10px; border: 2px solid #DAA520;">
-                    <strong style="color: #1E1E1E; font-weight: bold; font-size: 1.1rem;">{ejercicio}</strong><br>
-                    <span class="badge badge-{color_badge}" style="font-size: 1rem; background: #1E1E1E; color: #F4C430; font-weight: bold; margin: 0.5rem 0;">{nivel_ej}</span><br>
-                    <small style="color: #1E1E1E; font-weight: bold;">{valor if not isinstance(valor, tuple) else f'{valor[0]}x{valor[1]}kg'}</small>
-                </div>
-                """, unsafe_allow_html=True)
+        cols = st.columns(5)  # Changed from 4 to 5 to accommodate 5 exercises
+        for idx, (ejercicio, valor) in enumerate(ejercicios_data.items()):
+            with cols[idx % 5]:  # Changed from 4 to 5
+                if ejercicio in referencias_funcionales[sexo]:
+                    ref = referencias_funcionales[sexo][ejercicio]
+                    nivel_ej = "Bajo"  # Por defecto
+
+                    if ref["tipo"] == "reps":
+                        for nombre_nivel, umbral in ref["niveles"]:
+                            if valor >= umbral:
+                                nivel_ej = nombre_nivel
+                            else:
+                                break
+                    elif ref["tipo"] == "tiempo":
+                        for nombre_nivel, umbral in ref["niveles"]:
+                            if valor >= umbral:
+                                nivel_ej = nombre_nivel
+                            else:
+                                break
+                    elif ref["tipo"] == "reps_peso" and isinstance(valor, tuple):
+                        reps, peso = valor
+                        # Recorrer niveles de mayor a menor para asignar el nivel más alto posible
+                        for nombre_nivel, (umbral_reps, umbral_peso) in reversed(ref["niveles"]):
+                            if reps >= umbral_reps and peso >= umbral_peso:
+                                nivel_ej = nombre_nivel
+                                break
+
+                    niveles_ejercicios[ejercicio] = nivel_ej
+                    st.session_state.niveles_ejercicios[ejercicio] = nivel_ej
+
+                    # Mostrar con badge de color
+                    color_badge = {
+                        "Bajo": "danger",
+                        "Promedio": "warning",
+                        "Bueno": "success",
+                        "Avanzado": "info"
+                    }.get(nivel_ej, "info")
+
+                    st.markdown(f"""
+                    <div style="text-align: center; padding: 1rem; background: #F4C430; border-radius: 10px; border: 2px solid #DAA520;">
+                        <strong style="color: #1E1E1E; font-weight: bold; font-size: 1.1rem;">{ejercicio}</strong><br>
+                        <span class="badge badge-{color_badge}" style="font-size: 1rem; background: #1E1E1E; color: #F4C430; font-weight: bold; margin: 0.5rem 0;">{nivel_ej}</span><br>
+                        <small style="color: #1E1E1E; font-weight: bold;">{valor if not isinstance(valor, tuple) else f'{valor[0]}x{valor[1]}kg'}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 # Guardar datos
 st.session_state.datos_ejercicios = ejercicios_data
@@ -2137,14 +2167,13 @@ RESUMEN PERSONALIZADO Y PROYECCIÓN
 
 # Calcular proyección científica para el email
 try:
-    # Determinar el porcentaje correcto según el plan elegido para el email
-    if 'plan_elegido' in locals() and psmf_recs.get("psmf_aplicable") and "PSMF" in plan_elegido:
-        # Para PSMF, usar el déficit específico de PSMF
-        deficit_psmf_calc = int((1 - psmf_recs['calorias_dia']/GE) * 100) if 'GE' in locals() and GE > 0 else 40
-        porcentaje_email = -deficit_psmf_calc  # Negativo para pérdida
-    else:
-        # Para plan tradicional, usar el porcentaje tradicional
-        porcentaje_email = porcentaje if 'porcentaje' in locals() else 0
+    # Determinar el porcentaje correcto según el plan elegido usando función centralizada
+    porcentaje_email = obtener_porcentaje_para_proyeccion(
+        plan_elegido if 'plan_elegido' in locals() else "",
+        psmf_recs if 'psmf_recs' in locals() else {},
+        GE if 'GE' in locals() else 0,
+        porcentaje if 'porcentaje' in locals() else 0
+    )
         
     proyeccion_email = calcular_proyeccion_cientifica(
         sexo, 
@@ -2185,37 +2214,6 @@ según tu progreso real. Se recomienda evaluación periódica cada 2-3
 semanas para optimizar resultados.
 
 """
-
-# --- Botón para enviar email (solo si no se ha enviado y todo completo) ---
-if not st.session_state.get("correo_enviado", False):
-    if st.button("📧 Enviar Resumen por Email", key="enviar_email"):
-        faltantes = datos_completos_para_email()
-        if faltantes:
-            st.error(f"❌ No se puede enviar el email. Faltan: {', '.join(faltantes)}")
-        else:
-            with st.spinner("📧 Enviando resumen por email..."):
-                ok = enviar_email_resumen(tabla_resumen, nombre, email_cliente, fecha_llenado, edad, telefono)
-                if ok:
-                    st.session_state["correo_enviado"] = True
-                    st.success("✅ Email enviado exitosamente a administración")
-                else:
-                    st.error("❌ Error al enviar email. Contacta a soporte técnico.")
-else:
-    st.info("✅ El resumen ya fue enviado por email. Si requieres reenviarlo, refresca la página o usa el botón de 'Reenviar Email'.")
-
-# --- Opción para reenviar manualmente (opcional) ---
-if st.button("📧 Reenviar Email", key="reenviar_email"):
-    faltantes = datos_completos_para_email()
-    if faltantes:
-        st.error(f"❌ No se puede reenviar el email. Faltan: {', '.join(faltantes)}")
-    else:
-        with st.spinner("📧 Reenviando resumen por email..."):
-            ok = enviar_email_resumen(tabla_resumen, nombre, email_cliente, fecha_llenado, edad, telefono)
-            if ok:
-                st.session_state["correo_enviado"] = True
-                st.success("✅ Email reenviado exitosamente a administración")
-            else:
-                st.error("❌ Error al reenviar email. Contacta a soporte técnico.")
 
 # ==================== RESUMEN PERSONALIZADO ====================
 # Solo mostrar si los datos están completos para la evaluación
@@ -2266,14 +2264,13 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
     # Usar proyección científica realista
     peso_actual = peso if peso > 0 else 70  # Fallback si no hay peso
     
-    # Determinar el porcentaje correcto según el plan elegido
-    if 'plan_elegido' in locals() and psmf_recs.get("psmf_aplicable") and "PSMF" in plan_elegido:
-        # Para PSMF, usar el déficit específico de PSMF
-        deficit_psmf_calc = int((1 - psmf_recs['calorias_dia']/GE) * 100) if 'GE' in locals() and GE > 0 else 40
-        porcentaje_for_projection = -deficit_psmf_calc  # Negativo para pérdida
-    else:
-        # Para plan tradicional, usar el porcentaje tradicional
-        porcentaje_for_projection = porcentaje if "porcentaje" in locals() else 0
+    # Determinar el porcentaje correcto según el plan elegido usando función centralizada
+    porcentaje_for_projection = obtener_porcentaje_para_proyeccion(
+        plan_elegido if 'plan_elegido' in locals() else "",
+        psmf_recs if 'psmf_recs' in locals() else {},
+        GE if 'GE' in locals() else 0,
+        porcentaje if 'porcentaje' in locals() else 0
+    )
     
     # Calcular proyección científica
     proyeccion = calcular_proyeccion_cientifica(
@@ -2378,6 +2375,37 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
         </p>
     </div>
     """, unsafe_allow_html=True)
+
+# --- Botón para enviar email (solo si no se ha enviado y todo completo) ---
+if not st.session_state.get("correo_enviado", False):
+    if st.button("📧 Enviar Resumen por Email", key="enviar_email"):
+        faltantes = datos_completos_para_email()
+        if faltantes:
+            st.error(f"❌ No se puede enviar el email. Faltan: {', '.join(faltantes)}")
+        else:
+            with st.spinner("📧 Enviando resumen por email..."):
+                ok = enviar_email_resumen(tabla_resumen, nombre, email_cliente, fecha_llenado, edad, telefono)
+                if ok:
+                    st.session_state["correo_enviado"] = True
+                    st.success("✅ Email enviado exitosamente a administración")
+                else:
+                    st.error("❌ Error al enviar email. Contacta a soporte técnico.")
+else:
+    st.info("✅ El resumen ya fue enviado por email. Si requieres reenviarlo, refresca la página o usa el botón de 'Reenviar Email'.")
+
+# --- Opción para reenviar manualmente (opcional) ---
+if st.button("📧 Reenviar Email", key="reenviar_email"):
+    faltantes = datos_completos_para_email()
+    if faltantes:
+        st.error(f"❌ No se puede reenviar el email. Faltan: {', '.join(faltantes)}")
+    else:
+        with st.spinner("📧 Reenviando resumen por email..."):
+            ok = enviar_email_resumen(tabla_resumen, nombre, email_cliente, fecha_llenado, edad, telefono)
+            if ok:
+                st.session_state["correo_enviado"] = True
+                st.success("✅ Email reenviado exitosamente a administración")
+            else:
+                st.error("❌ Error al reenviar email. Contacta a soporte técnico.")
 
 # --- Limpieza de sesión y botón de nueva evaluación ---
 if st.button("🔄 Nueva Evaluación", key="nueva"):
