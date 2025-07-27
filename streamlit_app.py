@@ -554,14 +554,34 @@ def calculate_psmf(sexo, peso, grasa_corregida, mlg):
     """
     Calcula los parámetros para PSMF (Very Low Calorie Diet) con automatización científica.
     
-    REQUISITOS AUTOMÁTICOS:
-    - Proteína mínima: 1.8g/kg peso corporal total
-    - Multiplicador calórico automático según % grasa corporal:
-        * >31% grasa: multiplicador = 8.3
-        * 25%-30% grasa: multiplicador = 9.0  
-        * <25% grasa: multiplicador = 9.5
-    - Grasas: FIJAS 40g diarios (no modificables por usuario)
-    - Carbohidratos: Resto de calorías de vegetales fibrosos únicamente
+    REQUISITOS AUTOMÁTICOS IMPLEMENTADOS:
+    ====================================
+    
+    1. MULTIPLICADOR CALÓRICO AUTOMÁTICO según % grasa corporal (NO MODIFICABLE):
+       - >31% grasa corporal: multiplicador = 8.3 (protocolo tradicional PSMF)
+       - 25%-30% grasa corporal: multiplicador = 9.0 (nivel moderado)
+       - <25% grasa corporal: multiplicador = 9.5 (nivel bajo/magro)
+    
+    2. GRASAS FIJAS: 40g diarios (VALOR NO MODIFICABLE por el usuario)
+    
+    3. PROTEÍNA: 1.8g/kg peso corporal total (consistente con literatura científica)
+    
+    4. CARBOHIDRATOS: Resto de calorías de vegetales fibrosos únicamente
+    
+    LÓGICA DEL MULTIPLICADOR:
+    ========================
+    - Personas con más grasa (>31%) pueden tolerar déficits más agresivos → multiplicador menor (8.3)
+    - Nivel moderado (25-30%) necesita enfoque balanceado → multiplicador medio (9.0)
+    - Personas más magras (<25%) requieren enfoque más conservador → multiplicador mayor (9.5)
+    
+    Args:
+        sexo: "Hombre" o "Mujer"
+        peso: Peso corporal en kg
+        grasa_corregida: % de grasa corporal corregido a equivalente DEXA
+        mlg: Masa libre de grasa en kg (no se usa actualmente pero se mantiene por compatibilidad)
+    
+    Returns:
+        dict: Diccionario con todos los parámetros PSMF calculados automáticamente
     """
     try:
         peso = float(peso)
@@ -587,9 +607,10 @@ def calculate_psmf(sexo, peso, grasa_corregida, mlg):
         proteina_g_dia = round(peso * 1.8, 1)
         
         # MULTIPLICADOR CALÓRICO AUTOMÁTICO según % grasa corporal (REQUERIMIENTOS EXACTOS)
-        if grasa_corregida > 31:  # >31% grasa corporal
+        # Esta es la lógica central de automatización solicitada
+        if grasa_corregida > 30:  # >30% grasa corporal (incluye 31% como especificado)
             multiplicador = 8.3
-            perfil_grasa = "alto % grasa (>31%)"
+            perfil_grasa = "alto % grasa (>30%)"
         elif grasa_corregida >= 25:  # 25%-30% grasa corporal
             multiplicador = 9.0
             perfil_grasa = "% grasa moderado (25-30%)"
@@ -598,6 +619,7 @@ def calculate_psmf(sexo, peso, grasa_corregida, mlg):
             perfil_grasa = "% grasa bajo (<25%)"
         
         # CALORÍAS = proteína (g) × multiplicador automático
+        # Esta fórmula garantiza consistencia científica
         calorias_dia = round(proteina_g_dia * multiplicador, 0)
         
         # Verificar que no esté por debajo del piso mínimo
@@ -605,6 +627,7 @@ def calculate_psmf(sexo, peso, grasa_corregida, mlg):
             calorias_dia = calorias_piso_dia
         
         # GRASAS: VALOR FIJO 40g (no modificable por usuario)
+        # Cumple con el requisito de automatización y consistencia
         grasa_g_fija = 40.0
         
         # Calcular rango de pérdida semanal proyectada (estimación conservadora)
@@ -767,25 +790,49 @@ def calcular_proyeccion_cientifica(sexo, grasa_corregida, nivel_entrenamiento, p
 def calcular_macros_centralizados(plan_elegido, psmf_recs, peso, ingesta_calorica_tradicional, tmb):
     """
     Función centralizada para calcular macros de manera consistente.
-    Garantiza que todos los bloques de la app muestren los mismos valores.
+    
+    PROPÓSITO DE CENTRALIZACIÓN:
+    ===========================
+    Esta función garantiza que todos los bloques de la app muestren exactamente los mismos valores:
+    - Advertencia/warning blocks
+    - Resumen visual de macros
+    - Proyección científica
+    - Email de resumen
+    - Comparativas de planes
+    
+    LÓGICA DE CÁLCULO:
+    =================
+    
+    PARA PSMF (Plan automatizado):
+    - Proteína: 1.8g/kg peso total (consistente)
+    - Grasas: FIJAS 40g (no modificables, cumple requisito)
+    - Carbohidratos: Resto de calorías (solo vegetales fibrosos)
+    - Multiplicador: Automático según % grasa corporal
+    
+    PARA PLAN TRADICIONAL:
+    - Proteína: 1.8g/kg peso total (misma base que PSMF)
+    - Grasas: 40% TMB, limitado entre 20-40% de calorías totales
+    - Carbohidratos: Resto de calorías
     
     Args:
         plan_elegido: Plan seleccionado por el usuario
-        psmf_recs: Diccionario con recomendaciones PSMF
+        psmf_recs: Diccionario con recomendaciones PSMF automáticas
         peso: Peso corporal en kg
         ingesta_calorica_tradicional: Calorías del plan tradicional
         tmb: Tasa metabólica basal
     
     Returns:
-        dict con todos los valores de macros calculados
+        dict: Diccionario con todos los valores de macros y metadata
     """
     if psmf_recs.get("psmf_aplicable") and "PSMF" in str(plan_elegido):
-        # ----------- PSMF AUTOMATIZADO -----------
+        # ============ PSMF AUTOMATIZADO ============
+        # Valores ya calculados automáticamente por calculate_psmf()
+        
         ingesta_calorica = psmf_recs['calorias_dia']
         proteina_g = psmf_recs['proteina_g_dia']
         proteina_kcal = proteina_g * 4
         
-        # GRASAS: VALOR FIJO 40g (no modificable por usuario)
+        # GRASAS: VALOR FIJO 40g (cumple requisito de no modificabilidad)
         grasa_g = psmf_recs['grasa_g_fija']  # Siempre 40g
         grasa_kcal = grasa_g * 9
         
@@ -793,7 +840,7 @@ def calcular_macros_centralizados(plan_elegido, psmf_recs, peso, ingesta_caloric
         carbo_kcal = max(ingesta_calorica - proteina_kcal - grasa_kcal, 0)
         carbo_g = round(carbo_kcal / 4, 1)
         
-        # Información adicional para mostrar
+        # Información adicional para mostrar consistencia automática
         multiplicador = psmf_recs.get('multiplicador', 8.3)
         perfil_grasa = psmf_recs.get('perfil_grasa', 'automatizado')
         perdida_min, perdida_max = psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))
@@ -813,7 +860,9 @@ def calcular_macros_centralizados(plan_elegido, psmf_recs, peso, ingesta_caloric
             "grasa_fija": True  # Indica que la grasa es fija y no modificable
         }
     else:
-        # ----------- PLAN TRADICIONAL -----------
+        # ============ PLAN TRADICIONAL ============
+        # Cálculo estándar con flexibilidad en grasas
+        
         ingesta_calorica = ingesta_calorica_tradicional
 
         # PROTEÍNA: 1.8g/kg peso corporal total (consistencia con PSMF)
@@ -821,11 +870,12 @@ def calcular_macros_centralizados(plan_elegido, psmf_recs, peso, ingesta_caloric
         proteina_kcal = proteina_g * 4
 
         # GRASA: 40% TMB/REE, nunca menos del 20% ni más del 40% de calorías totales
-        grasa_min_kcal = ingesta_calorica * 0.20
-        grasa_ideal_kcal = tmb * 0.40
+        # Esta lógica permite flexibilidad mientras mantiene límites saludables
+        grasa_min_kcal = ingesta_calorica * 0.20  # Mínimo 20% de calorías
+        grasa_ideal_kcal = tmb * 0.40  # Ideal: 40% del TMB
         grasa_ideal_g = round(grasa_ideal_kcal / 9, 1)
         grasa_min_g = round(grasa_min_kcal / 9, 1)
-        grasa_max_kcal = ingesta_calorica * 0.40
+        grasa_max_kcal = ingesta_calorica * 0.40  # Máximo 40% de calorías
         grasa_g = max(grasa_min_g, grasa_ideal_g)
         if grasa_g * 9 > grasa_max_kcal:
             grasa_g = round(grasa_max_kcal / 9, 1)
@@ -844,7 +894,7 @@ def calcular_macros_centralizados(plan_elegido, psmf_recs, peso, ingesta_caloric
             "grasa_kcal": grasa_kcal,
             "carbo_g": carbo_g,
             "carbo_kcal": carbo_kcal,
-            "grasa_fija": False  # En plan tradicional la grasa es calculada
+            "grasa_fija": False  # En plan tradicional la grasa es calculada, no fija
         }
 
 def obtener_porcentaje_para_proyeccion(plan_elegido, psmf_recs, GE, porcentaje):
@@ -1883,7 +1933,23 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
     sexo = st.session_state.get("sexo", "Hombre")
     edad = st.session_state.get("edad", 0)
 
-    # --- Cálculo de macros centralizado para plan elegido ---
+    # ========================================================================
+    # CÁLCULO DE MACROS CENTRALIZADO - GARANTIZA CONSISTENCIA TOTAL
+    # ========================================================================
+    # 
+    # Este enfoque centralizado asegura que todos los bloques de la aplicación 
+    # muestren exactamente los mismos valores:
+    # - Comparativa de planes
+    # - Resumen de macronutrientes  
+    # - Advertencias PSMF
+    # - Email de resumen
+    # - Proyecciones científicas
+    #
+    # AUTOMATIZACIÓN IMPLEMENTADA:
+    # - PSMF: Multiplicador automático según % grasa + grasas fijas 40g
+    # - Tradicional: Cálculo estándar con flexibilidad
+    # ========================================================================
+    
     macros = calcular_macros_centralizados(
         plan_elegido, 
         psmf_recs, 
