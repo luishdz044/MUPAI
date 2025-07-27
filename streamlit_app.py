@@ -554,36 +554,182 @@ def calculate_psmf(sexo, peso, grasa_corregida, mlg):
     """
     Calcula los parámetros para PSMF (Very Low Calorie Diet) recomendada
     según sexo y % grasa corregida.
+    
+    Activación automática para casos de grasa corporal muy alta:
+    - Hombres: >35% (activación automática obligatoria)
+    - Mujeres: >40% (activación automática obligatoria)
+    - Hombres: >18% (recomendado, opcional)
+    - Mujeres: >23% (recomendado, opcional)
     """
     try:
         mlg = float(mlg)
+        grasa_corregida = float(grasa_corregida)
     except (TypeError, ValueError):
         mlg = 0.0
-    if sexo == "Hombre" and grasa_corregida > 18:
+        grasa_corregida = 0.0
+    
+    # Activación automática obligatoria para grasa corporal muy alta
+    if sexo == "Hombre" and grasa_corregida > 35:
         return {
             "psmf_aplicable": True,
+            "activacion_automatica": True,
             "proteina_g_dia": round(mlg * 2.2, 1),
             "calorias_dia": round(mlg * 24, 0),
             "calorias_piso_dia": 800,
-            "criterio": "PSMF recomendado por % grasa >18%"
+            "criterio": "PSMF OBLIGATORIO por % grasa corporal muy alto (>35%)",
+            "rango_perdida_semanal_kg": (1.2, 2.5),
+            "advertencias_criticas": [
+                "⚠️ SUPERVISIÓN MÉDICA OBLIGATORIA - No proceder sin evaluación profesional",
+                "⏰ DURACIÓN MÁXIMA: 6-8 semanas - Protocolos más largos requieren monitoreo médico",
+                "💊 SUPLEMENTACIÓN ESENCIAL: Multivitamínico, electrolitos, omega-3 bajo supervisión",
+                "🩺 MONITOREO: Análisis de sangre cada 2-3 semanas (función renal, hepática, electrolitos)"
+            ]
+        }
+    elif sexo == "Mujer" and grasa_corregida > 40:
+        return {
+            "psmf_aplicable": True,
+            "activacion_automatica": True,
+            "proteina_g_dia": round(mlg * 2, 1),
+            "calorias_dia": round(mlg * 22, 0),
+            "calorias_piso_dia": 700,
+            "criterio": "PSMF OBLIGATORIO por % grasa corporal muy alto (>40%)",
+            "rango_perdida_semanal_kg": (1.2, 2.5),
+            "advertencias_criticas": [
+                "⚠️ SUPERVISIÓN MÉDICA OBLIGATORIA - No proceder sin evaluación profesional",
+                "⏰ DURACIÓN MÁXIMA: 6-8 semanas - Protocolos más largos requieren monitoreo médico",
+                "💊 SUPLEMENTACIÓN ESENCIAL: Multivitamínico, electrolitos, omega-3 bajo supervisión",
+                "🩺 MONITOREO: Análisis de sangre cada 2-3 semanas (función renal, hepática, electrolitos)"
+            ]
+        }
+    # Recomendación opcional para grasa corporal elevada (pero no crítica)
+    elif sexo == "Hombre" and grasa_corregida > 18:
+        return {
+            "psmf_aplicable": True,
+            "activacion_automatica": False,
+            "proteina_g_dia": round(mlg * 2.2, 1),
+            "calorias_dia": round(mlg * 24, 0),
+            "calorias_piso_dia": 800,
+            "criterio": "PSMF recomendado por % grasa >18%",
+            "rango_perdida_semanal_kg": (0.8, 1.5),
+            "advertencias_criticas": [
+                "⚠️ Supervisión profesional recomendada",
+                "⏰ Duración máxima recomendada: 6-8 semanas",
+                "💊 Considerar suplementación básica (multivitamínico)"
+            ]
         }
     elif sexo == "Mujer" and grasa_corregida > 23:
         return {
             "psmf_aplicable": True,
+            "activacion_automatica": False,
             "proteina_g_dia": round(mlg * 2, 1),
             "calorias_dia": round(mlg * 22, 0),
             "calorias_piso_dia": 700,
-            "criterio": "PSMF recomendado por % grasa >23%"
+            "criterio": "PSMF recomendado por % grasa >23%",
+            "rango_perdida_semanal_kg": (0.8, 1.5),
+            "advertencias_criticas": [
+                "⚠️ Supervisión profesional recomendada",
+                "⏰ Duración máxima recomendada: 6-8 semanas",
+                "💊 Considerar suplementación básica (multivitamínico)"
+            ]
         }
     else:
-        return {"psmf_aplicable": False}
+        return {"psmf_aplicable": False, "activacion_automatica": False}
+
+def calculate_psmf_projection(sexo, peso_actual, grasa_corregida, rango_semanal_kg):
+    """
+    Calcula la proyección científica específica para PSMF basada en literatura científica.
+    
+    Args:
+        sexo: "Hombre" o "Mujer"
+        peso_actual: Peso actual en kg
+        grasa_corregida: Porcentaje de grasa corporal corregido
+        rango_semanal_kg: Tupla con rango semanal de pérdida (min, max) en kg
+    
+    Returns:
+        dict con proyección específica para PSMF
+    """
+    try:
+        peso_actual = float(peso_actual)
+        grasa_corregida = float(grasa_corregida)
+        rango_min, rango_max = rango_semanal_kg
+    except (ValueError, TypeError):
+        peso_actual = 70.0
+        grasa_corregida = 35.0
+        rango_min, rango_max = 1.2, 2.5
+    
+    # Proyección total 6 semanas
+    perdida_total_min = rango_min * 6
+    perdida_total_max = rango_max * 6
+    
+    # Peso proyectado
+    peso_proyectado_min = peso_actual - perdida_total_max  # Max pérdida = min peso final
+    peso_proyectado_max = peso_actual - perdida_total_min  # Min pérdida = max peso final
+    
+    # Estimación de grasa corporal proyectada (asumiendo que el 70-80% de la pérdida es grasa)
+    factor_grasa = 0.75  # 75% de la pérdida es grasa en promedio con PSMF bien ejecutado
+    perdida_grasa_kg_min = perdida_total_min * factor_grasa
+    perdida_grasa_kg_max = perdida_total_max * factor_grasa
+    
+    # Masa libre de grasa actual
+    mlg_actual = peso_actual * (1 - grasa_corregida / 100)
+    
+    # Proyección de grasa corporal final
+    grasa_kg_actual = peso_actual - mlg_actual
+    grasa_kg_final_min = grasa_kg_actual - perdida_grasa_kg_max
+    grasa_kg_final_max = grasa_kg_actual - perdida_grasa_kg_min
+    
+    grasa_pct_final_min = (grasa_kg_final_max / peso_proyectado_max) * 100
+    grasa_pct_final_max = (grasa_kg_final_min / peso_proyectado_min) * 100
+    
+    # Explicación científica específica para PSMF
+    if grasa_corregida > (35 if sexo == "Hombre" else 40):
+        explicacion = f"""🔬 **PROYECCIÓN PSMF - ACTIVACIÓN AUTOMÁTICA:**
+        
+        Tu % de grasa corporal ({grasa_corregida:.1f}%) está en el rango donde PSMF es **OBLIGATORIO** por seguridad metabólica.
+        
+        📊 **Bases científicas:**
+        • Lyle McDonald: PSMF permite pérdidas de 1.2-2.5 kg/semana en obesidad severa
+        • Preservación muscular: 70-80% de la pérdida será grasa con protocolo correcto
+        • Duración segura: 6-8 semanas máximo sin supervisión médica extendida
+        
+        ⚠️ **CRÍTICO:** Este protocolo NO es opcional a tu nivel de grasa corporal."""
+    else:
+        explicacion = f"""🔬 **PROYECCIÓN PSMF - RECOMENDACIÓN:**
+        
+        Con {grasa_corregida:.1f}% de grasa corporal, PSMF es una opción efectiva pero no obligatoria.
+        
+        📊 **Expectativas científicas:**
+        • Pérdida acelerada manteniendo masa muscular
+        • Protocolo temporizado y estructurado
+        • Requiere adherencia estricta para optimizar resultados"""
+    
+    return {
+        "perdida_semanal_kg": (rango_min, rango_max),
+        "perdida_total_6sem_kg": (perdida_total_min, perdida_total_max),
+        "peso_proyectado_kg": (peso_proyectado_min, peso_proyectado_max),
+        "grasa_proyectada_pct": (grasa_pct_final_min, grasa_pct_final_max),
+        "explicacion_cientifica": explicacion
+    }
 
 def sugerir_deficit(porcentaje_grasa, sexo):
-    """Sugiere el déficit calórico recomendado por % de grasa y sexo."""
+    """
+    Sugiere el déficit calórico recomendado por % de grasa y sexo.
+    ACTUALIZADO: Bloquea déficit convencionales cuando PSMF es obligatorio.
+    """
     try:
         porcentaje_grasa = float(porcentaje_grasa)
     except (TypeError, ValueError):
         porcentaje_grasa = 0.0
+    
+    # NUEVA LÓGICA: Bloquear déficit convencionales para grasa corporal muy alta
+    if (sexo == "Hombre" and porcentaje_grasa > 35) or (sexo == "Mujer" and porcentaje_grasa > 40):
+        return {
+            "deficit_bloqueado": True,
+            "razon_bloqueo": f"PSMF OBLIGATORIO - % grasa ({porcentaje_grasa:.1f}%) requiere protocolo especializado",
+            "mensaje_seguridad": "⚠️ Los déficit convencionales son PELIGROSOS a tu nivel de grasa corporal. Solo PSMF bajo supervisión médica."
+        }
+    
+    # Déficit convencional para casos no críticos
     rangos_hombre = [
         (0, 8, 3), (8.1, 10.5, 5), (10.6, 13, 10), (13.1, 15.5, 15),
         (15.6, 18, 20), (18.1, 20.5, 25), (20.6, 23, 27), (23.1, 25.5, 29),
@@ -601,8 +747,15 @@ def sugerir_deficit(porcentaje_grasa, sexo):
     limite_extra = 30 if sexo == "Hombre" else 35
     for minimo, maximo, deficit in tabla:
         if minimo <= porcentaje_grasa <= maximo:
-            return min(deficit, tope) if porcentaje_grasa <= limite_extra else deficit
-    return 20  # Déficit por defecto
+            deficit_final = min(deficit, tope) if porcentaje_grasa <= limite_extra else deficit
+            return {
+                "deficit_bloqueado": False,
+                "valor_deficit": deficit_final
+            }
+    return {
+        "deficit_bloqueado": False,
+        "valor_deficit": 20  # Déficit por defecto
+    }
 
 def calcular_edad_metabolica(edad_cronologica, porcentaje_grasa, sexo):
     """Calcula la edad metabólica ajustada por % de grasa."""
@@ -1079,15 +1232,71 @@ mlg = calcular_mlg(peso, grasa_corregida)
 psmf_recs = calculate_psmf(sexo, peso, grasa_corregida, mlg)
 if psmf_recs.get("psmf_aplicable"):
     st.markdown('<div class="content-card card-psmf">', unsafe_allow_html=True)
-    st.warning(f"""
-    ⚡ **CANDIDATO PARA PROTOCOLO PSMF**
-    Por tu % de grasa corporal ({grasa_corregida:.1f}%), podrías beneficiarte de una fase de pérdida rápida:
+    
+    # Diferentes títulos según si es automático u opcional
+    titulo = "🚨 **ACTIVACIÓN AUTOMÁTICA PSMF - OBLIGATORIO**" if psmf_recs.get("activacion_automatica") else "⚡ **CANDIDATO PARA PROTOCOLO PSMF**"
+    nivel_warning = "error" if psmf_recs.get("activacion_automatica") else "warning"
+    
+    getattr(st, nivel_warning)(f"""
+    {titulo}
+    
+    **📊 Parámetros básicos:**
     - 🥩 **Proteína:** {psmf_recs['proteina_g_dia']} g/día
     - 🔥 **Calorías:** {psmf_recs['calorias_dia']} kcal/día
     - ⚠️ **Mínimo absoluto:** {psmf_recs['calorias_piso_dia']} kcal/día
     - 📋 **Criterio:** {psmf_recs['criterio']}
+    
+    **📈 Proyección de pérdida semanal:** {psmf_recs['rango_perdida_semanal_kg'][0]:.1f} - {psmf_recs['rango_perdida_semanal_kg'][1]:.1f} kg/semana
+    
     *PSMF = Protein Sparing Modified Fast (ayuno modificado ahorrador de proteína)*
     """)
+    
+    # Mostrar advertencias críticas específicas
+    st.markdown("### ⚠️ ADVERTENCIAS DE SEGURIDAD")
+    
+    if psmf_recs.get("activacion_automatica"):
+        st.error("**🚨 PROTOCOLO OBLIGATORIO - NO OPCIONAL:**")
+    
+    for advertencia in psmf_recs.get("advertencias_criticas", []):
+        st.markdown(f"• {advertencia}")
+    
+    # Calcular y mostrar proyección científica PSMF
+    if psmf_recs.get("rango_perdida_semanal_kg"):
+        proyeccion_psmf = calculate_psmf_projection(
+            sexo, peso, grasa_corregida, 
+            psmf_recs["rango_perdida_semanal_kg"]
+        )
+        
+        st.markdown("### 📊 PROYECCIÓN CIENTÍFICA PSMF (6 semanas)")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric(
+                "Pérdida Total Proyectada", 
+                f"{proyeccion_psmf['perdida_total_6sem_kg'][0]:.1f} - {proyeccion_psmf['perdida_total_6sem_kg'][1]:.1f} kg",
+                "En 6 semanas"
+            )
+            st.metric(
+                "Peso Final Estimado",
+                f"{proyeccion_psmf['peso_proyectado_kg'][0]:.1f} - {proyeccion_psmf['peso_proyectado_kg'][1]:.1f} kg",
+                f"Desde {peso:.1f} kg actual"
+            )
+        
+        with col2:
+            st.metric(
+                "% Grasa Proyectado",
+                f"{proyeccion_psmf['grasa_proyectada_pct'][0]:.1f} - {proyeccion_psmf['grasa_proyectada_pct'][1]:.1f}%",
+                f"Desde {grasa_corregida:.1f}% actual"
+            )
+            st.metric(
+                "Pérdida Semanal",
+                f"{proyeccion_psmf['perdida_semanal_kg'][0]:.1f} - {proyeccion_psmf['perdida_semanal_kg'][1]:.1f} kg",
+                "Por semana"
+            )
+        
+        # Mostrar explicación científica
+        st.info(proyeccion_psmf["explicacion_cientifica"])
+    
     st.markdown('</div>', unsafe_allow_html=True)
     
 rango_grasa_ok = (4, 12) if sexo == "Hombre" else (10, 18)
@@ -1283,23 +1492,32 @@ if 'experiencia' not in locals() or experiencia is None:
 if 'niveles_ejercicios' not in locals() or niveles_ejercicios is None:
     niveles_ejercicios = {}  # Diccionario vacío por defecto
 
-# Calcular nivel global con ponderación
+# Calcular nivel global con ponderación ACTUALIZADA
 puntos_ffmi = {"Bajo": 1, "Promedio": 2, "Bueno": 3, "Avanzado": 4, "Élite": 5}.get(nivel_ffmi, 1)
 puntos_exp = {"A)": 1, "B)": 2, "C)": 3, "D)": 4}.get(experiencia[:2] if experiencia and len(experiencia) >= 2 else "", 1)
 puntos_por_nivel = {"Bajo": 1, "Promedio": 2, "Bueno": 3, "Avanzado": 4}
 puntos_funcional = sum([puntos_por_nivel.get(n, 1) for n in niveles_ejercicios.values()]) / len(niveles_ejercicios) if niveles_ejercicios else 1
 
-# Ponderación: 40% FFMI, 40% funcional, 20% experiencia
-puntaje_total = (puntos_ffmi / 5 * 0.4) + (puntos_funcional / 4 * 0.4) + (puntos_exp / 4 * 0.2)
+# NUEVA Ponderación: 50% FFMI, 40% funcional, 10% experiencia
+puntaje_total = (puntos_ffmi / 5 * 0.5) + (puntos_funcional / 4 * 0.4) + (puntos_exp / 4 * 0.1)
 
-if puntaje_total < 0.3:
+# Verificar veto: cualquier ejercicio funcional en "Bajo" = principiante
+tiene_ejercicio_bajo = any(nivel == "Bajo" for nivel in niveles_ejercicios.values()) if niveles_ejercicios else False
+veto_aplicado = False
+razon_veto = ""
+
+if tiene_ejercicio_bajo:
+    veto_aplicado = True
+    ejercicios_bajos = [ej for ej, nivel in niveles_ejercicios.items() if nivel == "Bajo"]
+    razon_veto = f"Ejercicio(s) funcional(es) en nivel 'Bajo': {', '.join(ejercicios_bajos)}"
+    nivel_entrenamiento = "principiante"
+elif puntaje_total < 0.3:
     nivel_entrenamiento = "principiante"
 elif puntaje_total < 0.5:
     nivel_entrenamiento = "intermedio"
-elif puntaje_total < 0.7:
-    nivel_entrenamiento = "avanzado"
 else:
-    nivel_entrenamiento = "élite"
+    # NUEVO: Máximo nivel es "intermedio"
+    nivel_entrenamiento = "intermedio"
 
 # Validar si todos los ejercicios funcionales y experiencia están completos
 ejercicios_funcionales_completos = len(ejercicios_data) >= 5  # Debe tener los 5 ejercicios
@@ -1330,13 +1548,13 @@ if ejercicios_funcionales_completos and experiencia_completa:
             "élite": "success"
         }.get(nivel_entrenamiento, "info")
 
-        st.markdown(f"""
+    st.markdown(f"""
         <div style="text-align: center;">
             <h3 style="margin: 0;">Nivel Global</h3>
             <span class="badge badge-{color_nivel_entrenamiento}" style="font-size: 1.2rem;">
                 {nivel_entrenamiento.upper()}
             </span><br>
-            <small>Score: {puntaje_total:.2f}/1.0</small>
+            <small>Score: {puntaje_total:.2f}/1.0 | Ponderación: FFMI 50%, Funcional 40%, Experiencia 10%</small>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1345,6 +1563,26 @@ if ejercicios_funcionales_completos and experiencia_completa:
     
     Este nivel se usará para personalizar todos los cálculos energéticos y nutricionales posteriores.
     """)
+    
+    # Mostrar explicación visual del veto si aplica
+    if veto_aplicado:
+        st.warning(f"""
+        ⚠️ **VETO APLICADO:** Nivel limitado a PRINCIPIANTE
+        
+        **Motivo:** {razon_veto}
+        
+        📋 **Nueva regla:** Cualquier ejercicio funcional en nivel "Bajo" limita el nivel global a "principiante", 
+        independientemente de otros factores. Esto garantiza una progresión segura y realista.
+        """)
+    
+    # Información adicional sobre las nuevas reglas
+    if nivel_entrenamiento == "intermedio" and puntaje_total >= 0.5:
+        st.info(f"""
+        ℹ️ **Nivel máximo alcanzado:** Tu puntaje ({puntaje_total:.2f}) calificaría para un nivel superior, 
+        pero el sistema ahora limita el máximo nivel a "intermedio" para mayor precisión en las recomendaciones.
+        """)
+    
+    st.markdown("---")
 
 if ejercicios_funcionales_completos and experiencia_completa:
     # Mostrar el bloque visual del nivel global solo si todo está completo
@@ -1377,13 +1615,11 @@ if 'porc_potencial' not in locals():
 if 'ffmi' in locals() and 'nivel_entrenamiento' in locals() and ffmi > 0:
     if sexo == "Hombre":
         ffmi_genetico_max = {
-            "principiante": 22, "intermedio": 23.5,
-            "avanzado": 24.5, "élite": 25
+            "principiante": 22, "intermedio": 23.5
         }.get(nivel_entrenamiento, 22)
     else:
         ffmi_genetico_max = {
-            "principiante": 19, "intermedio": 20,
-            "avanzado": 20.5, "élite": 21
+            "principiante": 19, "intermedio": 20
         }.get(nivel_entrenamiento, 19)
 
     porc_potencial = min((ffmi / ffmi_genetico_max) * 100, 100) if ffmi_genetico_max > 0 else 0
@@ -1545,14 +1781,11 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
             kcal_sesion = 350
             nivel_gee = "350 kcal/sesión"
             gee_color = "info"
-        elif nivel_entrenamiento == "avanzado":
-            kcal_sesion = 400
-            nivel_gee = "400 kcal/sesión"
+        # Nota: Los niveles avanzado y élite ya no existen en el nuevo sistema
+        else:  # fallback por si acaso hay valores antiguos
+            kcal_sesion = 350
+            nivel_gee = "350 kcal/sesión"
             gee_color = "info"
-        else:  # élite
-            kcal_sesion = 500
-            nivel_gee = "500 kcal/sesión"
-            gee_color = "success"
     else:
         # Fallback si no hay nivel_entrenamiento calculado
         kcal_sesion = 300
@@ -1599,9 +1832,22 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             fase = "Mantenimiento o minivolumen"
             porcentaje = 0
         else:
-            deficit_valor = sugerir_deficit(grasa_corregida, sexo)
-            porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
-            fase = f"Déficit recomendado: {deficit_valor}%"
+            deficit_result = sugerir_deficit(grasa_corregida, sexo)
+            if isinstance(deficit_result, dict) and deficit_result.get("deficit_bloqueado"):
+                # Déficit bloqueado - solo PSMF permitido
+                fase = "SOLO PSMF PERMITIDO - Déficit convencional bloqueado"
+                porcentaje = -50  # Valor placeholder que será sobreescrito por PSMF
+                st.error(f"""
+                🚨 **DÉFICIT CONVENCIONAL BLOQUEADO**
+                
+                {deficit_result['mensaje_seguridad']}
+                
+                **Motivo:** {deficit_result['razon_bloqueo']}
+                """)
+            else:
+                deficit_valor = deficit_result.get("valor_deficit", 20)
+                porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
+                fase = f"Déficit recomendado: {deficit_valor}%"
     else:  # Mujer
         if grasa_corregida < 16:
             fase = "Superávit recomendado: 10%"
@@ -1610,9 +1856,22 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
             fase = "Mantenimiento"
             porcentaje = 0
         else:
-            deficit_valor = sugerir_deficit(grasa_corregida, sexo)
-            porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
-            fase = f"Déficit recomendado: {deficit_valor}%"
+            deficit_result = sugerir_deficit(grasa_corregida, sexo)
+            if isinstance(deficit_result, dict) and deficit_result.get("deficit_bloqueado"):
+                # Déficit bloqueado - solo PSMF permitido
+                fase = "SOLO PSMF PERMITIDO - Déficit convencional bloqueado"
+                porcentaje = -50  # Valor placeholder que será sobreescrito por PSMF
+                st.error(f"""
+                🚨 **DÉFICIT CONVENCIONAL BLOQUEADO**
+                
+                {deficit_result['mensaje_seguridad']}
+                
+                **Motivo:** {deficit_result['razon_bloqueo']}
+                """)
+            else:
+                deficit_valor = deficit_result.get("valor_deficit", 20)
+                porcentaje = -deficit_valor  # Negativo para déficit (pérdida)
+                fase = f"Déficit recomendado: {deficit_valor}%"
 
     fbeo = 1 + porcentaje / 100  # Cambio de signo para reflejar nueva convención
 
@@ -1647,51 +1906,83 @@ with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", 
     # COMPARATIVA PSMF si aplica
     plan_elegido = "Tradicional"
     if psmf_recs.get("psmf_aplicable"):
-        st.markdown("### ⚡ Opciones de plan nutricional")
-        st.warning("Eres candidato para el protocolo PSMF. Puedes elegir entre dos estrategias:")
-
-        plan_elegido = st.radio(
-            "Selecciona tu estrategia preferida:",
-            ["Plan Tradicional (déficit moderado, más sostenible)",
-             "Protocolo PSMF (pérdida rápida, más restrictivo)"],
-            index=0,
-            help="PSMF es muy efectivo pero requiere mucha disciplina"
-        )
-
-        # Mostrar comparativa visual
-        st.markdown("### 📊 Comparativa de planes")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('<div class="content-card card-success">', unsafe_allow_html=True)
-            st.markdown("#### ✅ Plan Tradicional")
-            st.metric("Déficit", f"{porcentaje}%", "Moderado")
-            st.metric("Calorías", f"{ingesta_calorica_tradicional:.0f} kcal/día")
-            st.metric("Pérdida esperada", "0.5-0.7 kg/semana")
-            st.markdown("""
-            **Ventajas:**
-            - ✅ Mayor adherencia
-            - ✅ Más energía para entrenar  
-            - ✅ Sostenible largo plazo
-            - ✅ Menor pérdida muscular
-            - ✅ Vida social normal
+        if psmf_recs.get("activacion_automatica"):
+            # PSMF OBLIGATORIO - Sin opción de elegir
+            st.markdown("### 🚨 PROTOCOLO OBLIGATORIO")
+            st.error(f"""
+            **PSMF ACTIVADO AUTOMÁTICAMENTE**
+            
+            Tu nivel de grasa corporal ({grasa_corregida:.1f}%) requiere PSMF obligatorio.
+            No tienes opción de plan tradicional por razones de seguridad metabólica.
+            
+            ⚠️ **Este protocolo NO es opcional a tu nivel de grasa corporal.**
             """)
-            st.markdown('</div>', unsafe_allow_html=True)
-        with col2:
+            plan_elegido = "Protocolo PSMF (pérdida rápida, más restrictivo)"
+            
+            # Mostrar solo el plan PSMF
+            st.markdown("### 📊 Tu plan obligatorio")
             deficit_psmf = int((1 - psmf_recs['calorias_dia']/GE) * 100)
             st.markdown('<div class="content-card card-psmf">', unsafe_allow_html=True)
-            st.markdown("#### ⚡ Protocolo PSMF")
-            st.metric("Déficit", f"~{deficit_psmf}%", "Agresivo")
+            st.markdown("#### 🚨 Protocolo PSMF - OBLIGATORIO")
+            st.metric("Déficit", f"~{deficit_psmf}%", "Agresivo pero necesario")
             st.metric("Calorías", f"{psmf_recs['calorias_dia']:.0f} kcal/día")
-            st.metric("Pérdida esperada", "0.8-1.2 kg/semana")
+            st.metric("Pérdida esperada", f"{psmf_recs['rango_perdida_semanal_kg'][0]:.1f}-{psmf_recs['rango_perdida_semanal_kg'][1]:.1f} kg/semana")
             st.markdown("""
-            **Consideraciones:**
-            - ⚠️ Muy restrictivo
-            - ⚠️ Máximo 6-8 semanas
-            - ⚠️ Requiere supervisión
-            - ⚠️ Solo proteína + verduras
-            - ⚠️ Suplementación necesaria
+            **Protocolo requerido:**
+            - 🚨 Supervisión médica OBLIGATORIA
+            - ⏰ Duración máxima: 6-8 semanas
+            - 💊 Suplementación esencial
+            - 🩺 Análisis de sangre cada 2-3 semanas
+            - 📋 Solo proteína magra + verduras verdes
             """)
             st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            # PSMF OPCIONAL - Permite elegir
+            st.markdown("### ⚡ Opciones de plan nutricional")
+            st.warning("Eres candidato para el protocolo PSMF. Puedes elegir entre dos estrategias:")
+
+            plan_elegido = st.radio(
+                "Selecciona tu estrategia preferida:",
+                ["Plan Tradicional (déficit moderado, más sostenible)",
+                 "Protocolo PSMF (pérdida rápida, más restrictivo)"],
+                index=0,
+                help="PSMF es muy efectivo pero requiere mucha disciplina"
+            )
+
+            # Mostrar comparativa visual
+            st.markdown("### 📊 Comparativa de planes")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown('<div class="content-card card-success">', unsafe_allow_html=True)
+                st.markdown("#### ✅ Plan Tradicional")
+                st.metric("Déficit", f"{porcentaje}%", "Moderado")
+                st.metric("Calorías", f"{ingesta_calorica_tradicional:.0f} kcal/día")
+                st.metric("Pérdida esperada", "0.5-0.7 kg/semana")
+                st.markdown("""
+                **Ventajas:**
+                - ✅ Mayor adherencia
+                - ✅ Más energía para entrenar  
+                - ✅ Sostenible largo plazo
+                - ✅ Menor pérdida muscular
+                - ✅ Vida social normal
+                """)
+                st.markdown('</div>', unsafe_allow_html=True)
+            with col2:
+                deficit_psmf = int((1 - psmf_recs['calorias_dia']/GE) * 100)
+                st.markdown('<div class="content-card card-psmf">', unsafe_allow_html=True)
+                st.markdown("#### ⚡ Protocolo PSMF")
+                st.metric("Déficit", f"~{deficit_psmf}%", "Agresivo")
+                st.metric("Calorías", f"{psmf_recs['calorias_dia']:.0f} kcal/día")
+                st.metric("Pérdida esperada", f"{psmf_recs['rango_perdida_semanal_kg'][0]:.1f}-{psmf_recs['rango_perdida_semanal_kg'][1]:.1f} kg/semana")
+                st.markdown("""
+                **Consideraciones:**
+                - ⚠️ Muy restrictivo
+                - ⚠️ Máximo 6-8 semanas
+                - ⚠️ Requiere supervisión
+                - ⚠️ Solo proteína + verduras
+                - ⚠️ Suplementación necesaria
+                """)
+                st.markdown('</div>', unsafe_allow_html=True)
 
     # FORZAR actualización de variables clave desde session_state
     peso = st.session_state.get("peso", 0)
