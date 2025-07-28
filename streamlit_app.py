@@ -6,6 +6,67 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import time
+import re
+
+# ==================== FUNCIONES DE VALIDACIÓN ESTRICTA ====================
+def validate_name(name):
+    """
+    Valida que el nombre tenga al menos dos palabras.
+    Retorna (es_válido, mensaje_error)
+    """
+    if not name or not name.strip():
+        return False, "El nombre es obligatorio"
+    
+    # Limpiar espacios extra y dividir en palabras
+    words = name.strip().split()
+    
+    if len(words) < 2:
+        return False, "El nombre debe contener al menos dos palabras (nombre y apellido)"
+    
+    # Verificar que cada palabra tenga al menos 2 caracteres y solo contenga letras y espacios
+    for word in words:
+        if len(word) < 2:
+            return False, "Cada palabra del nombre debe tener al menos 2 caracteres"
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$', word):
+            return False, "El nombre solo puede contener letras y espacios"
+    
+    return True, ""
+
+def validate_phone(phone):
+    """
+    Valida que el teléfono tenga exactamente 10 dígitos.
+    Retorna (es_válido, mensaje_error)
+    """
+    if not phone or not phone.strip():
+        return False, "El teléfono es obligatorio"
+    
+    # Limpiar espacios y caracteres especiales
+    clean_phone = re.sub(r'[^0-9]', '', phone.strip())
+    
+    if len(clean_phone) != 10:
+        return False, "El teléfono debe tener exactamente 10 dígitos"
+    
+    # Verificar que todos sean dígitos
+    if not clean_phone.isdigit():
+        return False, "El teléfono solo puede contener números"
+    
+    return True, ""
+
+def validate_email(email):
+    """
+    Valida que el email tenga formato estándar.
+    Retorna (es_válido, mensaje_error)
+    """
+    if not email or not email.strip():
+        return False, "El email es obligatorio"
+    
+    # Patrón regex para email estándar
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    
+    if not re.match(email_pattern, email.strip()):
+        return False, "El email debe tener un formato válido (ejemplo: usuario@dominio.com)"
+    
+    return True, ""
 
 # ==================== CONFIGURACIÓN DE PÁGINA Y CSS MEJORADO ====================
 st.set_page_config(
@@ -867,7 +928,22 @@ with col2:
 acepto_terminos = st.checkbox("He leído y acepto la política de privacidad y el descargo de responsabilidad")
 
 if st.button("🚀 COMENZAR EVALUACIÓN", disabled=not acepto_terminos):
-    if all([nombre, telefono, email_cliente]):
+    # Validación estricta de cada campo
+    name_valid, name_error = validate_name(nombre)
+    phone_valid, phone_error = validate_phone(telefono)
+    email_valid, email_error = validate_email(email_cliente)
+    
+    # Mostrar errores específicos para cada campo que falle
+    validation_errors = []
+    if not name_valid:
+        validation_errors.append(f"**Nombre:** {name_error}")
+    if not phone_valid:
+        validation_errors.append(f"**Teléfono:** {phone_error}")
+    if not email_valid:
+        validation_errors.append(f"**Email:** {email_error}")
+    
+    # Solo proceder si todas las validaciones pasan
+    if name_valid and phone_valid and email_valid:
         st.session_state.datos_completos = True
         st.session_state.nombre = nombre
         st.session_state.telefono = telefono
@@ -878,7 +954,9 @@ if st.button("🚀 COMENZAR EVALUACIÓN", disabled=not acepto_terminos):
         st.session_state.acepto_terminos = acepto_terminos
         st.success("✅ Datos registrados correctamente. ¡Continuemos con tu evaluación!")
     else:
-        st.error("⚠️ Por favor completa todos los campos obligatorios")
+        # Mostrar todos los errores de validación
+        error_message = "⚠️ **Por favor corrige los siguientes errores:**\n\n" + "\n\n".join(validation_errors)
+        st.error(error_message)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
