@@ -70,7 +70,7 @@ def validate_email(email):
 
 # ==================== CONFIGURACIÓN DE PÁGINA Y CSS MEJORADO ====================
 st.set_page_config(
-    page_title="MUPAI - Evaluación de Patrones Alimentarios",
+    page_title="MUPAI - Cuestionario de Selección Alimentaria Personalizada",
     page_icon="🍽️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -384,8 +384,8 @@ st.markdown(f"""
         <img src="data:image/png;base64,{logo_mupai_b64}" alt="LOGO MUPAI" />
     </div>
     <div class="header-center">
-        <h1 class="header-title">TEST MUPAI: PATRONES ALIMENTARIOS</h1>
-        <p class="header-subtitle">Tu evaluación personalizada de hábitos y preferencias alimentarias basada en ciencia</p>
+        <h1 class="header-title">MUPAI: CUESTIONARIO DE SELECCIÓN ALIMENTARIA PERSONALIZADA</h1>
+        <p class="header-subtitle">Tu evaluación personalizada de preferencias alimentarias basada en ciencia</p>
     </div>
     <div class="logo-right">
         <img src="data:image/png;base64,{logo_gym_b64}" alt="LOGO MUSCLE UP GYM" />
@@ -423,7 +423,7 @@ if not st.session_state.authenticated:
             🔐 Acceso Exclusivo
         </h2>
         <p style="margin-bottom: 2rem; color: #CCCCCC;">
-            Ingresa la contraseña para acceder al sistema de evaluación de patrones alimentarios MUPAI
+            Ingresa la contraseña para acceder al sistema de cuestionario de selección alimentaria personalizada MUPAI
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -443,7 +443,7 @@ if not st.session_state.authenticated:
             if st.button("🚀 Acceder al Sistema", use_container_width=True):
                 if password_input == ADMIN_PASSWORD:
                     st.session_state.authenticated = True
-                    st.success("✅ Acceso autorizado. Bienvenido al sistema MUPAI de patrones alimentarios.")
+                    st.success("✅ Acceso autorizado. Bienvenido al sistema MUPAI de selección alimentaria personalizada.")
                     st.rerun()
                 else:
                     st.error("❌ Contraseña incorrecta. Acceso denegado.")
@@ -451,15 +451,15 @@ if not st.session_state.authenticated:
     # Mostrar información mientras no esté autenticado
     st.markdown("""
     <div class="content-card" style="margin-top: 3rem; text-align: center; background: #1A1A1A;">
-        <h3 style="color: var(--mupai-yellow);">Sistema de Evaluación de Patrones Alimentarios</h3>
+        <h3 style="color: var(--mupai-yellow);">Sistema de Cuestionario de Selección Alimentaria Personalizada</h3>
         <p style="color: #CCCCCC;">
-            MUPAI utiliza metodologías científicas avanzadas para evaluar patrones alimentarios 
-            personalizados, preferencias dietéticas y crear planes nutricionales adaptativos.
+            MUPAI utiliza metodologías científicas avanzadas para evaluar preferencias alimentarias 
+            específicas, tolerancias individuales y crear perfiles nutricionales adaptativos.
         </p>
         <p style="color: #999999; font-size: 0.9rem; margin-top: 1.5rem;">
             © 2025 MUPAI - Muscle up GYM 
             Digital Nutrition Science
-            Alimentary Pattern Assessment Intelligence
+            Personalized Food Selection Intelligence
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -492,7 +492,7 @@ def enviar_email_resumen(contenido, nombre_cliente, email_cliente, fecha, edad, 
         msg = MIMEMultipart()
         msg['From'] = email_origen
         msg['To'] = email_destino
-        msg['Subject'] = f"Evaluación patrones alimentarios MUPAI - {nombre_cliente} ({fecha})"
+        msg['Subject'] = f"Cuestionario de Selección Alimentaria Personalizada MUPAI - {nombre_cliente} ({fecha})"
 
         msg.attach(MIMEText(contenido, 'plain'))
 
@@ -655,407 +655,462 @@ if datos_personales_completos and st.session_state.datos_completos:
     progress = st.progress(0)
     progress_text = st.empty()
 
-    # BLOQUE 1: Preferencias alimentarias básicas
-    with st.expander("🥗 **Paso 1: Preferencias Alimentarias Básicas**", expanded=True):
-        progress.progress(16)
-        progress_text.text("Paso 1 de 6: Evaluación de preferencias alimentarias")
+    st.markdown("""
+    <div class="content-card" style="text-align: center; background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem;">
+        <h2 style="margin: 0; color: #1E1E1E; font-weight: 900;">🧾 CUESTIONARIO DE SELECCIÓN ALIMENTARIA PERSONALIZADA</h2>
+        <p style="margin: 0.5rem 0 0 0; color: #333; font-weight: 600;">
+            Marca (✓) todos los alimentos y bebidas que consumes con facilidad o disfrutas. 
+            Esto permitirá diseñar un plan de alimentación ajustado a tus gustos, tolerancias y necesidades personales.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # GRUPO 1: PROTEÍNA ANIMAL CON MÁS CONTENIDO GRASO
+    with st.expander("🥩 **GRUPO 1: PROTEÍNA ANIMAL CON MÁS CONTENIDO GRASO**", expanded=True):
+        progress.progress(10)
+        progress_text.text("Grupo 1 de 10: Proteína animal con más contenido graso")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
-        st.markdown("### 🍽️ Preferencias de sabores y texturas")
+        st.markdown("### (elige todas las que puedas consumir con facilidad)")
         
         col1, col2 = st.columns(2)
         with col1:
-            sabores_preferidos = st.multiselect(
-                "Sabores que más disfrutas:",
-                ["Dulce", "Salado", "Ácido", "Amargo", "Umami", "Picante", "Especiado", "Ahumado", "Suave/Neutro"],
-                help="Selecciona todos los sabores que te agraden"
+            st.markdown("#### 🍳 Huevos y embutidos")
+            grupo1_huevos_embutidos = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Huevo entero", "Chorizo", "Salchicha (Viena, alemana, parrillera)", 
+                 "Longaniza", "Tocino", "Jamón serrano"],
+                key="g1_huevos_embutidos"
             )
             
-            texturas_preferidas = st.multiselect(
-                "Texturas que prefieres:",
-                ["Crujiente", "Suave", "Cremosa", "Fibrosa", "Gelatinosa", "Líquida", "Densa", "Aireada"],
-                help="Elige las texturas que más disfrutas en los alimentos"
+            st.markdown("#### 🥩 Carnes y cortes grasos")
+            grupo1_carnes_grasas = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Costilla de res", "Costilla de cerdo", "Ribeye", "T-bone", "New York",
+                 "Arrachera marinada", "Molida 80/20 (regular)", "Molida 85/15", "Cecina con grasa"],
+                key="g1_carnes_grasas"
+            )
+            
+            st.markdown("#### 🧀 Quesos altos en grasa")
+            grupo1_quesos_altos = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Queso manchego", "Queso doble crema", "Queso oaxaca", 
+                 "Queso gouda", "Queso crema", "Queso cheddar"],
+                key="g1_quesos_altos"
             )
         
         with col2:
-            temperaturas_preferidas = st.multiselect(
-                "Temperaturas de comida preferidas:",
-                ["Muy caliente", "Caliente", "Tibia", "Temperatura ambiente", "Fría", "Muy fría/Helada"],
-                help="¿A qué temperatura prefieres consumir tus alimentos?"
+            st.markdown("#### 🥛 Lácteos enteros")
+            grupo1_lacteos_enteros = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Leche entera", "Yogur entero azucarado", "Yogur tipo griego entero",
+                 "Yogur de frutas azucarado", "Yogur bebible regular", "Crema",
+                 "Queso para untar (tipo Philadelphia original)"],
+                key="g1_lacteos_enteros"
             )
             
-            comidas_favoritas = st.text_area(
-                "Menciona 5 de tus comidas favoritas:",
-                placeholder="Ej: Pizza, ensalada césar, sushi, tacos, helado de vainilla...",
-                help="Describe brevemente tus platillos favoritos"
+            st.markdown("#### 🐟 Pescados grasos")
+            grupo1_pescados_grasos = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Atún en aceite", "Salmón", "Sardinas", "Macarela", "Trucha"],
+                key="g1_pescados_grasos"
             )
 
-        st.markdown("### 🚫 Alimentos que evitas o no te gustan")
-        alimentos_evitados = st.text_area(
-            "¿Hay alimentos que evitas por gusto personal?",
-            placeholder="Ej: brócoli, pescado, comida muy picante, lácteos...",
-            help="Lista alimentos que no consumes por preferencia personal"
-        )
-        
         # Guardar en session state
-        st.session_state.sabores_preferidos = sabores_preferidos
-        st.session_state.texturas_preferidas = texturas_preferidas
-        st.session_state.temperaturas_preferidas = temperaturas_preferidas
-        st.session_state.comidas_favoritas = comidas_favoritas
-        st.session_state.alimentos_evitados = alimentos_evitados
+        st.session_state.grupo1_huevos_embutidos = grupo1_huevos_embutidos
+        st.session_state.grupo1_carnes_grasas = grupo1_carnes_grasas
+        st.session_state.grupo1_quesos_altos = grupo1_quesos_altos
+        st.session_state.grupo1_lacteos_enteros = grupo1_lacteos_enteros
+        st.session_state.grupo1_pescados_grasos = grupo1_pescados_grasos
         
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # BLOQUE 2: Restricciones dietéticas y médicas
-    with st.expander("🚫 **Paso 2: Restricciones Dietéticas y Alergias**", expanded=True):
-        progress.progress(32)
-        progress_text.text("Paso 2 de 6: Evaluación de restricciones y alergias")
+    # GRUPO 2: PROTEÍNA ANIMAL MAGRA
+    with st.expander("🍗 **GRUPO 2: PROTEÍNA ANIMAL MAGRA**", expanded=True):
+        progress.progress(20)
+        progress_text.text("Grupo 2 de 10: Proteína animal magra")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
-        st.markdown("### ⚠️ Alergias e intolerancias alimentarias")
-        
-        tiene_alergias = st.radio(
-            "¿Tienes alergias o intolerancias alimentarias?",
-            ["No", "Sí, tengo alergias", "Sí, tengo intolerancias", "Sí, tengo ambas"],
-            help="Las alergias causan reacciones inmunes; las intolerancias causan malestar digestivo"
-        )
-        
-        alergias_especificas = ""
-        if tiene_alergias != "No":
-            alergias_especificas = st.text_area(
-                "Describe específicamente tus alergias e intolerancias:",
-                placeholder="Ej: Alergia a frutos secos, intolerancia a lactosa, celiaquía...",
-                help="Sé específico para crear un plan seguro"
-            )
-        
-        st.markdown("### 🥗 Patrones dietéticos especiales")
-        patron_dietetico = st.selectbox(
-            "¿Sigues algún patrón dietético específico?",
-            ["Ninguno en particular", "Vegetariano", "Vegano", "Pescetariano", "Flexitariano", 
-             "Cetogénico", "Paleo", "Mediterráneo", "Bajo en carbohidratos", "Ayuno intermitente",
-             "Sin gluten", "Bajo en FODMAP", "Otro"],
-            help="Selecciona el patrón que mejor describe tu alimentación actual"
-        )
-        
-        patron_otro = ""
-        if patron_dietetico == "Otro":
-            patron_otro = st.text_input(
-                "Especifica tu patrón dietético:",
-                placeholder="Describe tu patrón alimentario...",
-                help="Detalla tu enfoque dietético específico"
-            )
-        
-        motivacion_patron = ""
-        if patron_dietetico != "Ninguno en particular":
-            motivacion_patron = st.selectbox(
-                "¿Cuál es tu motivación principal para seguir este patrón?",
-                ["Salud general", "Pérdida de peso", "Ganancia muscular", "Rendimiento deportivo",
-                 "Razones éticas/morales", "Razones ambientales", "Tradición cultural/familiar",
-                 "Recomendación médica", "Otra"],
-                help="Entender la motivación ayuda a personalizar mejor las recomendaciones"
-            )
-        
-        # Guardar en session state
-        st.session_state.tiene_alergias = tiene_alergias
-        st.session_state.alergias_especificas = alergias_especificas
-        st.session_state.patron_dietetico = patron_dietetico
-        st.session_state.patron_otro = patron_otro
-        st.session_state.motivacion_patron = motivacion_patron
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # BLOQUE 3: Patrones de comida y horarios
-    with st.expander("⏰ **Paso 3: Patrones de Comida y Horarios**", expanded=True):
-        progress.progress(48)
-        progress_text.text("Paso 3 de 6: Evaluación de patrones temporales")
-
-        st.markdown('<div class="content-card">', unsafe_allow_html=True)
-        st.markdown("### 🕐 Frecuencia y horarios de comida")
+        st.markdown("### (elige todas las que te sean fáciles de consumir)")
         
         col1, col2 = st.columns(2)
         with col1:
-            comidas_por_dia = st.selectbox(
-                "¿Cuántas comidas haces al día normalmente?",
-                ["1-2 comidas", "3 comidas", "4-5 comidas", "6 o más comidas", "Variable/Irregular"],
-                help="Incluye comidas principales y snacks"
+            st.markdown("#### 🍗 Carnes y cortes magros")
+            grupo2_carnes_magras = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Pechuga de pollo sin piel", "Filete de res magro (aguayón, bola, sirloin sin grasa visible)",
+                 "Lomo de cerdo", "Bistec de res sin grasa visible", "Cecina magra",
+                 "Molida 90/10", "Molida 95/5", "Molida 97/3", "Carne para deshebrar sin grasa (falda limpia)"],
+                key="g2_carnes_magras"
             )
             
-            horario_desayuno = st.time_input(
-                "Hora habitual de desayuno:",
-                value=datetime.strptime("07:00", "%H:%M").time(),
-                help="¿A qué hora sueles desayunar?"
+            st.markdown("#### 🐟 Pescados blancos y bajos en grasa")
+            grupo2_pescados_blancos = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Tilapia", "Basa", "Huachinango", "Merluza", "Robalo", "Atún en agua"],
+                key="g2_pescados_blancos"
             )
             
-            horario_almuerzo = st.time_input(
-                "Hora habitual de almuerzo:",
-                value=datetime.strptime("13:00", "%H:%M").time(),
-                help="¿A qué hora sueles almorzar?"
+            st.markdown("#### 🧀 Quesos bajos en grasa o magros")
+            grupo2_quesos_magros = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Queso panela", "Queso cottage", "Queso ricotta light", "Queso oaxaca reducido en grasa",
+                 "Queso mozzarella light", "Queso fresco bajo en grasa"],
+                key="g2_quesos_magros"
             )
         
         with col2:
-            horario_cena = st.time_input(
-                "Hora habitual de cena:",
-                value=datetime.strptime("19:00", "%H:%M").time(),
-                help="¿A qué hora sueles cenar?"
+            st.markdown("#### 🥛 Lácteos light o reducidos")
+            grupo2_lacteos_light = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Leche descremada", "Leche deslactosada light", "Leche de almendra sin azúcar",
+                 "Leche de coco sin azúcar", "Leche de soya sin azúcar", "Yogur griego natural sin azúcar",
+                 "Yogur griego light", "Yogur bebible bajo en grasa", "Yogur sin azúcar añadida",
+                 "Yogur de frutas bajo en grasa y sin azúcar añadida", "Queso crema light"],
+                key="g2_lacteos_light"
             )
             
-            snacks_frecuencia = st.selectbox(
-                "¿Con qué frecuencia consumes snacks entre comidas?",
-                ["Nunca", "Rara vez", "Ocasionalmente", "Frecuentemente", "Siempre"],
-                help="Considera refrigerios, botanas, colaciones"
-            )
-            
-            horarios_irregulares = st.checkbox(
-                "Mis horarios de comida son muy irregulares debido al trabajo/estudio",
-                help="Marca si tus horarios cambian constantemente"
+            st.markdown("#### 🥚 Otros")
+            grupo2_otros = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Clara de huevo", "Jamón de pechuga de pavo", "Jamón de pierna bajo en grasa",
+                 "Salchicha de pechuga de pavo (light)"],
+                key="g2_otros"
             )
 
-        st.markdown("### 🍽️ Comportamientos alimentarios")
+        # Guardar en session state
+        st.session_state.grupo2_carnes_magras = grupo2_carnes_magras
+        st.session_state.grupo2_pescados_blancos = grupo2_pescados_blancos
+        st.session_state.grupo2_quesos_magros = grupo2_quesos_magros
+        st.session_state.grupo2_lacteos_light = grupo2_lacteos_light
+        st.session_state.grupo2_otros = grupo2_otros
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # GRUPO 3: FUENTES DE GRASA SALUDABLE
+    with st.expander("🥑 **GRUPO 3: FUENTES DE GRASA SALUDABLE**", expanded=True):
+        progress.progress(30)
+        progress_text.text("Grupo 3 de 10: Fuentes de grasa saludable")
+
+        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        st.markdown("### (elige todas las que puedas o suelas consumir)")
         
         col1, col2 = st.columns(2)
         with col1:
-            come_viendo_tv = st.checkbox("Suelo comer viendo TV/pantallas")
-            come_rapido = st.checkbox("Como muy rápido habitualmente")
-            saltea_comidas = st.checkbox("Frecuentemente me salteo comidas")
-            come_tarde_noche = st.checkbox("Como frecuentemente tarde en la noche")
+            st.markdown("#### 🥑 Grasas naturales de alimentos")
+            grupo3_grasas_naturales = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Aguacate", "Yema de huevo", "Aceitunas (negras, verdes)", 
+                 "Coco rallado natural", "Coco fresco", "Leche de coco sin azúcar"],
+                key="g3_grasas_naturales"
+            )
+            
+            st.markdown("#### 🌰 Frutos secos y semillas")
+            grupo3_frutos_secos = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Almendras", "Nueces", "Nuez de la India", "Pistaches", "Cacahuates naturales (sin sal)",
+                 "Semillas de chía", "Semillas de linaza", "Semillas de girasol", "Semillas de calabaza (pepitas)"],
+                key="g3_frutos_secos"
+            )
         
         with col2:
-            come_estresado = st.checkbox("Como más cuando estoy estresado/ansioso")
-            come_aburrido = st.checkbox("Como por aburrimiento")
-            planifica_comidas = st.checkbox("Planifico mis comidas con anticipación")
-            come_social = st.checkbox("La mayoría de mis comidas son en contextos sociales")
+            st.markdown("#### 🧈 Mantequillas y pastas vegetales")
+            grupo3_mantequillas = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Mantequilla de maní natural", "Mantequilla de almendra", 
+                 "Tahini (pasta de ajonjolí)", "Mantequilla de nuez de la India"],
+                key="g3_mantequillas"
+            )
 
         # Guardar en session state
-        st.session_state.comidas_por_dia = comidas_por_dia
-        st.session_state.horario_desayuno = horario_desayuno
-        st.session_state.horario_almuerzo = horario_almuerzo
-        st.session_state.horario_cena = horario_cena
-        st.session_state.snacks_frecuencia = snacks_frecuencia
-        st.session_state.horarios_irregulares = horarios_irregulares
-        st.session_state.comportamientos_alimentarios = {
-            "come_viendo_tv": come_viendo_tv,
-            "come_rapido": come_rapido,
-            "saltea_comidas": saltea_comidas,
-            "come_tarde_noche": come_tarde_noche,
-            "come_estresado": come_estresado,
-            "come_aburrido": come_aburrido,
-            "planifica_comidas": planifica_comidas,
-            "come_social": come_social
-        }
+        st.session_state.grupo3_grasas_naturales = grupo3_grasas_naturales
+        st.session_state.grupo3_frutos_secos = grupo3_frutos_secos
+        st.session_state.grupo3_mantequillas = grupo3_mantequillas
         
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # BLOQUE 4: Habilidades culinarias y preparación
-    with st.expander("👨‍🍳 **Paso 4: Habilidades Culinarias y Preparación**", expanded=True):
-        progress.progress(64)
-        progress_text.text("Paso 4 de 6: Evaluación de habilidades culinarias")
+    # GRUPO 4: CARBOHIDRATOS COMPLEJOS Y CEREALES
+    with st.expander("🍞 **GRUPO 4: CARBOHIDRATOS COMPLEJOS Y CEREALES**", expanded=True):
+        progress.progress(40)
+        progress_text.text("Grupo 4 de 10: Carbohidratos complejos y cereales")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
-        st.markdown("### 🔪 Nivel de habilidades culinarias")
-        
-        nivel_cocina = st.selectbox(
-            "¿Cómo calificarías tu nivel de cocina?",
-            ["Principiante (apenas cocino)", "Básico (platos simples)", "Intermedio (variedad de platos)", 
-             "Avanzado (técnicas complejas)", "Experto (como chef profesional)"],
-            help="Sé honesto sobre tus habilidades actuales"
-        )
+        st.markdown("### (elige todos los que consumas con facilidad)")
         
         col1, col2 = st.columns(2)
         with col1:
-            tiempo_cocinar_dia = st.selectbox(
-                "¿Cuánto tiempo puedes dedicar a cocinar por día?",
-                ["Menos de 15 minutos", "15-30 minutos", "30-60 minutos", "1-2 horas", "Más de 2 horas"],
-                help="Considera tiempo de preparación y cocción"
+            st.markdown("#### 🌾 Cereales y granos integrales")
+            grupo4_cereales = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Avena tradicional", "Avena instantánea sin azúcar", "Arroz integral", "Arroz blanco",
+                 "Arroz jazmín", "Arroz basmati", "Trigo bulgur", "Cuscús", "Quinoa", "Amaranto",
+                 "Trigo inflado natural", "Cereal de maíz sin azúcar", "Cereal integral bajo en azúcar"],
+                key="g4_cereales"
             )
             
-            frecuencia_cocina_casa = st.selectbox(
-                "¿Con qué frecuencia cocinas en casa?",
-                ["Nunca", "Rara vez", "Ocasionalmente", "Frecuentemente", "Siempre/Casi siempre"],
-                help="Comidas preparadas en tu cocina vs comer fuera/delivery"
+            st.markdown("#### 🌽 Tortillas y panes")
+            grupo4_tortillas_panes = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Tortilla de maíz", "Tortilla de nopal", "Tortilla integral", "Tortilla de harina",
+                 "Pan integral", "Pan multigrano", "Pan de centeno", "Pan de caja sin azúcar añadida",
+                 "Pan pita integral", "Pan tipo Ezekiel (germinado)"],
+                key="g4_tortillas_panes"
             )
         
         with col2:
-            electrodomesticos = st.multiselect(
-                "¿Qué electrodomésticos tienes disponibles?",
-                ["Estufa/Cocina", "Horno", "Microondas", "Licuadora", "Procesador de alimentos", 
-                 "Freidora de aire", "Plancha/Grill", "Olla de presión", "Slow cooker", "Otro"],
-                help="Selecciona todos los que uses para cocinar"
+            st.markdown("#### 🥔 Raíces, tubérculos y derivados")
+            grupo4_tuberculos = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Papa cocida o al horno", "Camote cocido o al horno", "Yuca", "Plátano macho",
+                 "Puré de papa", "Papas horneadas", "Papas en air fryer"],
+                key="g4_tuberculos"
             )
             
-            compra_ingredientes = st.selectbox(
-                "¿Cómo obtienes principalmente tus ingredientes?",
-                ["Supermercado tradicional", "Mercado local/tianguis", "Tiendas especializadas", 
-                 "Compras online", "Combinación de varios", "Alguien más compra para mí"],
-                help="¿Dónde y cómo haces las compras de comida?"
+            st.markdown("#### 🫘 Leguminosas")
+            grupo4_leguminosas = st.multiselect(
+                "Selecciona todos los que puedas consumir:",
+                ["Frijoles negros", "Frijoles bayos", "Frijoles pintos", "Lentejas", "Garbanzos",
+                 "Habas cocidas", "Soya texturizada", "Edamames (vainas de soya)", "Hummus (puré de garbanzo)"],
+                key="g4_leguminosas"
             )
 
-        st.markdown("### 🥘 Métodos de preparación preferidos")
-        metodos_preparacion = st.multiselect(
-            "¿Qué métodos de cocción prefieres o usas más?",
-            ["Hervido", "Al vapor", "Salteado", "Frito", "Al horno", "A la plancha", 
-             "A la parrilla", "Crudo", "Microondas", "Guisado", "Al wok"],
-            help="Selecciona todos los métodos que uses regularmente"
-        )
-        
-        comida_preparada_frecuencia = st.selectbox(
-            "¿Con qué frecuencia consumes comida preparada/procesada?",
-            ["Nunca", "Rara vez", "Ocasionalmente", "Frecuentemente", "Siempre/Casi siempre"],
-            help="Incluye comidas congeladas, enlatadas, delivery, restaurantes"
-        )
-
         # Guardar en session state
-        st.session_state.nivel_cocina = nivel_cocina
-        st.session_state.tiempo_cocinar_dia = tiempo_cocinar_dia
-        st.session_state.frecuencia_cocina_casa = frecuencia_cocina_casa
-        st.session_state.electrodomesticos = electrodomesticos
-        st.session_state.compra_ingredientes = compra_ingredientes
-        st.session_state.metodos_preparacion = metodos_preparacion
-        st.session_state.comida_preparada_frecuencia = comida_preparada_frecuencia
+        st.session_state.grupo4_cereales = grupo4_cereales
+        st.session_state.grupo4_tortillas_panes = grupo4_tortillas_panes
+        st.session_state.grupo4_tuberculos = grupo4_tuberculos
+        st.session_state.grupo4_leguminosas = grupo4_leguminosas
         
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # BLOQUE 5: Contexto cultural y social
-    with st.expander("🏛️ **Paso 5: Contexto Cultural y Social**", expanded=True):
-        progress.progress(80)
-        progress_text.text("Paso 5 de 6: Evaluación de contexto cultural")
+    # GRUPO 5: VEGETALES
+    with st.expander("🥬 **GRUPO 5: VEGETALES**", expanded=True):
+        progress.progress(50)
+        progress_text.text("Grupo 5 de 10: Vegetales")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
-        st.markdown("### 🌍 Tradiciones culturales y familiares")
+        st.markdown("### (elige todos los que consumes o toleras fácilmente)")
         
-        col1, col2 = st.columns(2)  
-        with col1:
-            origen_cultural = st.text_input(
-                "¿Cuál es tu origen cultural/región?",
-                placeholder="Ej: Mexicano del norte, Italiano, Asiático...",
-                help="Esto nos ayuda a entender tus tradiciones alimentarias"
-            )
-            
-            comida_tradicional = st.text_area(
-                "¿Hay comidas tradicionales importantes en tu familia/cultura?",
-                placeholder="Ej: Tamales en navidad, pasta los domingos, té de la tarde...",
-                help="Menciona platillos o rituales alimentarios importantes"
-            )
-        
-        with col2:
-            come_en_familia = st.selectbox(
-                "¿Con qué frecuencia comes en familia/acompañado?",
-                ["Nunca", "Rara vez", "Ocasionalmente", "Frecuentemente", "Siempre"],
-                help="Considera comidas con familia, pareja, amigos"
-            )
-            
-            eventos_sociales_comida = st.selectbox(
-                "¿Participas frecuentemente en eventos sociales que involucran comida?",
-                ["Nunca", "Rara vez", "Ocasionalmente", "Frecuentemente", "Siempre"],
-                help="Fiestas, reuniones, celebraciones, comidas de trabajo"
-            )
-
-        st.markdown("### 🎯 Objetivos y motivaciones")
-        objetivo_principal = st.selectbox(
-            "¿Cuál es tu objetivo principal con respecto a la alimentación?",
-            ["Mantener peso y salud actuales", "Perder peso", "Ganar peso/músculo", 
-             "Mejorar energía y bienestar", "Controlar condición médica", "Rendimiento deportivo",
-             "Mejorar digestión", "Reducir inflamación", "Longevidad y antienvejecimiento"],
-            help="Selecciona tu prioridad número uno"
-        )
-        
-        motivaciones_adicionales = st.multiselect(
-            "¿Qué otras motivaciones tienes? (selecciona todas las que apliquen)",
-            ["Ahorrar dinero", "Ahorrar tiempo", "Ser más sostenible/ecológico", 
-             "Aprender a cocinar mejor", "Variar mi dieta", "Comer más saludable",
-             "Disfrutar más la comida", "Controlar antojos", "Mejorar imagen corporal"],
-            help="Múltiples motivaciones nos ayudan a crear un plan más completo"
+        grupo5_vegetales = st.multiselect(
+            "Selecciona todos los vegetales que puedas consumir:",
+            ["Espinaca", "Acelga", "Kale", "Lechuga (romana, italiana, orejona, iceberg)",
+             "Col morada", "Col verde", "Repollo", "Brócoli", "Coliflor", "Ejote", "Chayote",
+             "Calabacita", "Nopal", "Betabel", "Zanahoria", "Jitomate saladet", "Jitomate bola",
+             "Tomate verde", "Cebolla blanca", "Cebolla morada", "Pimiento morrón (rojo, verde, amarillo, naranja)",
+             "Pepino", "Apio", "Rábano", "Ajo", "Berenjena", "Champiñones", "Guisantes (chícharos)",
+             "Verdolaga", "Habas tiernas", "Germen de alfalfa", "Germen de soya", "Flor de calabaza"],
+            key="g5_vegetales"
         )
 
         # Guardar en session state
-        st.session_state.origen_cultural = origen_cultural
-        st.session_state.comida_tradicional = comida_tradicional
-        st.session_state.come_en_familia = come_en_familia
-        st.session_state.eventos_sociales_comida = eventos_sociales_comida
-        st.session_state.objetivo_principal = objetivo_principal
-        st.session_state.motivaciones_adicionales = motivaciones_adicionales
+        st.session_state.grupo5_vegetales = grupo5_vegetales
         
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # BLOQUE 6: Información adicional y suplementos
-    with st.expander("💊 **Paso 6: Suplementos e Información Adicional**", expanded=True):
+    # GRUPO 6: FRUTAS
+    with st.expander("🍎 **GRUPO 6: FRUTAS**", expanded=True):
+        progress.progress(60)
+        progress_text.text("Grupo 6 de 10: Frutas")
+
+        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        st.markdown("### (elige todas las que disfrutes o toleres bien)")
+        
+        grupo6_frutas = st.multiselect(
+            "Selecciona todas las frutas que puedas consumir:",
+            ["Manzana (roja, verde, gala, fuji)", "Naranja", "Mandarina", "Mango (petacón, ataulfo)",
+             "Papaya", "Sandía", "Melón", "Piña", "Plátano (tabasco, dominico, macho)", "Uvas",
+             "Fresas", "Arándanos", "Zarzamoras", "Frambuesas", "Higo", "Kiwi", "Pera", "Durazno",
+             "Ciruela", "Granada", "Cereza", "Chabacano", "Lima", "Limón", "Guayaba", "Tuna",
+             "Níspero", "Mamey", "Pitahaya (dragon fruit)", "Tamarindo", "Coco (carne, rallado)",
+             "Caqui (persimón)", "Maracuyá", "Manzana en puré sin azúcar", "Fruta en almíbar light"],
+            key="g6_frutas"
+        )
+
+        # Guardar en session state
+        st.session_state.grupo6_frutas = grupo6_frutas
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # APARTADO EXTRA: GRASA/ACEITE DE COCCIÓN FAVORITA
+    with st.expander("🍳 **APARTADO EXTRA: GRASA/ACEITE DE COCCIÓN FAVORITA**", expanded=True):
+        progress.progress(70)
+        progress_text.text("Apartado Extra: Grasa/aceite de cocción favorita")
+
+        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        st.markdown("### (elige todas las opciones que suelas usar para cocinar, freír, hornear o saltear tus alimentos)")
+        
+        aceites_coccion = st.multiselect(
+            "Selecciona todos los aceites o grasas que uses para cocinar:",
+            ["🫒 Aceite de oliva extra virgen", "🥑 Aceite de aguacate", "🥥 Aceite de coco virgen",
+             "🧈 Mantequilla con sal", "🧈 Mantequilla sin sal", "🧈 Mantequilla clarificada (ghee)",
+             "🐷 Manteca de cerdo (casera o artesanal)",
+             "🧴 Spray antiadherente sin calorías (aceite de oliva o aguacate)",
+             "❌ Prefiero cocinar sin aceite o con agua"],
+            key="aceites_coccion"
+        )
+
+        # Guardar en session state
+        st.session_state.aceites_coccion = aceites_coccion
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # BEBIDAS SIN CALORÍAS
+    with st.expander("🥤 **¿Qué bebidas sin calorías sueles consumir regularmente para hidratarte?**", expanded=True):
+        progress.progress(75)
+        progress_text.text("Bebidas sin calorías para hidratación")
+
+        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        st.markdown("### (Marca todas las que acostumbres)")
+        
+        bebidas_sin_calorias = st.multiselect(
+            "Selecciona todas las bebidas sin calorías que consumas:",
+            ["💧 Agua natural", "💦 Agua mineral",
+             "⚡ Bebidas con electrolitos sin azúcar (Electrolit Zero, SueroX, LMNT, etc.)",
+             "🍋 Agua infusionada con frutas naturales (limón, pepino, menta, etc.)",
+             "🍵 Té de hierbas sin azúcar (manzanilla, menta, jengibre, etc.)",
+             "🍃 Té verde o té negro sin azúcar", "☕ Café negro sin azúcar",
+             "🥤 Refrescos sin calorías (Coca Cola Zero, Pepsi Light, etc.)"],
+            key="bebidas_sin_calorias"
+        )
+
+        # Guardar en session state
+        st.session_state.bebidas_sin_calorias = bebidas_sin_calorias
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # SECCIÓN FINAL: ALERGIAS, INTOLERANCIAS Y PREFERENCIAS
+    with st.expander("🚨 **SECCIÓN FINAL: ALERGIAS, INTOLERANCIAS Y PREFERENCIAS**", expanded=True):
+        progress.progress(85)
+        progress_text.text("Sección Final: Alergias, intolerancias y preferencias")
+
+        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        
+        st.markdown("### ❗ 1. ¿Tienes alguna alergia alimentaria? (Marca todas las que apliquen)")
+        alergias_alimentarias = st.multiselect(
+            "Selecciona todas las alergias que tengas:",
+            ["Lácteos", "Huevo", "Frutos secos", "Mariscos", "Pescado", "Gluten", "Soya", "Semillas"],
+            key="alergias_alimentarias"
+        )
+        
+        otra_alergia = st.text_input(
+            "Otra alergia (especificar):",
+            placeholder="Especifica si tienes otra alergia no listada...",
+            key="otra_alergia"
+        )
+        
+        st.markdown("### ⚠️ 2. ¿Tienes alguna intolerancia o malestar digestivo?")
+        intolerancias = st.multiselect(
+            "Selecciona todas las intolerancias que tengas:",
+            ["Lácteos con lactosa", "Leguminosas", "FODMAPs", "Gluten", "Crucíferas", "Endulzantes artificiales"],
+            key="intolerancias"
+        )
+        
+        otra_intolerancia = st.text_input(
+            "Otra intolerancia (especificar):",
+            placeholder="Especifica si tienes otra intolerancia no listada...",
+            key="otra_intolerancia"
+        )
+        
+        st.markdown("### ➕ 3. ¿Hay algún alimento o bebida que desees incluir, aunque no aparezca en las listas anteriores?")
+        alimentos_adicionales = st.text_area(
+            "Escribe aquí los alimentos o bebidas adicionales:",
+            placeholder="Especifica alimentos o bebidas que consumes y no aparecen en las listas...",
+            key="alimentos_adicionales"
+        )
+
+        # Guardar en session state
+        st.session_state.alergias_alimentarias = alergias_alimentarias
+        st.session_state.otra_alergia = otra_alergia
+        st.session_state.intolerancias = intolerancias
+        st.session_state.otra_intolerancia = otra_intolerancia
+        st.session_state.alimentos_adicionales = alimentos_adicionales
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # SECCIÓN DE ANTOJOS ALIMENTARIOS
+    with st.expander("😋 **SECCIÓN DE ANTOJOS ALIMENTARIOS**", expanded=True):
+        progress.progress(95)
+        progress_text.text("Sección de Antojos Alimentarios")
+
+        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        st.markdown("### Instrucciones: Marca los alimentos que frecuentemente se te antojan o deseas con intensidad, aunque no necesariamente los consumas con regularidad. Puedes marcar tantos como necesites.")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("#### 🍫 Alimentos dulces / postres")
+            antojos_dulces = st.multiselect(
+                "Selecciona todos los alimentos dulces que se te antojen:",
+                ["Chocolate con leche", "Chocolate amargo", "Pan dulce (conchas, donas, cuernitos)",
+                 "Pastel (tres leches, chocolate, etc.)", "Galletas (Marías, Emperador, Chokis, etc.)",
+                 "Helado / Nieve", "Flan / Gelatina", "Dulces tradicionales (cajeta, obleas, jamoncillo, glorias)",
+                 "Cereal azucarado", "Leche condensada", "Churros"],
+                key="antojos_dulces"
+            )
+            
+            st.markdown("#### 🧂 Alimentos salados / snacks")
+            antojos_salados = st.multiselect(
+                "Selecciona todos los alimentos salados que se te antojen:",
+                ["Papas fritas (Sabritas, Ruffles, etc.)", "Cacahuates enchilados",
+                 "Frituras (Doritos, Cheetos, Takis, etc.)", "Totopos con salsa", "Galletas saladas",
+                 "Cacahuates japoneses", "Chicharrón (de cerdo o harina)", "Nachos con queso",
+                 "Queso derretido o gratinado"],
+                key="antojos_salados"
+            )
+            
+            st.markdown("#### 🌮 Comidas rápidas / callejeras")
+            antojos_comida_rapida = st.multiselect(
+                "Selecciona todas las comidas rápidas que se te antojen:",
+                ["Tacos (pastor, asada, birria, etc.)", "Tortas (cubana, ahogada, etc.)",
+                 "Hamburguesas", "Hot dogs", "Pizza", "Quesadillas fritas", "Tamales",
+                 "Pambazos", "Sopes / gorditas", "Elotes / esquites", "Burritos",
+                 "Enchiladas", "Empanadas"],
+                key="antojos_comida_rapida"
+            )
+        
+        with col2:
+            st.markdown("#### 🍹 Bebidas y postres líquidos")
+            antojos_bebidas = st.multiselect(
+                "Selecciona todas las bebidas que se te antojen:",
+                ["Refrescos regulares (Coca-Cola, Fanta, etc.)", "Jugos industrializados (Boing, Jumex, etc.)",
+                 "Malteadas / Frappés", "Agua de sabor con azúcar (jamaica, horchata, tamarindo)",
+                 "Café con azúcar y leche", "Champurrado / atole", "Licuado de plátano con azúcar",
+                 "Bebidas alcohólicas (cerveza, tequila, vino, etc.)"],
+                key="antojos_bebidas"
+            )
+            
+            st.markdown("#### 🔥 Alimentos con condimentos estimulantes")
+            antojos_condimentos = st.multiselect(
+                "Selecciona todos los que se te antojen:",
+                ["Chiles en escabeche", "Salsas picantes", "Salsa Valentina, Tajín o Chamoy",
+                 "Pepinos con chile y limón", "Mangos verdes con chile", "Gomitas enchiladas",
+                 "Fruta con Miguelito o chile en polvo"],
+                key="antojos_condimentos"
+            )
+        
+        st.markdown("#### ❓ Pregunta final:")
+        otros_antojos = st.text_area(
+            "¿Qué otros alimentos o preparaciones se te antojan mucho y no aparecen en esta lista?",
+            placeholder="Escríbelos aquí...",
+            key="otros_antojos"
+        )
+
+        # Guardar en session state
+        st.session_state.antojos_dulces = antojos_dulces
+        st.session_state.antojos_salados = antojos_salados
+        st.session_state.antojos_comida_rapida = antojos_comida_rapida
+        st.session_state.antojos_bebidas = antojos_bebidas
+        st.session_state.antojos_condimentos = antojos_condimentos
+        st.session_state.otros_antojos = otros_antojos
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # RESULTADO FINAL: Análisis de selección alimentaria personalizada
+    with st.expander("📈 **RESULTADO FINAL: Tu Perfil de Selección Alimentaria Personalizada**", expanded=True):
         progress.progress(100)
-        progress_text.text("Paso 6 de 6: Información complementaria")
-
-        st.markdown('<div class="content-card">', unsafe_allow_html=True)
-        st.markdown("### 💊 Suplementos y bebidas")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            toma_suplementos = st.radio(
-                "¿Tomas suplementos nutricionales?",
-                ["No", "Sí, ocasionalmente", "Sí, regularmente"],
-                help="Incluye vitaminas, minerales, proteínas, etc."
-            )
-            
-            suplementos_especificos = ""
-            if toma_suplementos != "No":
-                suplementos_especificos = st.text_area(
-                    "¿Qué suplementos tomas?",
-                    placeholder="Ej: Vitamina D, Omega 3, Proteína en polvo, Multivitamínico...",
-                    help="Lista todos los suplementos que consumes"
-                )
-        
-        with col2:
-            consumo_agua_diario = st.selectbox(
-                "¿Cuánta agua consumes aproximadamente por día?",
-                ["Menos de 1 litro", "1-1.5 litros", "1.5-2 litros", "2-2.5 litros", "Más de 2.5 litros"],
-                help="Incluye agua pura, no otras bebidas"
-            )
-            
-            bebidas_frecuentes = st.multiselect(
-                "¿Qué bebidas consumes regularmente?",
-                ["Agua", "Café", "Té", "Refrescos/Sodas", "Jugos naturales", "Jugos procesados",
-                 "Bebidas energéticas", "Alcohol", "Bebidas deportivas", "Leches vegetales", "Lácteos"],
-                help="Selecciona todas las bebidas que tomes habitualmente"
-            )
-
-        st.markdown("### 📝 Información adicional")
-        
-        actividad_fisica = st.selectbox(
-            "¿Cuál es tu nivel de actividad física?",
-            ["Sedentario (sin ejercicio)", "Ligeramente activo (ejercicio ligero 1-3 días/semana)",
-             "Moderadamente activo (ejercicio moderado 3-5 días/semana)", 
-             "Muy activo (ejercicio intenso 6-7 días/semana)",
-             "Extremadamente activo (ejercicio muy intenso, trabajo físico)"],
-            help="Esto afecta tus necesidades nutricionales"
-        )
-        
-        problemas_digestivos = st.text_area(
-            "¿Tienes algún problema digestivo recurrente?",
-            placeholder="Ej: Acidez, gases, estreñimiento, diarrea, hinchazón...",
-            help="Opcional - ayuda a personalizar recomendaciones"
-        )
-        
-        comentarios_adicionales = st.text_area(
-            "¿Hay algo más que consideres importante mencionar sobre tus hábitos alimentarios?",
-            placeholder="Cualquier información adicional que creas relevante...",
-            help="Opcional - espacio libre para comentarios"
-        )
-
-        # Guardar en session state
-        st.session_state.toma_suplementos = toma_suplementos
-        st.session_state.suplementos_especificos = suplementos_especificos
-        st.session_state.consumo_agua_diario = consumo_agua_diario
-        st.session_state.bebidas_frecuentes = bebidas_frecuentes
-        st.session_state.actividad_fisica = actividad_fisica
-        st.session_state.problemas_digestivos = problemas_digestivos
-        st.session_state.comentarios_adicionales = comentarios_adicionales
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # RESULTADO FINAL: Análisis de patrones alimentarios
-    with st.expander("📈 **RESULTADO FINAL: Tu Perfil Alimentario Personalizado**", expanded=True):
-        progress.progress(100)
-        progress_text.text("Análisis completo: Generando tu perfil alimentario personalizado")
+        progress_text.text("Análisis completo: Generando tu perfil de selección alimentaria personalizada")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         
-        st.markdown("### 🎯 Tu Perfil Alimentario Personalizado")
+        st.markdown("### 🎯 Tu Perfil de Selección Alimentaria Personalizada")
         
         # Crear resumen del perfil
         col1, col2 = st.columns(2)
@@ -1065,93 +1120,145 @@ if datos_personales_completos and st.session_state.datos_completos:
             st.write(f"• **Nombre:** {nombre}")
             st.write(f"• **Edad:** {edad} años")
             st.write(f"• **Sexo:** {sexo}")
-            st.write(f"• **Origen cultural:** {origen_cultural if origen_cultural else 'No especificado'}")
             
-            st.markdown("#### 🥗 Preferencias Principales")
-            if sabores_preferidos:
-                st.write(f"• **Sabores favoritos:** {', '.join(sabores_preferidos)}")
-            if texturas_preferidas:
-                st.write(f"• **Texturas preferidas:** {', '.join(texturas_preferidas)}")
-            if patron_dietetico != "Ninguno en particular":
-                st.write(f"• **Patrón dietético:** {patron_dietetico}")
-                if motivacion_patron:
-                    st.write(f"• **Motivación:** {motivacion_patron}")
+            st.markdown("#### 🥩 Proteínas Seleccionadas")
+            total_proteinas_grasas = len(st.session_state.get('grupo1_huevos_embutidos', [])) + len(st.session_state.get('grupo1_carnes_grasas', [])) + len(st.session_state.get('grupo1_quesos_altos', [])) + len(st.session_state.get('grupo1_lacteos_enteros', [])) + len(st.session_state.get('grupo1_pescados_grasos', []))
+            total_proteinas_magras = len(st.session_state.get('grupo2_carnes_magras', [])) + len(st.session_state.get('grupo2_pescados_blancos', [])) + len(st.session_state.get('grupo2_quesos_magros', [])) + len(st.session_state.get('grupo2_lacteos_light', [])) + len(st.session_state.get('grupo2_otros', []))
+            
+            st.write(f"• **Proteínas con grasa:** {total_proteinas_grasas} opciones")
+            st.write(f"• **Proteínas magras:** {total_proteinas_magras} opciones")
+            
+            st.markdown("#### 🥑 Grasas y Carbohidratos")
+            total_grasas = len(st.session_state.get('grupo3_grasas_naturales', [])) + len(st.session_state.get('grupo3_frutos_secos', [])) + len(st.session_state.get('grupo3_mantequillas', []))
+            total_carbohidratos = len(st.session_state.get('grupo4_cereales', [])) + len(st.session_state.get('grupo4_tortillas_panes', [])) + len(st.session_state.get('grupo4_tuberculos', [])) + len(st.session_state.get('grupo4_leguminosas', []))
+            
+            st.write(f"• **Grasas saludables:** {total_grasas} opciones")
+            st.write(f"• **Carbohidratos complejos:** {total_carbohidratos} opciones")
         
         with col2:
-            st.markdown("#### ⏰ Patrones Temporales")
-            st.write(f"• **Comidas por día:** {comidas_por_dia}")
-            st.write(f"• **Desayuno:** {horario_desayuno}")
-            st.write(f"• **Almuerzo:** {horario_almuerzo}")
-            st.write(f"• **Cena:** {horario_cena}")
-            st.write(f"• **Frecuencia de snacks:** {snacks_frecuencia}")
+            st.markdown("#### 🥬 Vegetales y Frutas")
+            total_vegetales = len(st.session_state.get('grupo5_vegetales', []))
+            total_frutas = len(st.session_state.get('grupo6_frutas', []))
             
-            st.markdown("#### 👨‍🍳 Habilidades Culinarias")
-            st.write(f"• **Nivel de cocina:** {nivel_cocina}")
-            st.write(f"• **Tiempo disponible:** {tiempo_cocinar_dia}")
-            st.write(f"• **Frecuencia cocina casa:** {frecuencia_cocina_casa}")
+            st.write(f"• **Vegetales:** {total_vegetales} opciones")
+            st.write(f"• **Frutas:** {total_frutas} opciones")
+            
+            st.markdown("#### 🍳 Preferencias Adicionales")
+            total_aceites = len(st.session_state.get('aceites_coccion', []))
+            total_bebidas = len(st.session_state.get('bebidas_sin_calorias', []))
+            
+            st.write(f"• **Aceites de cocción:** {total_aceites} opciones")
+            st.write(f"• **Bebidas sin calorías:** {total_bebidas} opciones")
+            
+            st.markdown("#### 😋 Antojos Identificados")
+            total_antojos = len(st.session_state.get('antojos_dulces', [])) + len(st.session_state.get('antojos_salados', [])) + len(st.session_state.get('antojos_comida_rapida', [])) + len(st.session_state.get('antojos_bebidas', [])) + len(st.session_state.get('antojos_condimentos', []))
+            st.write(f"• **Total antojos:** {total_antojos} opciones")
 
         # Análisis de restricciones
-        if tiene_alergias != "No":
+        if st.session_state.get('alergias_alimentarias') or st.session_state.get('intolerancias'):
             st.markdown("#### ⚠️ Restricciones Importantes")
-            st.warning(f"**Alergias/Intolerancias:** {tiene_alergias}")
-            if alergias_especificas:
-                st.write(f"• **Detalles:** {alergias_especificas}")
+            if st.session_state.get('alergias_alimentarias'):
+                st.warning(f"**Alergias:** {', '.join(st.session_state.get('alergias_alimentarias', []))}")
+            if st.session_state.get('intolerancias'):
+                st.warning(f"**Intolerancias:** {', '.join(st.session_state.get('intolerancias', []))}")
+            if st.session_state.get('otra_alergia'):
+                st.warning(f"**Otra alergia:** {st.session_state.get('otra_alergia')}")
+            if st.session_state.get('otra_intolerancia'):
+                st.warning(f"**Otra intolerancia:** {st.session_state.get('otra_intolerancia')}")
 
-        # Recomendaciones personalizadas basadas en las respuestas
-        st.markdown("### 💡 Recomendaciones Personalizadas")
+        # Recomendaciones personalizadas basadas en las selecciones
+        st.markdown("### 💡 Análisis de tu Selección Alimentaria")
         
-        # Análisis del nivel de cocina para recomendaciones
-        if nivel_cocina.startswith("Principiante"):
-            recomendacion_cocina = "Enfócate en recetas simples de 3-5 ingredientes. Considera meal prep básico los fines de semana."
-        elif nivel_cocina.startswith("Básico"):
-            recomendacion_cocina = "Puedes explorar técnicas nuevas gradualmente. Ideal para batch cooking y preparaciones versátiles."
-        elif nivel_cocina.startswith("Intermedio"):
-            recomendacion_cocina = "Tienes base sólida para experimentar con sabores internacionales y técnicas más avanzadas."
-        else:
-            recomendacion_cocina = "Tu nivel avanzado te permite crear platos complejos. Considera explorar cocina molecular o técnicas especializadas."
-
-        # Análisis del tiempo disponible
-        if tiempo_cocinar_dia == "Menos de 15 minutos":
-            recomendacion_tiempo = "Prioriza meal prep, alimentos pre-cortados y técnicas de cocción rápida como salteados."
-        elif tiempo_cocinar_dia == "15-30 minutos":
-            recomendacion_tiempo = "Tiempo ideal para platos balanceados. Una olla/sartén puede ser tu mejor estrategia."
-        else:
-            recomendacion_tiempo = "Tienes flexibilidad para explorar técnicas que requieren más tiempo como guisos, horneados o fermentaciones."
-
-        # Mostrar recomendaciones
+        # Calcular variedad total de alimentos seleccionados
+        total_alimentos = total_proteinas_grasas + total_proteinas_magras + total_grasas + total_carbohidratos + total_vegetales + total_frutas
+        
         col1, col2 = st.columns(2)
         with col1:
-            st.info(f"""
-            **💻 Recomendación por nivel de cocina:**
-            {recomendacion_cocina}
-            """)
+            if total_alimentos > 50:
+                variedad_nivel = "ALTA"
+                variedad_color = "success"
+                recomendacion_variedad = "Excelente variedad alimentaria. Tienes una amplia gama de opciones para crear planes nutricionales diversos y balanceados."
+            elif total_alimentos > 30:
+                variedad_nivel = "MODERADA"
+                variedad_color = "warning"
+                recomendacion_variedad = "Buena variedad alimentaria. Puedes ampliar gradualmente tu selección para mayor flexibilidad nutricional."
+            else:
+                variedad_nivel = "BÁSICA"
+                variedad_color = "danger"
+                recomendacion_variedad = "Variedad limitada. Se recomienda explorar gradualmente nuevos alimentos para mejorar la diversidad nutricional."
+            
+            if variedad_color == "success":
+                st.success(f"""
+                **🌟 Variedad alimentaria: {variedad_nivel}**
+                
+                {recomendacion_variedad}
+                
+                **Total de alimentos seleccionados:** {total_alimentos}
+                """)
+            elif variedad_color == "warning":
+                st.warning(f"""
+                **⚡ Variedad alimentaria: {variedad_nivel}**
+                
+                {recomendacion_variedad}
+                
+                **Total de alimentos seleccionados:** {total_alimentos}
+                """)
+            else:
+                st.error(f"""
+                **⚠️ Variedad alimentaria: {variedad_nivel}**
+                
+                {recomendacion_variedad}
+                
+                **Total de alimentos seleccionados:** {total_alimentos}
+                """)
+        
         with col2:
-            st.info(f"""
-            **⏱️ Recomendación por tiempo disponible:**
-            {recomendacion_tiempo}
-            """)
+            # Análisis de balance nutricional
+            if total_proteinas_grasas + total_proteinas_magras > 10 and total_carbohidratos > 8 and total_vegetales > 10:
+                balance_nivel = "BALANCEADO"
+                balance_color = "success"
+                recomendacion_balance = "Tu selección muestra un buen balance entre macronutrientes y micronutrientes."
+            elif total_proteinas_grasas + total_proteinas_magras > 5 and total_carbohidratos > 5 and total_vegetales > 5:
+                balance_nivel = "MODERADO"
+                balance_color = "warning"
+                recomendacion_balance = "Balance nutricional aceptable. Considera ampliar las categorías con menos selecciones."
+            else:
+                balance_nivel = "MEJORABLE"
+                balance_color = "danger"
+                recomendacion_balance = "Se recomienda incluir más opciones de diferentes grupos alimentarios para mejor balance."
+            
+            if balance_color == "success":
+                st.success(f"""
+                **⚖️ Balance nutricional: {balance_nivel}**
+                
+                {recomendacion_balance}
+                """)
+            elif balance_color == "warning":
+                st.warning(f"""
+                **⚖️ Balance nutricional: {balance_nivel}**
+                
+                {recomendacion_balance}
+                """)
+            else:
+                st.error(f"""
+                **⚖️ Balance nutricional: {balance_nivel}**
+                
+                {recomendacion_balance}
+                """)
 
-        # Objetivos y próximos pasos
         st.markdown("### 🎯 Próximos Pasos Recomendados")
         
-        objetivos_texto = ""
-        if objetivo_principal == "Perder peso":
-            objetivos_texto = "Enfoque en preparaciones bajas en calorías pero satisfactorias, control de porciones y planificación de comidas."
-        elif objetivo_principal == "Ganar peso/músculo":
-            objetivos_texto = "Prioriza alimentos densos en nutrientes, aumenta frecuencia de comidas y incluye snacks nutritivos."
-        elif objetivo_principal == "Mejorar energía y bienestar":
-            objetivos_texto = "Enfócate en alimentos integrales, hidratación adecuada y horarios regulares de comida."
-        else:
-            objetivos_texto = "Plan balanceado enfocado en variedad nutricional y sostenibilidad a largo plazo."
-
         st.success(f"""
-        ### ✅ Análisis completado exitosamente
+        ### ✅ Cuestionario de Selección Alimentaria Personalizada completado exitosamente
         
-        **Tu objetivo principal:** {objetivo_principal}
+        **Tu perfil alimentario personalizado está listo** con {total_alimentos} alimentos seleccionados 
+        distribuidos en 6 grupos principales más aceites de cocción y bebidas sin calorías.
         
-        **Estrategia recomendada:** {objetivos_texto}
+        **Esta información permite diseñar planes de alimentación específicos** que se ajusten 
+        exactamente a tus gustos, tolerancias y preferencias personales.
         
-        **Nivel de personalización:** Alto - basado en {len([x for x in [sabores_preferidos, texturas_preferidas, patron_dietetico, nivel_cocina] if x])} factores clave analizados.
+        Se recomienda consulta con nutricionista especializado para desarrollar plan alimentario 
+        personalizado basado en estas selecciones específicas.
         """)
 
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1160,7 +1267,7 @@ if datos_personales_completos and st.session_state.datos_completos:
 def crear_resumen_email():
     resumen = f"""
 =====================================
-EVALUACIÓN PATRONES ALIMENTARIOS MUPAI
+CUESTIONARIO DE SELECCIÓN ALIMENTARIA PERSONALIZADA - MUPAI
 =====================================
 Generado: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 Sistema: MUPAI v2.0 - Muscle Up Performance Assessment Intelligence
@@ -1176,79 +1283,157 @@ DATOS DEL CLIENTE:
 - Fecha evaluación: {st.session_state.get('fecha_llenado', 'No especificado')}
 
 =====================================
-PREFERENCIAS ALIMENTARIAS:
+GRUPO 1: PROTEÍNA ANIMAL CON MÁS CONTENIDO GRASO
 =====================================
-- Sabores preferidos: {', '.join(st.session_state.get('sabores_preferidos', [])) if st.session_state.get('sabores_preferidos') else 'No especificado'}
-- Texturas preferidas: {', '.join(st.session_state.get('texturas_preferidas', [])) if st.session_state.get('texturas_preferidas') else 'No especificado'}
-- Temperaturas preferidas: {', '.join(st.session_state.get('temperaturas_preferidas', [])) if st.session_state.get('temperaturas_preferidas') else 'No especificado'}
-- Comidas favoritas: {st.session_state.get('comidas_favoritas', 'No especificado')}
-- Alimentos evitados: {st.session_state.get('alimentos_evitados', 'No especificado')}
+🍳 Huevos y embutidos:
+{', '.join(st.session_state.get('grupo1_huevos_embutidos', [])) if st.session_state.get('grupo1_huevos_embutidos') else 'Ninguno seleccionado'}
+
+🥩 Carnes y cortes grasos:
+{', '.join(st.session_state.get('grupo1_carnes_grasas', [])) if st.session_state.get('grupo1_carnes_grasas') else 'Ninguno seleccionado'}
+
+🧀 Quesos altos en grasa:
+{', '.join(st.session_state.get('grupo1_quesos_altos', [])) if st.session_state.get('grupo1_quesos_altos') else 'Ninguno seleccionado'}
+
+🥛 Lácteos enteros:
+{', '.join(st.session_state.get('grupo1_lacteos_enteros', [])) if st.session_state.get('grupo1_lacteos_enteros') else 'Ninguno seleccionado'}
+
+🐟 Pescados grasos:
+{', '.join(st.session_state.get('grupo1_pescados_grasos', [])) if st.session_state.get('grupo1_pescados_grasos') else 'Ninguno seleccionado'}
 
 =====================================
-RESTRICCIONES Y PATRONES DIETÉTICOS:
+GRUPO 2: PROTEÍNA ANIMAL MAGRA
 =====================================
-- Alergias/Intolerancias: {st.session_state.get('tiene_alergias', 'No especificado')}
-- Detalles de alergias: {st.session_state.get('alergias_especificas', 'No especificado')}
-- Patrón dietético: {st.session_state.get('patron_dietetico', 'No especificado')}
-- Motivación del patrón: {st.session_state.get('motivacion_patron', 'No especificado')}
+🍗 Carnes y cortes magros:
+{', '.join(st.session_state.get('grupo2_carnes_magras', [])) if st.session_state.get('grupo2_carnes_magras') else 'Ninguno seleccionado'}
+
+🐟 Pescados blancos y bajos en grasa:
+{', '.join(st.session_state.get('grupo2_pescados_blancos', [])) if st.session_state.get('grupo2_pescados_blancos') else 'Ninguno seleccionado'}
+
+🧀 Quesos bajos en grasa o magros:
+{', '.join(st.session_state.get('grupo2_quesos_magros', [])) if st.session_state.get('grupo2_quesos_magros') else 'Ninguno seleccionado'}
+
+🥛 Lácteos light o reducidos:
+{', '.join(st.session_state.get('grupo2_lacteos_light', [])) if st.session_state.get('grupo2_lacteos_light') else 'Ninguno seleccionado'}
+
+🥚 Otros:
+{', '.join(st.session_state.get('grupo2_otros', [])) if st.session_state.get('grupo2_otros') else 'Ninguno seleccionado'}
 
 =====================================
-PATRONES TEMPORALES:
+GRUPO 3: FUENTES DE GRASA SALUDABLE
 =====================================
-- Comidas por día: {st.session_state.get('comidas_por_dia', 'No especificado')}
-- Horario desayuno: {st.session_state.get('horario_desayuno', 'No especificado')}
-- Horario almuerzo: {st.session_state.get('horario_almuerzo', 'No especificado')}
-- Horario cena: {st.session_state.get('horario_cena', 'No especificado')}
-- Frecuencia de snacks: {st.session_state.get('snacks_frecuencia', 'No especificado')}
-- Horarios irregulares: {'Sí' if st.session_state.get('horarios_irregulares') else 'No'}
+🥑 Grasas naturales de alimentos:
+{', '.join(st.session_state.get('grupo3_grasas_naturales', [])) if st.session_state.get('grupo3_grasas_naturales') else 'Ninguno seleccionado'}
+
+🌰 Frutos secos y semillas:
+{', '.join(st.session_state.get('grupo3_frutos_secos', [])) if st.session_state.get('grupo3_frutos_secos') else 'Ninguno seleccionado'}
+
+🧈 Mantequillas y pastas vegetales:
+{', '.join(st.session_state.get('grupo3_mantequillas', [])) if st.session_state.get('grupo3_mantequillas') else 'Ninguno seleccionado'}
 
 =====================================
-HABILIDADES CULINARIAS:
+GRUPO 4: CARBOHIDRATOS COMPLEJOS Y CEREALES
 =====================================
-- Nivel de cocina: {st.session_state.get('nivel_cocina', 'No especificado')}
-- Tiempo disponible para cocinar: {st.session_state.get('tiempo_cocinar_dia', 'No especificado')}
-- Frecuencia cocina en casa: {st.session_state.get('frecuencia_cocina_casa', 'No especificado')}
-- Electrodomésticos disponibles: {', '.join(st.session_state.get('electrodomesticos', [])) if st.session_state.get('electrodomesticos') else 'No especificado'}
-- Métodos de preparación preferidos: {', '.join(st.session_state.get('metodos_preparacion', [])) if st.session_state.get('metodos_preparacion') else 'No especificado'}
+🌾 Cereales y granos integrales:
+{', '.join(st.session_state.get('grupo4_cereales', [])) if st.session_state.get('grupo4_cereales') else 'Ninguno seleccionado'}
+
+🌽 Tortillas y panes:
+{', '.join(st.session_state.get('grupo4_tortillas_panes', [])) if st.session_state.get('grupo4_tortillas_panes') else 'Ninguno seleccionado'}
+
+🥔 Raíces, tubérculos y derivados:
+{', '.join(st.session_state.get('grupo4_tuberculos', [])) if st.session_state.get('grupo4_tuberculos') else 'Ninguno seleccionado'}
+
+🫘 Leguminosas:
+{', '.join(st.session_state.get('grupo4_leguminosas', [])) if st.session_state.get('grupo4_leguminosas') else 'Ninguno seleccionado'}
 
 =====================================
-CONTEXTO CULTURAL Y SOCIAL:
+GRUPO 5: VEGETALES
 =====================================
-- Origen cultural: {st.session_state.get('origen_cultural', 'No especificado')}
-- Comida tradicional familiar: {st.session_state.get('comida_tradicional', 'No especificado')}
-- Frecuencia come en familia: {st.session_state.get('come_en_familia', 'No especificado')}
-- Eventos sociales con comida: {st.session_state.get('eventos_sociales_comida', 'No especificado')}
+{', '.join(st.session_state.get('grupo5_vegetales', [])) if st.session_state.get('grupo5_vegetales') else 'Ninguno seleccionado'}
 
 =====================================
-OBJETIVOS Y MOTIVACIONES:
+GRUPO 6: FRUTAS
 =====================================
-- Objetivo principal: {st.session_state.get('objetivo_principal', 'No especificado')}
-- Motivaciones adicionales: {', '.join(st.session_state.get('motivaciones_adicionales', [])) if st.session_state.get('motivaciones_adicionales') else 'No especificado'}
+{', '.join(st.session_state.get('grupo6_frutas', [])) if st.session_state.get('grupo6_frutas') else 'Ninguna seleccionada'}
 
 =====================================
-INFORMACIÓN ADICIONAL:
+APARTADO EXTRA: GRASA/ACEITE DE COCCIÓN FAVORITA
 =====================================
-- Suplementos: {st.session_state.get('toma_suplementos', 'No especificado')}
-- Suplementos específicos: {st.session_state.get('suplementos_especificos', 'No especificado')}
-- Consumo de agua diario: {st.session_state.get('consumo_agua_diario', 'No especificado')}
-- Bebidas frecuentes: {', '.join(st.session_state.get('bebidas_frecuentes', [])) if st.session_state.get('bebidas_frecuentes') else 'No especificado'}
-- Actividad física: {st.session_state.get('actividad_fisica', 'No especificado')}
-- Problemas digestivos: {st.session_state.get('problemas_digestivos', 'No especificado')}
-- Comentarios adicionales: {st.session_state.get('comentarios_adicionales', 'No especificado')}
+{', '.join(st.session_state.get('aceites_coccion', [])) if st.session_state.get('aceites_coccion') else 'Ninguno seleccionado'}
 
 =====================================
-RESUMEN DE PATRONES IDENTIFICADOS:
+BEBIDAS SIN CALORÍAS PARA HIDRATACIÓN
 =====================================
-Este análisis proporciona una base sólida para el desarrollo de recomendaciones 
-nutricionales personalizadas basadas en preferencias individuales, restricciones, 
-habilidades culinarias y contexto sociocultural del cliente.
+{', '.join(st.session_state.get('bebidas_sin_calorias', [])) if st.session_state.get('bebidas_sin_calorias') else 'Ninguna seleccionada'}
 
-Recomendamos seguimiento personalizado con nutricionista especializado para 
-desarrollar plan nutricional específico basado en estos patrones identificados.
+=====================================
+SECCIÓN FINAL: ALERGIAS, INTOLERANCIAS Y PREFERENCIAS
+=====================================
+❗ Alergias alimentarias:
+{', '.join(st.session_state.get('alergias_alimentarias', [])) if st.session_state.get('alergias_alimentarias') else 'Ninguna'}
+Otra alergia especificada: {st.session_state.get('otra_alergia', 'No especificado')}
+
+⚠️ Intolerancias o malestar digestivo:
+{', '.join(st.session_state.get('intolerancias', [])) if st.session_state.get('intolerancias') else 'Ninguna'}
+Otra intolerancia especificada: {st.session_state.get('otra_intolerancia', 'No especificado')}
+
+➕ Alimentos adicionales deseados:
+{st.session_state.get('alimentos_adicionales', 'No especificado')}
+
+=====================================
+SECCIÓN DE ANTOJOS ALIMENTARIOS
+=====================================
+🍫 Alimentos dulces / postres:
+{', '.join(st.session_state.get('antojos_dulces', [])) if st.session_state.get('antojos_dulces') else 'Ninguno seleccionado'}
+
+🧂 Alimentos salados / snacks:
+{', '.join(st.session_state.get('antojos_salados', [])) if st.session_state.get('antojos_salados') else 'Ninguno seleccionado'}
+
+🌮 Comidas rápidas / callejeras:
+{', '.join(st.session_state.get('antojos_comida_rapida', [])) if st.session_state.get('antojos_comida_rapida') else 'Ninguno seleccionado'}
+
+🍹 Bebidas y postres líquidos:
+{', '.join(st.session_state.get('antojos_bebidas', [])) if st.session_state.get('antojos_bebidas') else 'Ninguno seleccionado'}
+
+🔥 Alimentos con condimentos estimulantes:
+{', '.join(st.session_state.get('antojos_condimentos', [])) if st.session_state.get('antojos_condimentos') else 'Ninguno seleccionado'}
+
+❓ Otros antojos especificados:
+{st.session_state.get('otros_antojos', 'No especificado')}
+
+=====================================
+RESUMEN ESTADÍSTICO DE SELECCIONES:
+=====================================
+- Total Proteínas con grasa: {len(st.session_state.get('grupo1_huevos_embutidos', [])) + len(st.session_state.get('grupo1_carnes_grasas', [])) + len(st.session_state.get('grupo1_quesos_altos', [])) + len(st.session_state.get('grupo1_lacteos_enteros', [])) + len(st.session_state.get('grupo1_pescados_grasos', []))} opciones
+- Total Proteínas magras: {len(st.session_state.get('grupo2_carnes_magras', [])) + len(st.session_state.get('grupo2_pescados_blancos', [])) + len(st.session_state.get('grupo2_quesos_magros', [])) + len(st.session_state.get('grupo2_lacteos_light', [])) + len(st.session_state.get('grupo2_otros', []))} opciones
+- Total Grasas saludables: {len(st.session_state.get('grupo3_grasas_naturales', [])) + len(st.session_state.get('grupo3_frutos_secos', [])) + len(st.session_state.get('grupo3_mantequillas', []))} opciones
+- Total Carbohidratos complejos: {len(st.session_state.get('grupo4_cereales', [])) + len(st.session_state.get('grupo4_tortillas_panes', [])) + len(st.session_state.get('grupo4_tuberculos', [])) + len(st.session_state.get('grupo4_leguminosas', []))} opciones
+- Total Vegetales: {len(st.session_state.get('grupo5_vegetales', []))} opciones
+- Total Frutas: {len(st.session_state.get('grupo6_frutas', []))} opciones
+- Total Aceites de cocción: {len(st.session_state.get('aceites_coccion', []))} opciones
+- Total Bebidas sin calorías: {len(st.session_state.get('bebidas_sin_calorias', []))} opciones
+- Total Antojos identificados: {len(st.session_state.get('antojos_dulces', [])) + len(st.session_state.get('antojos_salados', [])) + len(st.session_state.get('antojos_comida_rapida', [])) + len(st.session_state.get('antojos_bebidas', [])) + len(st.session_state.get('antojos_condimentos', []))} opciones
+
+TOTAL ALIMENTOS SELECCIONADOS: {len(st.session_state.get('grupo1_huevos_embutidos', [])) + len(st.session_state.get('grupo1_carnes_grasas', [])) + len(st.session_state.get('grupo1_quesos_altos', [])) + len(st.session_state.get('grupo1_lacteos_enteros', [])) + len(st.session_state.get('grupo1_pescados_grasos', [])) + len(st.session_state.get('grupo2_carnes_magras', [])) + len(st.session_state.get('grupo2_pescados_blancos', [])) + len(st.session_state.get('grupo2_quesos_magros', [])) + len(st.session_state.get('grupo2_lacteos_light', [])) + len(st.session_state.get('grupo2_otros', [])) + len(st.session_state.get('grupo3_grasas_naturales', [])) + len(st.session_state.get('grupo3_frutos_secos', [])) + len(st.session_state.get('grupo3_mantequillas', [])) + len(st.session_state.get('grupo4_cereales', [])) + len(st.session_state.get('grupo4_tortillas_panes', [])) + len(st.session_state.get('grupo4_tuberculos', [])) + len(st.session_state.get('grupo4_leguminosas', [])) + len(st.session_state.get('grupo5_vegetales', [])) + len(st.session_state.get('grupo6_frutas', []))}
+
+=====================================
+ANÁLISIS Y RECOMENDACIONES:
+=====================================
+Este cuestionario de selección alimentaria personalizada proporciona información detallada 
+sobre las preferencias, tolerancias y antojos específicos del cliente, permitiendo el 
+diseño de planes nutricionales altamente personalizados.
+
+La información recopilada incluye:
+- Selecciones específicas por grupos de alimentos
+- Identificación de restricciones y alergias
+- Mapeo de antojos para estrategias de manejo
+- Preferencias de aceites y bebidas sin calorías
+
+Recomendamos consulta nutricional especializada para desarrollar plan alimentario 
+personalizado basado en estas selecciones específicas.
 
 =====================================
 © 2025 MUPAI - Muscle up GYM
-Alimentary Pattern Assessment Intelligence
+Cuestionario de Selección Alimentaria Personalizada
 =====================================
 """
     return resumen
@@ -1256,45 +1441,63 @@ Alimentary Pattern Assessment Intelligence
 # RESUMEN FINAL Y ENVÍO DE EMAIL
 st.markdown("---")
 st.markdown('<div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E;">', unsafe_allow_html=True)
-st.markdown("## 🎯 **Resumen Final de tu Evaluación de Patrones Alimentarios**")
+st.markdown("## 🎯 **Resumen Final del Cuestionario de Selección Alimentaria Personalizada**")
 st.markdown(f"*Fecha: {fecha_llenado} | Cliente: {nombre}*")
 
 # Mostrar métricas finales
 col1, col2, col3 = st.columns(3)
 with col1:
+    # Calcular totales de proteínas
+    total_proteinas_grasas = len(st.session_state.get('grupo1_huevos_embutidos', [])) + len(st.session_state.get('grupo1_carnes_grasas', [])) + len(st.session_state.get('grupo1_quesos_altos', [])) + len(st.session_state.get('grupo1_lacteos_enteros', [])) + len(st.session_state.get('grupo1_pescados_grasos', []))
+    total_proteinas_magras = len(st.session_state.get('grupo2_carnes_magras', [])) + len(st.session_state.get('grupo2_pescados_blancos', [])) + len(st.session_state.get('grupo2_quesos_magros', [])) + len(st.session_state.get('grupo2_lacteos_light', [])) + len(st.session_state.get('grupo2_otros', []))
+    
     st.markdown(f"""
-    ### 🥗 Preferencias
-    - **Sabores principales:** {len(st.session_state.get('sabores_preferidos', []))} identificados
-    - **Patrón dietético:** {st.session_state.get('patron_dietetico', 'Estándar')}
-    - **Restricciones:** {'Sí' if st.session_state.get('tiene_alergias', 'No') != 'No' else 'No'}
+    ### 🥩 Proteínas
+    - **Con grasa:** {total_proteinas_grasas} opciones
+    - **Magras:** {total_proteinas_magras} opciones
+    - **Restricciones:** {'Sí' if st.session_state.get('alergias_alimentarias') or st.session_state.get('intolerancias') else 'No'}
     """)
 
 with col2:
+    # Calcular totales de macronutrientes
+    total_grasas = len(st.session_state.get('grupo3_grasas_naturales', [])) + len(st.session_state.get('grupo3_frutos_secos', [])) + len(st.session_state.get('grupo3_mantequillas', []))
+    total_carbohidratos = len(st.session_state.get('grupo4_cereales', [])) + len(st.session_state.get('grupo4_tortillas_panes', [])) + len(st.session_state.get('grupo4_tuberculos', [])) + len(st.session_state.get('grupo4_leguminosas', []))
+    total_vegetales = len(st.session_state.get('grupo5_vegetales', []))
+    
     st.markdown(f"""
-    ### ⏰ Patrones Temporales  
-    - **Comidas/día:** {st.session_state.get('comidas_por_dia', 'No especificado')}
-    - **Horarios:** {'Regulares' if not st.session_state.get('horarios_irregulares') else 'Irregulares'}
-    - **Snacks:** {st.session_state.get('snacks_frecuencia', 'No especificado')}
+    ### 🥑 Macronutrientes  
+    - **Grasas saludables:** {total_grasas} opciones
+    - **Carbohidratos:** {total_carbohidratos} opciones
+    - **Vegetales:** {total_vegetales} opciones
     """)
 
 with col3:
+    # Calcular totales adicionales
+    total_frutas = len(st.session_state.get('grupo6_frutas', []))
+    total_aceites = len(st.session_state.get('aceites_coccion', []))
+    total_antojos = len(st.session_state.get('antojos_dulces', [])) + len(st.session_state.get('antojos_salados', [])) + len(st.session_state.get('antojos_comida_rapida', [])) + len(st.session_state.get('antojos_bebidas', [])) + len(st.session_state.get('antojos_condimentos', []))
+    
     st.markdown(f"""
-    ### 👨‍🍳 Habilidades
-    - **Nivel cocina:** {st.session_state.get('nivel_cocina', 'No especificado')}
-    - **Tiempo disponible:** {st.session_state.get('tiempo_cocinar_dia', 'No especificado')}
-    - **Objetivo:** {st.session_state.get('objetivo_principal', 'No especificado')}
+    ### 🍎 Adicionales
+    - **Frutas:** {total_frutas} opciones
+    - **Aceites cocción:** {total_aceites} opciones
+    - **Antojos identificados:** {total_antojos} opciones
     """)
 
+# Calcular total general
+total_alimentos = total_proteinas_grasas + total_proteinas_magras + total_grasas + total_carbohidratos + total_vegetales + total_frutas
+
 st.success(f"""
-### ✅ Evaluación de patrones alimentarios completada exitosamente
+### ✅ Cuestionario de Selección Alimentaria Personalizada completado exitosamente
 
-Tu perfil alimentario ha sido analizado considerando todos los factores evaluados: preferencias, 
-restricciones, habilidades culinarias, patrones temporales y contexto cultural. 
+Tu perfil de selección alimentaria ha sido completado con **{total_alimentos} alimentos seleccionados** 
+distribuidos en 6 grupos principales, más aceites de cocción, bebidas sin calorías y análisis de antojos.
 
-**Este análisis proporciona la base para desarrollar recomendaciones nutricionales personalizadas** 
-que se ajusten a tu estilo de vida y preferencias individuales.
+**Esta información detallada permitirá diseñar planes de alimentación altamente personalizados** 
+que se ajusten exactamente a tus gustos, tolerancias y preferencias individuales.
 
-Se recomienda consulta con nutricionista especializado para desarrollar plan específico basado en estos patrones.
+Se recomienda consulta con nutricionista especializado para desarrollar plan alimentario específico 
+basado en estas selecciones detalladas.
 """)
 
 st.markdown('</div>', unsafe_allow_html=True)
