@@ -1063,6 +1063,18 @@ if not st.session_state.datos_completos:
                         </span>
                     </li>
                     <li style="margin-bottom:1.1em;">
+                        <span style="font-size:1.3rem;">🧾</span> <b>Paso 8:</b> Cuestionario de selección alimentaria personalizada<br>
+                        <span style="color:#F5F5F5;font-size:1rem;">
+                            Identificamos tus preferencias alimentarias, alergias, intolerancias y antojos específicos.
+                        </span>
+                    </li>
+                    <li style="margin-bottom:1.1em;">
+                        <span style="font-size:1.3rem;">📋</span> <b>Paso 9:</b> Cuestionario del comer emocional (13 preguntas)<br>
+                        <span style="color:#F5F5F5;font-size:1rem;">
+                            Evaluación detallada de patrones emocionales relacionados con la alimentación usando escala científica.
+                        </span>
+                    </li>
+                    <li style="margin-bottom:1.1em;">
                         <span style="font-size:1.3rem;">📈</span> <b>Resultado final:</b> Plan nutricional personalizado<br>
                         <span style="color:#F5F5F5;font-size:1rem;">
                             Recibes tus métricas clave, diagnóstico y recomendaciones basadas en ciencia.
@@ -1071,7 +1083,7 @@ if not st.session_state.datos_completos:
                 </ul>
                 <div style="margin-top:1.2em; font-size:1rem; color:#F4C430;">
                     <b>Finalidad:</b> Este cuestionario integra principios científicos y experiencia práctica para ofrecerte un diagnóstico preciso y recomendaciones útiles. <br>
-                    <b>Tiempo estimado:</b> Menos de 5 minutos.
+                    <b>Tiempo estimado:</b> Menos de 8 minutos.
                 </div>
             </div>
         </div>
@@ -1089,7 +1101,7 @@ if datos_personales_completos and st.session_state.datos_completos:
     # BLOQUE 1: Datos antropométricos con diseño mejorado
     with st.expander("📊 **Paso 1: Composición Corporal y Antropometría**", expanded=True):
         progress.progress(20)
-        progress_text.text("Paso 1 de 7: Evaluación de composición corporal")
+        progress_text.text("Paso 1 de 9: Evaluación de composición corporal")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
@@ -1337,7 +1349,7 @@ progress_text = st.empty()
 # BLOQUE 2: Evaluación funcional mejorada (versión científica y capciosa)
 with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento**", expanded=True):
     progress.progress(40)
-    progress_text.text("Paso 2 de 7: Evaluación de capacidades funcionales")
+    progress_text.text("Paso 2 de 9: Evaluación de capacidades funcionales")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
 
@@ -1642,7 +1654,7 @@ else:
 # BLOQUE 3: Actividad física diaria
 with st.expander("🚶 **Paso 3: Nivel de Actividad Física Diaria**", expanded=True):
     progress.progress(60)
-    progress_text.text("Paso 3 de 7: Evaluación de actividad diaria")
+    progress_text.text("Paso 3 de 9: Evaluación de actividad diaria")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
     st.markdown("### 📊 Evalúa tu actividad física fuera del ejercicio planificado")
@@ -1708,7 +1720,7 @@ with st.expander("🚶 **Paso 3: Nivel de Actividad Física Diaria**", expanded=
     # BLOQUE 4: ETA (Efecto Térmico de los Alimentos)
 with st.expander("🍽️ **Paso 4: Efecto Térmico de los Alimentos (ETA)**", expanded=True):
     progress.progress(70)
-    progress_text.text("Paso 4 de 7: Cálculo del efecto térmico")
+    progress_text.text("Paso 4 de 9: Cálculo del efecto térmico")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
 
@@ -1760,7 +1772,7 @@ with st.expander("🍽️ **Paso 4: Efecto Térmico de los Alimentos (ETA)**", e
     # BLOQUE 5: Entrenamiento de fuerza
 with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", expanded=True):
     progress.progress(80)
-    progress_text.text("Paso 5 de 7: Cálculo del gasto por ejercicio")
+    progress_text.text("Paso 5 de 9: Cálculo del gasto por ejercicio")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
     st.markdown("### 💪 Frecuencia de entrenamiento de fuerza")
@@ -1824,7 +1836,7 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
     # BLOQUE 6: Cuestionario de Patrones Alimenticios
 with st.expander("🍽️ **Paso 6: Cuestionario de Patrones Alimenticios**", expanded=True):
     progress.progress(85)
-    progress_text.text("Paso 6 de 7: Evaluación de patrones alimenticios")
+    progress_text.text("Paso 6 de 9: Evaluación de patrones alimenticios")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
     st.markdown("### 🥗 Evalúa tus hábitos alimentarios actuales")
@@ -1896,7 +1908,7 @@ with st.expander("🍽️ **Paso 6: Cuestionario de Patrones Alimenticios**", ex
     # BLOQUE 7: Cuestionario de Alimentación Emocional
 with st.expander("😋 **Paso 7: Cuestionario de Alimentación Emocional**", expanded=True):
     progress.progress(90)
-    progress_text.text("Paso 7 de 7: Evaluación de alimentación emocional")
+    progress_text.text("Paso 7 de 9: Evaluación de alimentación emocional")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
     st.markdown("### 🧠 Evalúa tu relación emocional con la comida")
@@ -1965,7 +1977,361 @@ with st.expander("😋 **Paso 7: Cuestionario de Alimentación Emocional**", exp
     st.success("✅ Cuestionario de alimentación emocional completado")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # BLOQUE 8: Cálculo final con comparativa PSMF
+    # BLOQUE 7.1: Cuestionario de Selección Alimentaria Personalizada
+with st.expander("🧾 **Cuestionario de Selección Alimentaria Personalizada**", expanded=True):
+    progress.progress(92)
+    progress_text.text("Cuestionario adicional: Selección alimentaria personalizada")
+
+    st.markdown('<div class="content-card">', unsafe_allow_html=True)
+    st.markdown("### 🥘 Selecciona tus alimentos y bebidas preferidos")
+    
+    # Initialize session state for food selection
+    if 'seleccion_alimentaria' not in st.session_state:
+        st.session_state.seleccion_alimentaria = {}
+    
+    # Food groups with their options
+    grupos_alimentos = {
+        "grupo1_proteina_grasa": {
+            "titulo": "GRUPO 1: PROTEÍNA ANIMAL CON MÁS CONTENIDO GRASO",
+            "opciones": [
+                "Carne de res (cortes grasos)",
+                "Cerdo (costillas, panceta)",
+                "Cordero",
+                "Pollo con piel",
+                "Pato",
+                "Salmón",
+                "Atún graso",
+                "Sardinas",
+                "Huevos enteros",
+                "Embutidos (jamón, salami)",
+                "Quesos grasos",
+                "Yogur griego entero"
+            ]
+        },
+        "grupo2_proteina_magra": {
+            "titulo": "GRUPO 2: PROTEÍNA ANIMAL MAGRA",
+            "opciones": [
+                "Pechuga de pollo sin piel",
+                "Pavo (pechuga)",
+                "Carne de res magra",
+                "Pescado blanco (tilapia, bacalao)",
+                "Camarones",
+                "Claras de huevo",
+                "Atún en agua",
+                "Conejo",
+                "Queso cottage bajo en grasa",
+                "Yogur griego 0% grasa",
+                "Proteína en polvo",
+                "Leche descremada"
+            ]
+        },
+        "grupo3_grasas_saludables": {
+            "titulo": "GRUPO 3: FUENTES DE GRASA SALUDABLE",
+            "opciones": [
+                "Aguacate",
+                "Nueces",  
+                "Almendras",
+                "Pistachos",
+                "Aceite de oliva extra virgen",
+                "Aceite de coco",
+                "Semillas de chía",
+                "Semillas de linaza",
+                "Mantequilla de maní natural",
+                "Aceitunas",
+                "Coco rallado",
+                "Tahini (pasta de sésamo)"
+            ]
+        },
+        "grupo4_carbohidratos": {
+            "titulo": "GRUPO 4: CARBOHIDRATOS COMPLEJOS Y CEREALES",
+            "opciones": [
+                "Avena",
+                "Quinoa",
+                "Arroz integral",
+                "Arroz blanco",
+                "Papa dulce (camote)",
+                "Papa común",
+                "Pan integral",
+                "Pasta integral",
+                "Frijoles negros",
+                "Lentejas",
+                "Garbanzos",
+                "Plátano macho"
+            ]
+        },
+        "grupo5_vegetales": {
+            "titulo": "GRUPO 5: VEGETALES",
+            "opciones": [
+                "Brócoli",
+                "Espinacas",
+                "Lechuga",
+                "Tomate",
+                "Pepino",
+                "Zanahoria",
+                "Pimientos",
+                "Cebolla",
+                "Apio",
+                "Coliflor",
+                "Calabacín",
+                "Espárragos"
+            ]
+        },
+        "grupo6_frutas": {
+            "titulo": "GRUPO 6: FRUTAS",
+            "opciones": [
+                "Manzana",
+                "Plátano",
+                "Naranja",
+                "Fresas",
+                "Arándanos",
+                "Uvas",
+                "Piña",
+                "Mango",
+                "Papaya",
+                "Kiwi",
+                "Melón",
+                "Sandía"
+            ]
+        },
+        "grasas_coccion": {
+            "titulo": "GRASA/ACEITE DE COCCIÓN FAVORITA",
+            "opciones": [
+                "Aceite de oliva extra virgen",
+                "Aceite de coco",
+                "Aceite de aguacate",
+                "Mantequilla",
+                "Ghee (mantequilla clarificada)",
+                "Aceite de canola",
+                "Aceite de girasol",
+                "Spray antiadherente",
+                "No uso grasas para cocinar"
+            ]
+        },
+        "bebidas_hidratacion": {
+            "titulo": "¿Qué bebidas sin calorías sueles consumir regularmente para hidratarte?",
+            "opciones": [
+                "Agua natural",
+                "Agua con gas",
+                "Té verde",
+                "Té negro",
+                "Café negro",
+                "Infusiones de hierbas",
+                "Agua con limón",
+                "Agua saborizada sin calorías",
+                "Bebidas energéticas sin azúcar",
+                "Refrescos de dieta"
+            ]
+        }
+    }
+    
+    # Display food group selections
+    for grupo_key, grupo_data in grupos_alimentos.items():
+        st.markdown(f"#### {grupo_data['titulo']}")
+        seleccion = st.multiselect(
+            f"Selecciona los alimentos del {grupo_data['titulo'].split(':')[0]}:",
+            grupo_data['opciones'],
+            key=f"seleccion_{grupo_key}",
+            help="Puedes seleccionar múltiples opciones"
+        )
+        st.session_state.seleccion_alimentaria[grupo_key] = {
+            "grupo": grupo_data['titulo'],
+            "seleccion": seleccion
+        }
+        st.write("")  # Add spacing
+    
+    # Allergies and intolerances section
+    st.markdown("#### 🚫 Alergias e Intolerancias Alimentarias")
+    
+    alergias_opciones = [
+        "Gluten/Trigo",
+        "Lactosa/Lácteos",
+        "Huevos",
+        "Frutos secos",
+        "Mariscos",
+        "Pescado",  
+        "Soja",
+        "Cacahuates/Maní",
+        "Ninguna alergia conocida"
+    ]
+    
+    alergias_seleccionadas = st.multiselect(
+        "Selecciona tus alergias o intolerancias conocidas:",
+        alergias_opciones,
+        key="alergias_multiselect",
+        help="Selecciona todas las que apliquen"
+    )
+    
+    otras_alergias = st.text_input(
+        "Otra alergia o intolerancia (especificar):",
+        key="otras_alergias",
+        placeholder="Ej: Histamina, FODMAPs, etc."
+    )
+    
+    st.session_state.seleccion_alimentaria['alergias'] = {
+        "alergias_seleccionadas": alergias_seleccionadas,
+        "otras_alergias": otras_alergias
+    }
+    
+    # Additional foods/beverages
+    st.markdown("#### ➕ Alimentos/Bebidas Adicionales")
+    alimentos_adicionales = st.text_area(
+        "¿Hay algún alimento o bebida específica que consumes regularmente y no está en las listas anteriores?",
+        key="alimentos_adicionales",
+        placeholder="Ej: Kombucha, proteína vegetal específica, suplementos alimenticios, etc.",
+        help="Describe cualquier alimento, bebida o suplemento que consideres importante mencionar"
+    )
+    
+    st.session_state.seleccion_alimentaria['alimentos_adicionales'] = alimentos_adicionales
+    
+    # Food cravings section
+    st.markdown("#### 🍫 Antojos Alimentarios")
+    st.markdown("Selecciona los tipos de alimentos que más antojas:")
+    
+    categorias_antojos = {
+        "dulces": "Dulces (chocolate, caramelos, postres)",
+        "salados": "Salados (papas fritas, nachos, botanas)",
+        "grasos": "Alimentos grasos (pizza, hamburguesas, frituras)",
+        "carbohidratos": "Carbohidratos (pan, pasta, arroz)",
+        "bebidas_azucaradas": "Bebidas azucaradas (refrescos, jugos)",
+        "comida_rapida": "Comida rápida (fast food)",
+        "helados": "Helados y postres fríos",
+        "panaderia": "Productos de panadería (galletas, pasteles)"
+    }
+    
+    antojos_dict = {}
+    for categoria_key, categoria_desc in categorias_antojos.items():
+        intensidad = st.radio(
+            categoria_desc,
+            ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"],
+            key=f"antojo_{categoria_key}",
+            horizontal=True
+        )
+        antojos_dict[categoria_key] = {
+            "categoria": categoria_desc,
+            "intensidad": intensidad
+        }
+    
+    otros_antojos = st.text_input(
+        "Otros tipos de antojos específicos:",
+        key="otros_antojos",
+        placeholder="Ej: Comida picante, alimentos específicos de tu región, etc."
+    )
+    
+    antojos_dict['otros'] = otros_antojos
+    st.session_state.seleccion_alimentaria['antojos'] = antojos_dict
+    
+    st.success("✅ Cuestionario de selección alimentaria personalizada completado")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # BLOQUE 7.2: Cuestionario del Comer Emocional (13 preguntas específicas)
+with st.expander("📋 **Cuestionario del Comer Emocional**", expanded=True):
+    progress.progress(95)
+    progress_text.text("Cuestionario adicional: Comer emocional (13 preguntas)")
+
+    st.markdown('<div class="content-card">', unsafe_allow_html=True)
+    st.markdown("### 🧠 Evalúa tu relación emocional con la comida")
+    st.markdown("**Instrucciones:** Para cada pregunta, selecciona la opción que mejor describa tu comportamiento habitual.")
+    
+    # Initialize session state for emotional eating (13 questions)
+    if 'comer_emocional_13' not in st.session_state:
+        st.session_state.comer_emocional_13 = {}
+    
+    # Scale options with emojis
+    escala_opciones = [
+        "1️⃣ Nunca",
+        "2️⃣ Raramente", 
+        "3️⃣ A veces",
+        "4️⃣ Frecuentemente",
+        "5️⃣ Siempre"
+    ]
+    
+    # 13 specific emotional eating questions
+    preguntas_emocionales_13 = [
+        "¿Comes cuando te sientes ansioso o estresado?",
+        "¿Recurres a la comida cuando te sientes triste o deprimido?",
+        "¿Comes más de lo normal cuando estás aburrido?",
+        "¿Usas la comida como recompensa cuando logras algo?",
+        "¿Comes para consolarte cuando algo sale mal?",
+        "¿Sientes que pierdes el control cuando comes ciertos alimentos?",
+        "¿Comes rápidamente y sin prestar atención a lo que consumes?",
+        "¿Continúas comiendo aún cuando ya te sientes satisfecho?",
+        "¿Sientes culpa o vergüenza después de comer?",
+        "¿Comes a escondidas o evitas comer frente a otros?",
+        "¿Piensas constantemente en comida durante el día?",
+        "¿Comes más en situaciones sociales de lo que habías planeado?",
+        "¿Utilizas la comida para celebrar eventos o estados de ánimo positivos?"
+    ]
+    
+    # Display the 13 questions
+    for i, pregunta in enumerate(preguntas_emocionales_13, 1):
+        respuesta = st.radio(
+            f"**{i}.** {pregunta}",
+            escala_opciones,
+            key=f"emocional_13_q{i}",
+            help="Selecciona la frecuencia que mejor describe tu comportamiento"
+        )
+        
+        st.session_state.comer_emocional_13[f"pregunta_{i}"] = {
+            "pregunta": pregunta,
+            "respuesta": respuesta,
+            "valor_numerico": escala_opciones.index(respuesta) + 1
+        }
+        
+        st.write("")  # Add spacing between questions
+    
+    # Calculate total score
+    puntuacion_total = sum([data["valor_numerico"] for data in st.session_state.comer_emocional_13.values()])
+    puntuacion_maxima = len(preguntas_emocionales_13) * 5
+    porcentaje_puntuacion = (puntuacion_total / puntuacion_maxima) * 100
+    
+    # Interpretation of the score
+    if porcentaje_puntuacion <= 30:
+        interpretacion = "Relación saludable con la comida"
+        color_interpretacion = "#27AE60"
+        recomendacion = "Mantienes un buen control emocional sobre tus hábitos alimentarios."
+    elif porcentaje_puntuacion <= 50:
+        interpretacion = "Alimentación emocional leve"
+        color_interpretacion = "#F39C12"
+        recomendacion = "Tienes algunos patrones de alimentación emocional que podrías mejorar."
+    elif porcentaje_puntuacion <= 70:
+        interpretacion = "Alimentación emocional moderada"
+        color_interpretacion = "#E67E22"
+        recomendacion = "Presentas patrones significativos de alimentación emocional que requieren atención."
+    else:
+        interpretacion = "Alimentación emocional intensa"
+        color_interpretacion = "#E74C3C"
+        recomendacion = "Se recomienda buscar apoyo profesional para abordar estos patrones."
+    
+    # Store interpretation in session state
+    st.session_state.comer_emocional_13['puntuacion_total'] = puntuacion_total
+    st.session_state.comer_emocional_13['puntuacion_maxima'] = puntuacion_maxima
+    st.session_state.comer_emocional_13['porcentaje'] = porcentaje_puntuacion
+    st.session_state.comer_emocional_13['interpretacion'] = interpretacion
+    st.session_state.comer_emocional_13['recomendacion'] = recomendacion
+    
+    # Display results
+    st.markdown("---")
+    st.markdown("### 📊 Resultado del Cuestionario")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric(
+            "Puntuación Total", 
+            f"{puntuacion_total}/{puntuacion_maxima}",
+            f"{porcentaje_puntuacion:.1f}%"
+        )
+    with col2:
+        st.markdown(f"""
+        <div style="padding: 1rem; border-radius: 10px; background: {color_interpretacion}20; border-left: 4px solid {color_interpretacion};">
+            <h4 style="color: {color_interpretacion}; margin: 0;">{interpretacion}</h4>
+            <p style="color: #CCCCCC; margin: 0.5rem 0 0 0;">{recomendacion}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.success("✅ Cuestionario del comer emocional completado")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # BLOQUE 9: Cálculo final con comparativa PSMF
 with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", expanded=True):
     progress.progress(100)
     progress_text.text("Paso final: Calculando tu plan nutricional personalizado")
@@ -2621,6 +2987,86 @@ if hasattr(st.session_state, 'alimentacion_emocional') and st.session_state.alim
         tabla_resumen += f"{i}. {data['pregunta']}\n   Respuesta: {data['respuesta']}\n\n"
 else:
     tabla_resumen += "No se completó el cuestionario de alimentación emocional.\n\n"
+
+tabla_resumen += f"""
+=====================================
+CUESTIONARIO DE SELECCIÓN ALIMENTARIA PERSONALIZADA:
+=====================================
+"""
+
+# Add food selection questionnaire results
+if hasattr(st.session_state, 'seleccion_alimentaria') and st.session_state.seleccion_alimentaria:
+    # Food groups selections
+    for grupo_key, grupo_data in st.session_state.seleccion_alimentaria.items():
+        if grupo_key in ['grupo1_proteina_grasa', 'grupo2_proteina_magra', 'grupo3_grasas_saludables', 
+                        'grupo4_carbohidratos', 'grupo5_vegetales', 'grupo6_frutas', 'grasas_coccion', 'bebidas_hidratacion']:
+            tabla_resumen += f"• {grupo_data['grupo']}:\n"
+            if grupo_data['seleccion']:
+                tabla_resumen += f"  Selecciones: {', '.join(grupo_data['seleccion'])}\n\n"
+            else:
+                tabla_resumen += "  Sin selecciones\n\n"
+    
+    # Allergies and intolerances
+    if 'alergias' in st.session_state.seleccion_alimentaria:
+        alergias_data = st.session_state.seleccion_alimentaria['alergias']
+        tabla_resumen += "• ALERGIAS E INTOLERANCIAS:\n"
+        if alergias_data['alergias_seleccionadas']:
+            tabla_resumen += f"  Seleccionadas: {', '.join(alergias_data['alergias_seleccionadas'])}\n"
+        if alergias_data['otras_alergias']:
+            tabla_resumen += f"  Otras: {alergias_data['otras_alergias']}\n"
+        tabla_resumen += "\n"
+    
+    # Additional foods
+    if 'alimentos_adicionales' in st.session_state.seleccion_alimentaria:
+        adicionales = st.session_state.seleccion_alimentaria['alimentos_adicionales']
+        tabla_resumen += "• ALIMENTOS/BEBIDAS ADICIONALES:\n"
+        tabla_resumen += f"  {adicionales if adicionales else 'Ninguno especificado'}\n\n"
+    
+    # Food cravings
+    if 'antojos' in st.session_state.seleccion_alimentaria:
+        antojos_data = st.session_state.seleccion_alimentaria['antojos']
+        tabla_resumen += "• ANTOJOS ALIMENTARIOS:\n"
+        for categoria_key, categoria_data in antojos_data.items():
+            if categoria_key != 'otros' and isinstance(categoria_data, dict):
+                tabla_resumen += f"  {categoria_data['categoria']}: {categoria_data['intensidad']}\n"
+        if antojos_data.get('otros'):
+            tabla_resumen += f"  Otros antojos: {antojos_data['otros']}\n"
+        tabla_resumen += "\n"
+else:
+    tabla_resumen += "No se completó el cuestionario de selección alimentaria personalizada.\n\n"
+
+tabla_resumen += f"""
+=====================================
+CUESTIONARIO DEL COMER EMOCIONAL (13 PREGUNTAS):
+=====================================
+"""
+
+# Add 13-question emotional eating questionnaire results
+if hasattr(st.session_state, 'comer_emocional_13') and st.session_state.comer_emocional_13:
+    # Add individual questions and responses
+    for i in range(1, 14):
+        pregunta_key = f"pregunta_{i}"
+        if pregunta_key in st.session_state.comer_emocional_13:
+            pregunta_data = st.session_state.comer_emocional_13[pregunta_key]
+            tabla_resumen += f"{i}. {pregunta_data['pregunta']}\n"
+            tabla_resumen += f"   Respuesta: {pregunta_data['respuesta']} (Valor: {pregunta_data['valor_numerico']}/5)\n\n"
+    
+    # Add summary scores
+    if 'puntuacion_total' in st.session_state.comer_emocional_13:
+        puntuacion = st.session_state.comer_emocional_13['puntuacion_total']
+        puntuacion_max = st.session_state.comer_emocional_13['puntuacion_maxima']
+        porcentaje = st.session_state.comer_emocional_13['porcentaje']
+        interpretacion = st.session_state.comer_emocional_13['interpretacion']
+        recomendacion = st.session_state.comer_emocional_13['recomendacion']
+        
+        tabla_resumen += f"""
+RESUMEN DEL CUESTIONARIO EMOCIONAL:
+- Puntuación total: {puntuacion}/{puntuacion_max} ({porcentaje:.1f}%)
+- Interpretación: {interpretacion}
+- Recomendación: {recomendacion}
+"""
+else:
+    tabla_resumen += "No se completó el cuestionario del comer emocional (13 preguntas).\n\n"
 
 tabla_resumen += """
 
