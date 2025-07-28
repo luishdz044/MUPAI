@@ -1051,6 +1051,18 @@ if not st.session_state.datos_completos:
                         </span>
                     </li>
                     <li style="margin-bottom:1.1em;">
+                        <span style="font-size:1.3rem;">🍽️</span> <b>Paso 6:</b> Cuestionario de patrones alimenticios<br>
+                        <span style="color:#F5F5F5;font-size:1rem;">
+                            Evaluamos tus hábitos alimentarios actuales, frecuencia de comidas, horarios y tipos de alimentos.
+                        </span>
+                    </li>
+                    <li style="margin-bottom:1.1em;">
+                        <span style="font-size:1.3rem;">😋</span> <b>Paso 7:</b> Cuestionario de alimentación emocional<br>
+                        <span style="color:#F5F5F5;font-size:1rem;">
+                            Analizamos tu relación emocional con la comida y patrones de comportamiento alimentario.
+                        </span>
+                    </li>
+                    <li style="margin-bottom:1.1em;">
                         <span style="font-size:1.3rem;">📈</span> <b>Resultado final:</b> Plan nutricional personalizado<br>
                         <span style="color:#F5F5F5;font-size:1rem;">
                             Recibes tus métricas clave, diagnóstico y recomendaciones basadas en ciencia.
@@ -1077,7 +1089,7 @@ if datos_personales_completos and st.session_state.datos_completos:
     # BLOQUE 1: Datos antropométricos con diseño mejorado
     with st.expander("📊 **Paso 1: Composición Corporal y Antropometría**", expanded=True):
         progress.progress(20)
-        progress_text.text("Paso 1 de 5: Evaluación de composición corporal")
+        progress_text.text("Paso 1 de 7: Evaluación de composición corporal")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
@@ -1325,7 +1337,7 @@ progress_text = st.empty()
 # BLOQUE 2: Evaluación funcional mejorada (versión científica y capciosa)
 with st.expander("💪 **Paso 2: Evaluación Funcional y Nivel de Entrenamiento**", expanded=True):
     progress.progress(40)
-    progress_text.text("Paso 2 de 5: Evaluación de capacidades funcionales")
+    progress_text.text("Paso 2 de 7: Evaluación de capacidades funcionales")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
 
@@ -1630,7 +1642,7 @@ else:
 # BLOQUE 3: Actividad física diaria
 with st.expander("🚶 **Paso 3: Nivel de Actividad Física Diaria**", expanded=True):
     progress.progress(60)
-    progress_text.text("Paso 3 de 5: Evaluación de actividad diaria")
+    progress_text.text("Paso 3 de 7: Evaluación de actividad diaria")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
     st.markdown("### 📊 Evalúa tu actividad física fuera del ejercicio planificado")
@@ -1696,7 +1708,7 @@ with st.expander("🚶 **Paso 3: Nivel de Actividad Física Diaria**", expanded=
     # BLOQUE 4: ETA (Efecto Térmico de los Alimentos)
 with st.expander("🍽️ **Paso 4: Efecto Térmico de los Alimentos (ETA)**", expanded=True):
     progress.progress(70)
-    progress_text.text("Paso 4 de 5: Cálculo del efecto térmico")
+    progress_text.text("Paso 4 de 7: Cálculo del efecto térmico")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
 
@@ -1748,7 +1760,7 @@ with st.expander("🍽️ **Paso 4: Efecto Térmico de los Alimentos (ETA)**", e
     # BLOQUE 5: Entrenamiento de fuerza
 with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", expanded=True):
     progress.progress(80)
-    progress_text.text("Paso 5 de 5: Cálculo del gasto por ejercicio")
+    progress_text.text("Paso 5 de 7: Cálculo del gasto por ejercicio")
 
     st.markdown('<div class="content-card">', unsafe_allow_html=True)
     st.markdown("### 💪 Frecuencia de entrenamiento de fuerza")
@@ -1808,7 +1820,152 @@ with st.expander("🏋️ **Paso 5: Gasto Energético del Ejercicio (GEE)**", ex
     </div>
     """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-    # BLOQUE 6: Cálculo final con comparativa PSMF
+
+    # BLOQUE 6: Cuestionario de Patrones Alimenticios
+with st.expander("🍽️ **Paso 6: Cuestionario de Patrones Alimenticios**", expanded=True):
+    progress.progress(85)
+    progress_text.text("Paso 6 de 7: Evaluación de patrones alimenticios")
+
+    st.markdown('<div class="content-card">', unsafe_allow_html=True)
+    st.markdown("### 🥗 Evalúa tus hábitos alimentarios actuales")
+    
+    # Initialize session state for dietary patterns
+    if 'patrones_alimenticios' not in st.session_state:
+        st.session_state.patrones_alimenticios = {}
+    
+    # Dietary patterns questions
+    patrones_preguntas = {
+        "frecuencia_comidas": {
+            "pregunta": "¿Con qué frecuencia comes al día?",
+            "opciones": ["1-2 comidas", "3 comidas", "4-5 comidas", "Más de 5 comidas", "Como constantemente/picoteo"]
+        },
+        "horarios_regulares": {
+            "pregunta": "¿Mantienes horarios regulares de comida?",
+            "opciones": ["Siempre, muy regulares", "Casi siempre", "A veces", "Raramente", "Nunca, como cuando puedo"]
+        },
+        "desayuno": {
+            "pregunta": "¿Qué tan frecuentemente desayunas?",
+            "opciones": ["Todos los días", "5-6 días/semana", "3-4 días/semana", "1-2 días/semana", "Nunca o casi nunca"]
+        },
+        "cena_tardía": {
+            "pregunta": "¿Con qué frecuencia cenas después de las 9 PM?",
+            "opciones": ["Nunca", "1-2 veces/semana", "3-4 veces/semana", "5-6 veces/semana", "Todos los días"]
+        },
+        "comida_procesada": {
+            "pregunta": "¿Qué porcentaje de tu alimentación proviene de comida procesada/empaquetada?",
+            "opciones": ["Menos del 10%", "10-25%", "25-50%", "50-75%", "Más del 75%"]
+        },
+        "preparación_comida": {
+            "pregunta": "¿Con qué frecuencia preparas tu propia comida?",
+            "opciones": ["Todos los días", "5-6 días/semana", "3-4 días/semana", "1-2 días/semana", "Nunca, siempre compro hecha"]
+        },
+        "verduras_frutas": {
+            "pregunta": "¿Cuántas porciones de verduras y frutas consumes diariamente?",
+            "opciones": ["5 o más porciones", "3-4 porciones", "2 porciones", "1 porción", "Menos de 1 porción"]
+        },
+        "agua_diaria": {
+            "pregunta": "¿Cuántos litros de agua pura tomas al día?",
+            "opciones": ["Más de 2.5 litros", "2-2.5 litros", "1.5-2 litros", "1-1.5 litros", "Menos de 1 litro"]
+        },
+        "alcohol": {
+            "pregunta": "¿Con qué frecuencia consumes bebidas alcohólicas?",
+            "opciones": ["Nunca", "Ocasionalmente (fiestas)", "1-2 veces/semana", "3-4 veces/semana", "Diariamente"]
+        },
+        "planificación": {
+            "pregunta": "¿Planificas tus comidas con anticipación?",
+            "opciones": ["Siempre, planifico toda la semana", "Casi siempre", "A veces", "Raramente", "Nunca, improviso"]
+        }
+    }
+    
+    # Display questions
+    for key, pregunta_data in patrones_preguntas.items():
+        respuesta = st.radio(
+            pregunta_data["pregunta"],
+            pregunta_data["opciones"],
+            key=f"patron_{key}",
+            help="Selecciona la opción que mejor describe tu situación actual"
+        )
+        st.session_state.patrones_alimenticios[key] = {
+            "pregunta": pregunta_data["pregunta"],
+            "respuesta": respuesta
+        }
+    
+    st.success("✅ Cuestionario de patrones alimenticios completado")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # BLOQUE 7: Cuestionario de Alimentación Emocional
+with st.expander("😋 **Paso 7: Cuestionario de Alimentación Emocional**", expanded=True):
+    progress.progress(90)
+    progress_text.text("Paso 7 de 7: Evaluación de alimentación emocional")
+
+    st.markdown('<div class="content-card">', unsafe_allow_html=True)
+    st.markdown("### 🧠 Evalúa tu relación emocional con la comida")
+    
+    # Initialize session state for emotional eating
+    if 'alimentacion_emocional' not in st.session_state:
+        st.session_state.alimentacion_emocional = {}
+    
+    # Emotional eating questions
+    emocional_preguntas = {
+        "comer_estresado": {
+            "pregunta": "¿Comes más cuando te sientes estresado/a o ansioso/a?",
+            "opciones": ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"]
+        },
+        "comer_aburrido": {
+            "pregunta": "¿Comes cuando te aburres, aunque no tengas hambre?",
+            "opciones": ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"]
+        },
+        "comer_triste": {
+            "pregunta": "¿Recurres a la comida cuando te sientes triste o deprimido/a?",
+            "opciones": ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"]
+        },
+        "comer_celebrar": {
+            "pregunta": "¿Usas la comida para celebrar o premiarte?",
+            "opciones": ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"]
+        },
+        "control_porciones": {
+            "pregunta": "¿Qué tan difícil te resulta controlar las porciones cuando comes?",
+            "opciones": ["Muy fácil, siempre controlo", "Fácil, casi siempre", "Moderado, a veces", "Difícil, raramente", "Muy difícil, nunca controlo"]
+        },
+        "comer_rapido": {
+            "pregunta": "¿Con qué frecuencia comes muy rápido?",
+            "opciones": ["Nunca, siempre despacio", "Raramente", "A veces", "Frecuentemente", "Siempre como rápido"]
+        },
+        "hambre_fisica": {
+            "pregunta": "¿Puedes distinguir entre hambre física y hambre emocional?",
+            "opciones": ["Siempre, muy claramente", "Casi siempre", "A veces", "Raramente", "Nunca, no distingo"]
+        },
+        "culpa_comer": {
+            "pregunta": "¿Sientes culpa después de comer ciertos alimentos?",
+            "opciones": ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"]
+        },
+        "comida_consuelo": {
+            "pregunta": "¿Tienes alimentos específicos que consideras 'de consuelo'?",
+            "opciones": ["No, no tengo", "Tengo pocos", "Tengo algunos", "Tengo varios", "Tengo muchos"]
+        },
+        "comer_social": {
+            "pregunta": "¿Comes más de lo planeado en situaciones sociales?",
+            "opciones": ["Nunca", "Raramente", "A veces", "Frecuentemente", "Siempre"]
+        }
+    }
+    
+    # Display questions
+    for key, pregunta_data in emocional_preguntas.items():
+        respuesta = st.radio(
+            pregunta_data["pregunta"],
+            pregunta_data["opciones"],
+            key=f"emocional_{key}",
+            help="Responde con honestidad sobre tu comportamiento habitual"
+        )
+        st.session_state.alimentacion_emocional[key] = {
+            "pregunta": pregunta_data["pregunta"],
+            "respuesta": respuesta
+        }
+    
+    st.success("✅ Cuestionario de alimentación emocional completado")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # BLOQUE 8: Cálculo final con comparativa PSMF
 with st.expander("📈 **RESULTADO FINAL: Tu Plan Nutricional Personalizado**", expanded=True):
     progress.progress(100)
     progress_text.text("Paso final: Calculando tu plan nutricional personalizado")
@@ -2380,6 +2537,104 @@ RECOMENDACIÓN: Utiliza estas proyecciones como guía inicial y ajusta
 según tu progreso real. Se recomienda evaluación periódica cada 2-3 
 semanas para optimizar resultados.
 
+=====================================
+PLAN TRADICIONAL - CÁLCULO DETALLADO:
+=====================================
+- Ingesta calórica tradicional: {ingesta_calorica_tradicional if 'ingesta_calorica_tradicional' in locals() else 'No calculado':.0f} kcal/día
+- Déficit/Superávit: {porcentaje if 'porcentaje' in locals() else 0:+.0f}%
+- Factor FBEO tradicional: {fbeo:.2f}
+
+MACRONUTRIENTES PLAN TRADICIONAL:
+"""
+
+# Calculate traditional plan macros for email
+try:
+    macros_tradicional = calcular_macros_centralizados(
+        "Plan Tradicional",
+        {},  # No PSMF recommendations
+        peso,
+        ingesta_calorica_tradicional if 'ingesta_calorica_tradicional' in locals() else 2000,
+        tmb
+    )
+    
+    tabla_resumen += f"""- Proteína tradicional: {macros_tradicional['proteina_g']}g ({macros_tradicional['proteina_kcal']:.0f} kcal) = {round(macros_tradicional['proteina_kcal']/macros_tradicional['ingesta_calorica']*100, 1)}%
+- Grasas tradicionales: {macros_tradicional['grasa_g']}g ({macros_tradicional['grasa_kcal']:.0f} kcal) = {round(macros_tradicional['grasa_kcal']/macros_tradicional['ingesta_calorica']*100, 1)}%
+- Carbohidratos tradicionales: {macros_tradicional['carbo_g']}g ({macros_tradicional['carbo_kcal']:.0f} kcal) = {round(macros_tradicional['carbo_kcal']/macros_tradicional['ingesta_calorica']*100, 1)}%
+"""
+except:
+    tabla_resumen += "- Error calculando macros tradicionales\n"
+
+if psmf_recs.get("psmf_aplicable"):
+    tabla_resumen += f"""
+=====================================
+PLAN PSMF - CÁLCULO DETALLADO:
+=====================================
+- Ingesta calórica PSMF: {psmf_recs['calorias_dia']:.0f} kcal/día
+- Déficit PSMF: ~{int((1 - psmf_recs['calorias_dia']/GE) * 100) if GE > 0 else 40}%
+- Multiplicador automático: {psmf_recs.get('multiplicador', 8.3)} ({psmf_recs.get('perfil_grasa', 'automatizado')})
+
+MACRONUTRIENTES PLAN PSMF:
+- Proteína PSMF: {psmf_recs['proteina_g_dia']}g ({psmf_recs['proteina_g_dia'] * 4:.0f} kcal) = {round(psmf_recs['proteina_g_dia'] * 4 / psmf_recs['calorias_dia'] * 100, 1)}%
+- Grasas PSMF (FIJAS): {psmf_recs['grasa_g_fija']}g ({psmf_recs['grasa_g_fija'] * 9:.0f} kcal) = {round(psmf_recs['grasa_g_fija'] * 9 / psmf_recs['calorias_dia'] * 100, 1)}%
+- Carbohidratos PSMF: {round((psmf_recs['calorias_dia'] - psmf_recs['proteina_g_dia'] * 4 - psmf_recs['grasa_g_fija'] * 9) / 4, 1)}g ({psmf_recs['calorias_dia'] - psmf_recs['proteina_g_dia'] * 4 - psmf_recs['grasa_g_fija'] * 9:.0f} kcal) = {round((psmf_recs['calorias_dia'] - psmf_recs['proteina_g_dia'] * 4 - psmf_recs['grasa_g_fija'] * 9) / psmf_recs['calorias_dia'] * 100, 1)}%
+- Pérdida proyectada PSMF: {psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))[0]}-{psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))[1]} kg/semana
+"""
+else:
+    tabla_resumen += f"""
+=====================================
+PLAN PSMF NO APLICABLE:
+=====================================
+- Razón: % grasa corporal no cumple criterios mínimos
+- Criterio hombre: >18% grasa | Criterio mujer: >23% grasa
+- Tu % grasa actual: {grasa_corregida:.1f}%
+"""
+
+# Indicate which plan was selected
+plan_seleccionado_texto = plan_elegido if 'plan_elegido' in locals() and plan_elegido else "Plan tradicional"
+tabla_resumen += f"""
+=====================================
+PLAN FINALMENTE ELEGIDO:
+=====================================
+** {plan_seleccionado_texto.upper()} **
+
+=====================================
+CUESTIONARIO DE PATRONES ALIMENTICIOS:
+=====================================
+"""
+
+# Add dietary patterns questionnaire results
+if hasattr(st.session_state, 'patrones_alimenticios') and st.session_state.patrones_alimenticios:
+    for i, (key, data) in enumerate(st.session_state.patrones_alimenticios.items(), 1):
+        tabla_resumen += f"{i}. {data['pregunta']}\n   Respuesta: {data['respuesta']}\n\n"
+else:
+    tabla_resumen += "No se completó el cuestionario de patrones alimenticios.\n\n"
+
+tabla_resumen += f"""
+=====================================
+CUESTIONARIO DE ALIMENTACIÓN EMOCIONAL:
+=====================================
+"""
+
+# Add emotional eating questionnaire results
+if hasattr(st.session_state, 'alimentacion_emocional') and st.session_state.alimentacion_emocional:
+    for i, (key, data) in enumerate(st.session_state.alimentacion_emocional.items(), 1):
+        tabla_resumen += f"{i}. {data['pregunta']}\n   Respuesta: {data['respuesta']}\n\n"
+else:
+    tabla_resumen += "No se completó el cuestionario de alimentación emocional.\n\n"
+
+tabla_resumen += """
+
+=====================================
+FECHA Y HORA DE EVALUACIÓN:
+=====================================
+Evaluación completada el: """ + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + """
+
+¡Gracias por completar la evaluación MUPAI!
+Para cualquier consulta adicional, contacta con el equipo técnico.
+
+=====================================
+FIN DEL REPORTE
+=====================================
 """
 
 # ==================== RESUMEN PERSONALIZADO ====================
@@ -2545,7 +2800,7 @@ if st.session_state.datos_completos and 'peso' in locals() and peso > 0:
 
 # --- Botón para enviar email (solo si no se ha enviado y todo completo) ---
 if not st.session_state.get("correo_enviado", False):
-    if st.button("📧 Enviar Resumen por Email", key="enviar_email"):
+    if st.button("📧 Terminar cuestionario y enviar resumen por email", key="enviar_email"):
         faltantes = datos_completos_para_email()
         if faltantes:
             st.error(f"❌ No se puede enviar el email. Faltan: {', '.join(faltantes)}")
