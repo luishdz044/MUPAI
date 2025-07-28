@@ -489,7 +489,7 @@ def calcular_mlg(peso, porcentaje_grasa):
 def corregir_porcentaje_grasa(medido, metodo, sexo):
     """
     Corrige el porcentaje de grasa según el método de medición.
-    Si el método es Omron, ajusta con tabla.
+    Si el método es Omron, ajusta con tablas especializadas por sexo.
     Si InBody, aplica factor.
     Si BodPod, aplica factor por sexo.
     Si DEXA, devuelve el valor medido.
@@ -500,16 +500,30 @@ def corregir_porcentaje_grasa(medido, metodo, sexo):
         medido = 0.0
 
     if metodo == "Omron HBF-516 (BIA)":
-        tabla = {
-            5: 2.5, 6: 3.5, 7: 4.5, 8: 5.5, 9: 6.5,
-            10: 7.5, 11: 8.5, 12: 9.5, 13: 10.5, 14: 11.5,
-            15: 13.5, 16: 14.5, 17: 15.5, 18: 16.5, 19: 17.5,
-            20: 20.5, 21: 21.5, 22: 22.5, 23: 23.5, 24: 24.5,
-            25: 27.0, 26: 28.0, 27: 29.0, 28: 30.0, 29: 31.0,
-            30: 33.5, 31: 34.5, 32: 35.5, 33: 36.5, 34: 37.5,
-            35: 40.0, 36: 41.0, 37: 42.0, 38: 43.0, 39: 44.0,
-            40: 45.0
-        }
+        # Tablas especializadas por sexo para conversión Omron→DEXA
+        if sexo == "Hombre":
+            tabla = {
+                5: 2.8, 6: 3.8, 7: 4.8, 8: 5.8, 9: 6.8,
+                10: 7.8, 11: 8.8, 12: 9.8, 13: 10.8, 14: 11.8,
+                15: 13.8, 16: 14.8, 17: 15.8, 18: 16.8, 19: 17.8,
+                20: 20.8, 21: 21.8, 22: 22.8, 23: 23.8, 24: 24.8,
+                25: 27.3, 26: 28.3, 27: 29.3, 28: 30.3, 29: 31.3,
+                30: 33.8, 31: 34.8, 32: 35.8, 33: 36.8, 34: 37.8,
+                35: 40.3, 36: 41.3, 37: 42.3, 38: 43.3, 39: 44.3,
+                40: 45.3
+            }
+        else:  # Mujer
+            tabla = {
+                5: 2.2, 6: 3.2, 7: 4.2, 8: 5.2, 9: 6.2,
+                10: 7.2, 11: 8.2, 12: 9.2, 13: 10.2, 14: 11.2,
+                15: 13.2, 16: 14.2, 17: 15.2, 18: 16.2, 19: 17.2,
+                20: 20.2, 21: 21.2, 22: 22.2, 23: 23.2, 24: 24.2,
+                25: 26.7, 26: 27.7, 27: 28.7, 28: 29.7, 29: 30.7,
+                30: 33.2, 31: 34.2, 32: 35.2, 33: 36.2, 34: 37.2,
+                35: 39.7, 36: 40.7, 37: 41.7, 38: 42.7, 39: 43.7,
+                40: 44.7
+            }
+        
         grasa_redondeada = int(round(medido))
         grasa_redondeada = min(max(grasa_redondeada, 5), 40)
         return tabla.get(grasa_redondeada, medido)
@@ -2196,7 +2210,164 @@ try:
 except:
     tabla_resumen += "\n- Error en cálculo de proyección. Usar valores por defecto.\n"
 
+# Agregar secciones adicionales del cuestionario
+experiencia_text = experiencia if 'experiencia' in locals() and experiencia else "No especificado"
+nivel_actividad_text = nivel_actividad.split('(')[0].strip() if 'nivel_actividad' in locals() and nivel_actividad else "No especificado"
+
+# Generar detalle de ejercicios funcionales
+ejercicios_detalle = ""
+if 'ejercicios_data' in locals() and ejercicios_data:
+    for ejercicio, valor in ejercicios_data.items():
+        nivel_ej = st.session_state.niveles_ejercicios.get(ejercicio, "No evaluado")
+        if ejercicio in ["Plancha", "L-sit"]:
+            ejercicios_detalle += f"- {ejercicio}: {valor} segundos → Nivel: {nivel_ej}\n"
+        else:
+            ejercicios_detalle += f"- {ejercicio}: {valor} repeticiones → Nivel: {nivel_ej}\n"
+else:
+    ejercicios_detalle = "- No se completaron las evaluaciones funcionales\n"
+
+# Calcular ambos planes nutricionales para comparación
+plan_tradicional_calorias = ingesta_calorica_tradicional if 'ingesta_calorica_tradicional' in locals() else 0
+plan_psmf_disponible = psmf_recs.get("psmf_aplicable", False) if 'psmf_recs' in locals() else False
+
+# Información de entrenamiento de fuerza
+dias_fuerza_text = dias_fuerza if 'dias_fuerza' in locals() else 0
+kcal_sesion_text = kcal_sesion if 'kcal_sesion' in locals() else 0
+
 tabla_resumen += f"""
+
+=====================================
+EXPERIENCIA Y RESPUESTAS FUNCIONALES
+=====================================
+📋 EXPERIENCIA DE ENTRENAMIENTO:
+{experiencia_text}
+
+💪 EVALUACIÓN FUNCIONAL DETALLADA:
+{ejercicios_detalle}
+
+=====================================
+NIVEL GLOBAL DE ENTRENAMIENTO
+=====================================
+🎯 DESGLOSE DEL NIVEL GLOBAL:
+- Desarrollo muscular (FFMI): {puntos_ffmi if 'puntos_ffmi' in locals() else 0}/5 puntos → {nivel_ffmi}
+- Rendimiento funcional: {puntos_funcional if 'puntos_funcional' in locals() else 0:.1f}/4 puntos → Promedio de ejercicios
+- Experiencia declarada: {puntos_exp if 'puntos_exp' in locals() else 0}/4 puntos → {experiencia_text[:50]}...
+- PONDERACIÓN: 40% FFMI + 40% Funcional + 20% Experiencia
+- RESULTADO FINAL: {nivel_entrenamiento.upper() if 'nivel_entrenamiento' in locals() else 'INTERMEDIO'} (Score: {puntaje_total if 'puntaje_total' in locals() else 0:.2f}/1.0)
+
+=====================================
+ACTIVIDAD FÍSICA DIARIA Y FACTORES
+=====================================
+🚶 NIVEL DE ACTIVIDAD DIARIA:
+- Clasificación: {nivel_actividad_text}
+- Factor GEAF aplicado: {geaf if 'geaf' in locals() else 1.0}
+- Descripción: {nivel_actividad if 'nivel_actividad' in locals() and nivel_actividad else 'No especificado'}
+- Impacto metabólico: Multiplica el TMB en {(geaf-1)*100 if 'geaf' in locals() else 0:.0f}%
+
+🔥 EFECTO TÉRMICO DE LOS ALIMENTOS (ETA):
+- Factor ETA: {eta if 'eta' in locals() else 1.1}
+- Criterio aplicado: {eta_desc if 'eta_desc' in locals() else 'ETA estándar'}
+- Justificación: Basado en % grasa corporal ({grasa_corregida:.1f}%) y sexo ({sexo})
+
+=====================================
+ENTRENAMIENTO DE FUERZA - DETALLE
+=====================================
+🏋️ FRECUENCIA Y GASTO ENERGÉTICO:
+- Días de entrenamiento/semana: {dias_fuerza_text} días
+- Gasto por sesión: {kcal_sesion_text} kcal
+- Criterio del gasto: Basado en nivel global ({nivel_entrenamiento.capitalize() if 'nivel_entrenamiento' in locals() else 'Intermedio'})
+- Gasto semanal total: {gee_semanal if 'gee_semanal' in locals() else 0:.0f} kcal
+- Promedio diario (GEE): {gee_prom_dia if 'gee_prom_dia' in locals() else 0:.0f} kcal/día
+
+=====================================
+COMPARATIVA COMPLETA DE PLANES NUTRICIONALES
+=====================================
+📊 PLAN TRADICIONAL (DÉFICIT/SUPERÁVIT MODERADO):
+- Calorías: {plan_tradicional_calorias:.0f} kcal/día
+- Estrategia: {fase}
+- Proteína: {peso * 1.8 if 'peso' in locals() and peso > 0 else 0:.1f}g/día (1.8g/kg peso)
+- Grasas: ~40% del TMB = {tmb * 0.40 / 9 if 'tmb' in locals() else 0:.1f}g/día (ajustado por límites 20-40% calorías)
+- Carbohidratos: Resto de calorías disponibles
+- Sostenibilidad: ALTA - Recomendado para adherencia a largo plazo
+- Pérdida/ganancia esperada: 0.3-0.7% peso corporal/semana
+- Duración recomendada: Indefinida con ajustes periódicos
+
+⚡ PROTOCOLO PSMF ACTUALIZADO {'(APLICABLE)' if plan_psmf_disponible else '(NO APLICABLE)'}:"""
+
+if plan_psmf_disponible:
+    tabla_resumen += f"""
+- Calorías: {psmf_recs['calorias_dia']:.0f} kcal/día
+- Criterio de aplicabilidad: {psmf_recs.get('criterio', 'No especificado')}
+- Proteína: {psmf_recs['proteina_g_dia']:.1f}g/día (1.8g/kg peso mínimo)
+- Multiplicador calórico: {psmf_recs.get('multiplicador', 8.3)} (perfil: {psmf_recs.get('perfil_grasa', 'alto % grasa')})
+- Grasas: 30-50g/día (fuentes magras: pescado, aceite oliva mínimo)
+- Carbohidratos: Solo de vegetales fibrosos ({(psmf_recs['calorias_dia'] - psmf_recs['proteina_g_dia']*4 - 40*9)/4 if psmf_recs.get('calorias_dia', 0) > 0 else 0:.1f}g estimados)
+- Déficit estimado: ~{int((1 - psmf_recs['calorias_dia']/(GE if 'GE' in locals() else 2000)) * 100) if psmf_recs.get('calorias_dia', 0) > 0 else 0}%
+- Pérdida esperada: {psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))[0]}-{psmf_recs.get('perdida_semanal_kg', (0.6, 1.0))[1]} kg/semana
+- Sostenibilidad: BAJA - Máximo 6-8 semanas
+- Duración recomendada: 6-8 semanas con supervisión médica obligatoria
+- Suplementación necesaria: Multivitamínico, omega-3, electrolitos, magnesio
+- Monitoreo requerido: Análisis de sangre regulares"""
+else:
+    tabla_resumen += f"""
+- RAZÓN DE NO APLICABILIDAD: % grasa no cumple criterios mínimos
+- Criterio hombres: >18% grasa corporal (actual: {grasa_corregida:.1f}%)
+- Criterio mujeres: >23% grasa corporal (actual: {grasa_corregida:.1f}%)
+- RECOMENDACIÓN: Usar plan tradicional hasta alcanzar % grasa objetivo"""
+
+tabla_resumen += f"""
+
+📋 ANÁLISIS COMPARATIVO DE ESTRATEGIAS:
+- TRADICIONAL vs PSMF: {'Ambos aplicables - Usuario puede elegir' if plan_psmf_disponible else 'Solo tradicional aplicable'}
+- Velocidad de resultados: {'PSMF 2-3x más rápido' if plan_psmf_disponible else 'Tradicional = velocidad moderada sostenible'}
+- Riesgo de pérdida muscular: {'PSMF = mayor riesgo' if plan_psmf_disponible else 'Tradicional = riesgo mínimo'}
+- Facilidad de adherencia: {'Tradicional >> PSMF' if plan_psmf_disponible else 'Tradicional = alta adherencia'}
+- Impacto en rendimiento: {'PSMF = reducción significativa' if plan_psmf_disponible else 'Tradicional = impacto mínimo'}
+
+=====================================
+PREFERENCIAS Y HÁBITOS ADICIONALES
+=====================================
+🍽️ INFORMACIÓN NUTRICIONAL ADICIONAL:
+- Método medición grasa: {metodo_grasa} → Ajuste DEXA: {grasa_corregida - grasa_corporal:+.1f}%
+- Edad metabólica calculada: {edad_metabolica} años (vs cronológica: {edad} años)
+- Categoría de grasa corporal: {
+    "Muy bajo (Competición)" if (sexo == "Hombre" and grasa_corregida < 6) or (sexo == "Mujer" and grasa_corregida < 12)
+    else "Atlético" if (sexo == "Hombre" and grasa_corregida < 12) or (sexo == "Mujer" and grasa_corregida < 17)
+    else "Fitness" if (sexo == "Hombre" and grasa_corregida < 18) or (sexo == "Mujer" and grasa_corregida < 23)
+    else "Promedio" if (sexo == "Hombre" and grasa_corregida < 25) or (sexo == "Mujer" and grasa_corregida < 30)
+    else "Alto"
+}
+
+💊 SUPLEMENTACIÓN RECOMENDADA:
+- Creatina monohidrato: 5g/día (mejora rendimiento y recuperación)
+- Vitamina D3: 2000-4000 UI/día (optimización hormonal)
+- Omega-3 (EPA+DHA): 2-3g/día (antiinflamatorio y salud cardiovascular)
+- Multivitamínico: 1/día (seguro nutricional)
+{'- ADICIONAL PARA PSMF: Electrolitos, magnesio, complejo B' if plan_psmf_disponible else ''}
+
+=====================================
+NOTAS, ADVERTENCIAS Y RECOMENDACIONES
+=====================================
+⚠️ ADVERTENCIAS IMPORTANTES:
+- Este análisis es una herramienta de apoyo, NO sustituye supervisión profesional
+- Los cálculos están basados en ecuaciones científicas validadas pero la respuesta individual varía
+- Se recomienda evaluación médica antes de iniciar cualquier plan nutricional restrictivo
+{'- CRÍTICO PARA PSMF: Supervisión médica OBLIGATORIA con análisis de sangre regulares' if plan_psmf_disponible else ''}
+- Hidratación mínima: {peso * 35 if 'peso' in locals() and peso > 0 else 2450:.0f}ml/día (35ml/kg peso)
+
+🎯 RECOMENDACIONES ESPECÍFICAS:
+- Reevaluación recomendada: Cada 2-3 semanas para ajustes
+- Enfoque principal: {'Pérdida de grasa manteniendo músculo' if porcentaje < 0 else 'Ganancia muscular controlada' if porcentaje > 0 else 'Recomposición corporal'}
+- Timing de nutrientes: Proteína en cada comida, carbohidratos pre/post entreno
+- Descanso óptimo: 7-9 horas/noche para maximizar resultados
+- Gestión del estrés: Técnicas de relajación y mindfulness recomendadas
+
+📈 MÉTRICAS DE SEGUIMIENTO SUGERIDAS:
+- Peso corporal: Diario (misma hora, condiciones)
+- Medidas corporales: Semanal (cintura, cadera, brazos)
+- Fotos progreso: Bisemanal (misma iluminación y pose)
+- Rendimiento en ejercicios: Cada sesión (seguimiento de cargas/repeticiones)
+- Energía y bienestar: Diario (escala 1-10)
 
 ⚠️ IMPORTANTE - NATURALEZA DE LAS ESTIMACIONES:
 Estas son estimaciones basadas en modelos científicos. El cuerpo humano 
