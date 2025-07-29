@@ -1472,8 +1472,7 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # RESULTADO FINAL: Análisis completo del nuevo cuestionario
     with st.expander("📈 **RESULTADO FINAL: Tu Perfil Alimentario Completo**", expanded=True):
-        progress.progress(100)
-        progress_text.text("Análisis completo: Generando tu perfil alimentario personalizado")
+        progress.progress(100, text="Análisis completo: Generando tu perfil alimentario personalizado")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         
