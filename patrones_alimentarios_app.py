@@ -1452,7 +1452,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         st.markdown('</div>', unsafe_allow_html=True)
 
     # RESULTADO FINAL: Análisis completo del nuevo cuestionario
-    with st.expander("📈 **RESULTADO FINAL: Tu Perfil Alimentario Completo**", expanded=True):
+    with st.expander("📈 **RESULTADO FINAL: Tu Perfil Alimentario Completo**", expanded=False):
         progress.progress(100, text="Análisis completo: Generando tu perfil alimentario personalizado")
 
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
