@@ -1098,7 +1098,6 @@ if datos_personales_completos and st.session_state.datos_completos:
         # Resumen del paso actual con categorización
         vegetales_count = len(st.session_state.get('vegetales_lista', []))
         if vegetales_count >= 15:
-        if vegetales_count >= 15:
             st.success(f"✅ **¡Excelente diversidad!** Has seleccionado {vegetales_count} vegetales. Esto permitirá crear un plan muy variado y nutritivo.")
         elif vegetales_count >= 8:
             st.success(f"✅ **¡Buena variedad!** Has seleccionado {vegetales_count} vegetales. Tu plan tendrá buena diversidad nutricional.")
