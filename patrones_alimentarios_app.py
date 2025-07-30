@@ -103,6 +103,8 @@ def advance_to_next_step():
         if current_step < 10:
             st.session_state.current_step = current_step + 1
             st.session_state.max_unlocked_step = max(st.session_state.max_unlocked_step, current_step + 1)
+            # Trigger autoscroll to the new step after rerun
+            st.session_state.should_autoscroll = True
         return True
     else:
         # Mostrar mensaje de error profesional
@@ -114,6 +116,8 @@ def go_to_previous_step():
     current_step = st.session_state.get('current_step', 1)
     if current_step > 1:
         st.session_state.current_step = current_step - 1
+        # Trigger autoscroll to the previous step after rerun
+        st.session_state.should_autoscroll = True
 
 # ==================== FUNCIONES DE VALIDACIÓN ESTRICTA ====================
 def validate_name(name):
@@ -195,6 +199,22 @@ st.markdown("""
     --mupai-success: #27AE60;
     --mupai-warning: #F39C12;
     --mupai-danger: #E74C3C;
+}
+/* Autoscroll markers */
+[id^="paso"] {
+    scroll-margin-top: 20px;
+    height: 1px;
+    margin-bottom: 1rem;
+}
+/* Smooth scroll for entire page */
+html {
+    scroll-behavior: smooth;
+}
+/* Mobile scroll optimization */
+@media (max-width: 768px) {
+    [id^="paso"] {
+        scroll-margin-top: 10px;
+    }
 }
 /* Fondo general */
 .stApp {
@@ -537,7 +557,8 @@ defaults = {
         9: False,  # Alergias/intolerancias
         10: False  # Antojos
     },
-    "max_unlocked_step": 1
+    "max_unlocked_step": 1,
+    "should_autoscroll": False  # Nueva variable para controlar el autoscroll
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -876,12 +897,37 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # GRUPO 1: PROTEÍNA ANIMAL CON MÁS CONTENIDO GRASO
     if current_step == 1:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 1
+        st.markdown('<div id="paso1"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso1');
+            if (element) {{
+                // Use different approaches for better cross-browser compatibility
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    // Fallback for older browsers
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        
+        // Execute after DOM is ready and slight delay for Streamlit rendering
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #DAA520;">
@@ -985,12 +1031,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # GRUPO 2: PROTEÍNA ANIMAL MAGRA
     elif current_step == 2:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 2
+        st.markdown('<div id="paso2"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso2');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #DAA520;">
@@ -1099,12 +1166,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # GRUPO 3: FUENTES DE GRASA SALUDABLE
     elif current_step == 3:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 3
+        st.markdown('<div id="paso3"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso3');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #DAA520;">
@@ -1187,12 +1275,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # GRUPO 4: CARBOHIDRATOS COMPLEJOS Y CEREALES
     elif current_step == 4:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 4
+        st.markdown('<div id="paso4"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso4');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #DAA520;">
@@ -1289,12 +1398,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # GRUPO 5: VEGETALES
     elif current_step == 5:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 5
+        st.markdown('<div id="paso5"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso5');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #DAA520;">
@@ -1363,12 +1493,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # GRUPO 6: FRUTAS
     elif current_step == 6:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 6
+        st.markdown('<div id="paso6"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso6');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #F4C430 0%, #DAA520 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #DAA520;">
@@ -1445,12 +1596,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # APARTADO EXTRA 1: ACEITES DE COCCIÓN (PASO 7)
     elif current_step == 7:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 7
+        st.markdown('<div id="paso7"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso7');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #27AE60;">
@@ -1506,12 +1678,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # APARTADO EXTRA 2: BEBIDAS (PASO 8)
     elif current_step == 8:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 8
+        st.markdown('<div id="paso8"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso8');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%); color: #1E1E1E; margin-bottom: 2rem; border: 3px solid #27AE60;">
@@ -1568,12 +1761,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # APARTADO EXTRA 3: ALERGIAS/INTOLERANCIAS (PASO 9)
     elif current_step == 9:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 9
+        st.markdown('<div id="paso9"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso9');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%); color: #FFFFFF; margin-bottom: 2rem; border: 3px solid #E74C3C;">
@@ -1693,12 +1907,33 @@ if datos_personales_completos and st.session_state.datos_completos:
 
     # APARTADO EXTRA 4: ANTOJOS (PASO 10)
     elif current_step == 10:
-        # Auto-scroll to top for better UX
-        st.markdown("""
+        # HTML marker for step 10
+        st.markdown('<div id="paso10"></div>', unsafe_allow_html=True)
+        
+        # Auto-scroll to step marker with improved behavior and mobile compatibility
+        st.markdown(f"""
         <script>
-        window.parent.document.querySelector('.main').scrollTo(0, 0);
+        function autoScrollToStep() {{
+            const element = window.parent.document.getElementById('paso10');
+            if (element) {{
+                try {{
+                    element.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    }});
+                }} catch (e) {{
+                    element.scrollIntoView(true);
+                }}
+            }}
+        }}
+        setTimeout(autoScrollToStep, {'200' if st.session_state.get('should_autoscroll', False) else '100'});
         </script>
         """, unsafe_allow_html=True)
+        
+        # Reset autoscroll flag after use
+        if st.session_state.get('should_autoscroll', False):
+            st.session_state.should_autoscroll = False
         
         st.markdown("""
         <div class="content-card" style="background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%); color: #FFFFFF; margin-bottom: 2rem; border: 3px solid #9B59B6;">
