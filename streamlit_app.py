@@ -756,6 +756,27 @@ def obtener_geaf(nivel):
     }
     return valores.get(nivel, 1.00)
 
+def esta_en_rango_saludable(porcentaje_grasa, sexo):
+    """
+    Determina si el porcentaje de grasa corporal está en rango saludable para ponderar FFMI.
+    
+    Args:
+        porcentaje_grasa: Porcentaje de grasa corporal
+        sexo: "Hombre" o "Mujer"
+    
+    Returns:
+        bool: True si está en rango saludable, False si no
+    """
+    try:
+        grasa = float(porcentaje_grasa)
+    except (TypeError, ValueError):
+        return True  # Si no se puede determinar, usar ponderación normal por seguridad
+    
+    if sexo == "Hombre":
+        return grasa <= 25.0
+    else:  # Mujer
+        return grasa <= 32.0
+
 def calcular_proyeccion_cientifica(sexo, grasa_corregida, nivel_entrenamiento, peso_actual, porcentaje_deficit_superavit):
     """
     Calcula la proyección científica realista de ganancia o pérdida de peso semanal y total.
@@ -1472,8 +1493,16 @@ puntos_exp = {"A)": 1, "B)": 2, "C)": 3, "D)": 4}.get(experiencia[:2] if experie
 puntos_por_nivel = {"Bajo": 1, "Promedio": 2, "Bueno": 3, "Avanzado": 4}
 puntos_funcional = sum([puntos_por_nivel.get(n, 1) for n in niveles_ejercicios.values()]) / len(niveles_ejercicios) if niveles_ejercicios else 1
 
-# Ponderación: 40% FFMI, 40% funcional, 20% experiencia
-puntaje_total = (puntos_ffmi / 5 * 0.4) + (puntos_funcional / 4 * 0.4) + (puntos_exp / 4 * 0.2)
+# Determinar si el porcentaje de grasa está en rango saludable para ponderar FFMI
+en_rango_saludable = esta_en_rango_saludable(grasa_corregida, sexo)
+
+# Ponderación adaptativa según el porcentaje de grasa corporal
+if en_rango_saludable:
+    # Rango saludable: FFMI 40%, funcionalidad 40%, experiencia 20%
+    puntaje_total = (puntos_ffmi / 5 * 0.4) + (puntos_funcional / 4 * 0.4) + (puntos_exp / 4 * 0.2)
+else:
+    # Fuera de rango saludable (obesidad): FFMI 0%, funcionalidad 80%, experiencia 20%
+    puntaje_total = (puntos_ffmi / 5 * 0.0) + (puntos_funcional / 4 * 0.8) + (puntos_exp / 4 * 0.2)
 
 if puntaje_total < 0.3:
     nivel_entrenamiento = "principiante"
@@ -1528,6 +1557,32 @@ if ejercicios_funcionales_completos and experiencia_completa:
     
     Este nivel se usará para personalizar todos los cálculos energéticos y nutricionales posteriores.
     """)
+    
+    # Mostrar advertencia si FFMI no se pondera por exceso de grasa
+    if not en_rango_saludable:
+        rango_texto = "≤25%" if sexo == "Hombre" else "≤32%"
+        st.warning(f"""
+        ⚠️ **ADVERTENCIA: FFMI no ponderado por exceso de grasa corporal**
+        
+        Tu porcentaje de grasa corporal ({grasa_corregida:.1f}%) está fuera del rango saludable para {sexo.lower()}s ({rango_texto}).
+        
+        **Ponderación aplicada:**
+        - 🏋️ FFMI (desarrollo muscular): **0%** (no ponderado)
+        - 💪 Funcionalidad: **80%** 
+        - 📚 Experiencia: **20%**
+        
+        Una vez que alcances el rango saludable de grasa corporal, se aplicará la ponderación estándar (40% FFMI, 40% funcionalidad, 20% experiencia).
+        """)
+    else:
+        st.info(f"""
+        ✅ **Ponderación completa aplicada**
+        
+        Tu porcentaje de grasa corporal ({grasa_corregida:.1f}%) está en rango saludable. Se aplica la ponderación estándar:
+        
+        - 🏋️ FFMI (desarrollo muscular): **40%**
+        - 💪 Funcionalidad: **40%** 
+        - 📚 Experiencia: **20%**
+        """)
 
 if ejercicios_funcionales_completos and experiencia_completa:
     # Mostrar el bloque visual del nivel global solo si todo está completo
@@ -2330,7 +2385,8 @@ NIVEL GLOBAL DE ENTRENAMIENTO
 - Desarrollo muscular (FFMI): {puntos_ffmi if 'puntos_ffmi' in locals() else 0}/5 puntos → {nivel_ffmi}
 - Rendimiento funcional: {puntos_funcional if 'puntos_funcional' in locals() else 0:.1f}/4 puntos → Promedio de ejercicios
 - Experiencia declarada: {puntos_exp if 'puntos_exp' in locals() else 0}/4 puntos → {experiencia_text[:50]}...
-- PONDERACIÓN: 40% FFMI + 40% Funcional + 20% Experiencia
+- PONDERACIÓN APLICADA: {'40% FFMI + 40% Funcional + 20% Experiencia (rango saludable)' if (en_rango_saludable if 'en_rango_saludable' in locals() else True) else '0% FFMI + 80% Funcional + 20% Experiencia (fuera de rango saludable)'}
+- GRASA CORPORAL: {grasa_corregida:.1f}% ({'En rango saludable' if (en_rango_saludable if 'en_rango_saludable' in locals() else True) else f'Fuera de rango saludable (>{25 if sexo == "Hombre" else 32}%)'})
 - RESULTADO FINAL: {nivel_entrenamiento.upper() if 'nivel_entrenamiento' in locals() else 'INTERMEDIO'} (Score: {puntaje_total if 'puntaje_total' in locals() else 0:.2f}/1.0)
 
 =====================================
