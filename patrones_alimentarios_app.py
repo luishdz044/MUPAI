@@ -1160,6 +1160,7 @@ if datos_personales_completos and st.session_state.datos_completos:
             key="mariscos_magros",
             placeholder="🔽 Haz clic aquí para ver y seleccionar opciones",
             help="Selecciona todos los mariscos magros que consumas. Marca 'Ninguno' si no consumes ninguno de estos mariscos."
+        )
         
         st.markdown("#### 🧀 Quesos magros")
         st.info("💡 **Instrucción:** Preferentemente elige al menos uno de esta lista. Se pueden seleccionar más de uno. Si no consumes ninguno, selecciona 'Ninguno'.")
