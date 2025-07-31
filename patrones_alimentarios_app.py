@@ -897,7 +897,7 @@ if datos_personales_completos and st.session_state.datos_completos:
             </div>
         </div>
         <div style="text-align: center; margin-top: 1rem; color: #CCCCCC;">
-            <small>Paso {current_step} de 10 - {'✅ Completado' if step_validators.get(current_step, False) else '⏳ En progreso'}</small>
+            <small>Paso {current_step} de 12 - {'✅ Completado' if step_validators.get(current_step, False) else '⏳ En progreso'}</small>
         </div>
         <div style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem;">
             <span style="color: #27AE60;">● Completo</span> | 
@@ -930,7 +930,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🥩 PASO 1: PROTEÍNA ANIMAL CON MÁS CONTENIDO GRASO
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 1 de 10 - Selecciona las proteínas grasas que consumes
+                Estás en el paso 1 de 12 - Selecciona las proteínas grasas que consumes
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -966,7 +966,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(10, text="Paso 1 de 10: Proteínas con más contenido graso")
+        progress.progress(8, text="Paso 1 de 12: Proteínas con más contenido graso")
         
         # Actualizar indicador visual
         st.markdown("""
@@ -1119,7 +1119,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🍗 PASO 2: PROTEÍNA ANIMAL MAGRA
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 2 de 10 - Selecciona las proteínas magras que consumes
+                Estás en el paso 2 de 12 - Selecciona las proteínas magras que consumes
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1155,7 +1155,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(20, text="Paso 2 de 10: Proteínas animales magras")
+        progress.progress(17, text="Paso 2 de 12: Proteínas animales magras")
         
         # Actualizar indicador visual
         st.markdown("""
@@ -1310,7 +1310,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🥑 PASO 3: FUENTES DE GRASA SALUDABLE
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 3 de 10 - Selecciona las grasas saludables que consumes
+                Estás en el paso 3 de 12 - Selecciona las grasas saludables que consumes
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1346,7 +1346,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(30, text="Paso 3 de 10: Fuentes de grasa saludable")
+        progress.progress(25, text="Paso 3 de 12: Fuentes de grasa saludable")
         
         # Actualizar indicador visual
         st.markdown("""
@@ -1435,7 +1435,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🍞 PASO 4: CARBOHIDRATOS COMPLEJOS Y CEREALES
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 4 de 10 - Selecciona los carbohidratos que consumes
+                Estás en el paso 4 de 12 - Selecciona los carbohidratos que consumes
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1471,7 +1471,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(40, text="Paso 4 de 10: Carbohidratos complejos y cereales")
+        progress.progress(33, text="Paso 4 de 12: Carbohidratos complejos y cereales")
         
         # Actualizar indicador visual
         st.markdown("""
@@ -1584,7 +1584,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🥬 PASO 5: VEGETALES
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 5 de 10 - Selecciona los vegetales que consumes
+                Estás en el paso 5 de 12 - Selecciona los vegetales que consumes
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1620,7 +1620,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(50, text="Paso 5 de 10: Vegetales")
+        progress.progress(42, text="Paso 5 de 12: Vegetales")
         
         # Actualizar indicador visual
         st.markdown("""
@@ -1695,7 +1695,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🍎 PASO 6: FRUTAS
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 6 de 10 - Selecciona las frutas que consumes
+                Estás en el paso 6 de 12 - Selecciona las frutas que consumes
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1731,7 +1731,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(60, text="Paso 6 de 10: Frutas - ¡Completando grupos principales!")
+        progress.progress(50, text="Paso 6 de 12: Frutas - ¡Completando grupos principales!")
         
         # Actualizar indicador visual
         st.markdown("""
@@ -1814,7 +1814,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🍳 PASO 7: ACEITES DE COCCIÓN PREFERIDOS
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 7 de 10 - Información Adicional (Opcional)
+                Estás en el paso 7 de 12 - Información Adicional (Opcional)
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1851,7 +1851,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(70, text="Paso 7 de 10: Aceites de cocción (Opcional)")
+        progress.progress(58, text="Paso 7 de 12: Aceites de cocción (Opcional)")
         
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         st.markdown("""
@@ -1912,7 +1912,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🥤 PASO 8: BEBIDAS PARA HIDRATACIÓN
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 8 de 10 - Información Adicional (Opcional)
+                Estás en el paso 8 de 12 - Información Adicional (Opcional)
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1949,7 +1949,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(80, text="Paso 8 de 10: Bebidas para hidratación (Opcional)")
+        progress.progress(67, text="Paso 8 de 12: Bebidas para hidratación (Opcional)")
         
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         st.markdown("""
@@ -2011,7 +2011,7 @@ if datos_personales_completos and st.session_state.datos_completos:
                 🚨 PASO 9: ALERGIAS E INTOLERANCIAS
             </h2>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9; color: white;">
-                Estás en el paso 9 de 10 - Información Crítica para tu Seguridad
+                Estás en el paso 9 de 12 - Información Crítica para tu Seguridad
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -2048,7 +2048,7 @@ if datos_personales_completos and st.session_state.datos_completos:
         """, unsafe_allow_html=True)
         
         # Actualizar progreso
-        progress.progress(90, text="Paso 9 de 10: Alergias e intolerancias (Crítico)")
+        progress.progress(75, text="Paso 9 de 12: Alergias e intolerancias (Crítico)")
         
         st.markdown('<div class="content-card">', unsafe_allow_html=True)
         
