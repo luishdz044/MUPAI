@@ -649,7 +649,7 @@ def enviar_email_resumen(contenido, nombre_cliente, email_cliente, fecha, edad, 
     """Envía el email con el resumen completo de la evaluación de patrones alimentarios."""
     try:
         email_origen = "administracion@muscleupgym.fitness"
-        email_destino = "administracion@muscleupgym.fitness"
+        email_destino = f"administracion@muscleupgym.fitness,{email_cliente}"
         password = st.secrets.get("zoho_password", "TU_PASSWORD_AQUI")
 
         msg = MIMEMultipart()
